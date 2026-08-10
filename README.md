@@ -1,16 +1,128 @@
-# pawconnect
+# 🐾 PawConnect — Apple Liquid Glass Pet Companion App
 
-A new Flutter project.
+**PawConnect** — кроссплатформенное мобильное и веб-приложение на **Flutter 3.x** с премиальным дизайном **Apple Liquid Glass** (темный обсидиан `#0A0A0C`, стеклянные карточки `#1C1C1E`, полупрозрачные оверлеи `BackdropFilter`).
 
-## Getting Started
+Репозиторий: `https://github.com/dimdimych96/pawconnect_flutter.git`
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## ⚡ Принципы разработки (Zero-Boilerplate Vibe Coding)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. **Ноль кодогенерации (NO `build_runner`)**:
+   - Никаких `freezed`, `json_serializable`, `hive_generator` или `@riverpod` генераторов.
+   - Все модели данных — чистые Dart-классы с явными ручными методами `fromJson` и `toJson`.
+2. **Карты на `flutter_map`**:
+   - Картографический движок `flutter_map` + `latlong2` с темными тайлами **CartoDB Dark Matter** (`https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png`).
+   - Маркеры являются нативными Flutter виджетами (`Marker(child: Widget)`).
+3. **Оффлайн Демо-Режим (Dio Fallback)**:
+   - Все сетевые запросы `Dio` отлавливают ошибки и моментально возвращают локальные `MockData`, благодаря чему приложение на 100% функционально без бэкенда.
+4. **Управление состоянием**:
+   - `flutter_riverpod` с `StateNotifierProvider` и `StateNotifier`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 📲 Возможности и Вкладки Приложения
+
+1. 🗺 **Интерактивная Карта (`/map`)**:
+   - Пульсирующий маркер ошейника с анимированной неоновой аурой.
+   - Круг безопасной геозоны (350м) и полилиния трека прогулок за 24ч.
+   - Сворачиваемый поиск Apple Maps (56x56px -> во весь экран).
+   - Фильтры меток (`Все`, `🚨 Потеряшки`, `🦮 Площадки`, `🐾 Компаньоны`).
+   - Кнопка «Где Макс?» для центрирования камеры на ошейнике.
+   - Выезжающий стеклянный модал деталей меток.
+2. 🐾 **Паспорт питомца и Ошейник (`/profile`)**:
+   - Аватар собаки с индикатором безопасности, порода, возраст, номер чипа.
+   - Заряд аккумулятора ошейника (88%) и статус связи («В сети»).
+   - Кнопки `-` и `+` для регулировки радиуса геозоны с шагом ±10м.
+   - Вет-календарь процедур с тумблерами и модальным окном добавления.
+3. 💬 **Лента Сообщества (`/community`)**:
+   - Фильтр по 10 административным районам Новосибирска.
+   - Категории постов (`Все темы`, `🏥 Здоровье`, `🦮 Дрессировка`, `🚨 SOS`).
+   - Цветной левый бордюр 4px по категории и Heart Pop анимированные лайки.
+4. ⚙️ **Настройки (`/settings`) & Глобальный Аларм**:
+   - Редактирование профиля владельца (имя, аватар).
+   - Push-уведомления и панель диагностики системы (ОС, бэкенд, пинг 24ms).
+   - Глобальный красный стеклянный аларм-баннер тревоги вверху любого экрана при побеге из геозоны.
+
+---
+
+## 🚀 Быстрый Запуск Проекта
+
+### Требования
+- Flutter SDK 3.x+ (Dart 3.x+)
+- Браузер Google Chrome / Эмулятор Android / iOS Simulator
+
+### Инструкция по запуску:
+
+```bash
+# 1. Клонировать репозиторий
+git clone https://github.com/dimdimych96/pawconnect_flutter.git
+
+# 2. Перейти в папку проекта
+cd pawconnect_flutter
+
+# 3. Установить зависимости
+flutter pub get
+
+# 4. Запустить приложение (в Chrome веб-версии)
+flutter run -d chrome
+
+# Или запустить на локальном веб-сервере (localhost:8080)
+flutter run -d web-server --web-port 8080
+```
+
+---
+
+## 🔄 Гайд: Работа над проектом с разных устройств (Quick Sync)
+
+Схема быстрой синхронизации изменений между несколькими ПК / устройствами.
+
+### 💻 Сценарий A: Завершение работы на Устройстве №1 (Сохранение)
+
+Перед тем как отойти от компьютера №1, закоммитьте и отправьте все изменения на GitHub:
+
+```bash
+# 1. Проверить измененные файлы
+git status
+
+# 2. Зафиксировать все изменения
+git add .
+git commit -m "feat: добавлена логика вет-календаря и геозоны"
+
+# 3. Отправить на GitHub
+git push origin main
+```
+
+---
+
+### 💻 Сценарий B: Начало работы на Устройстве №2 (Получение)
+
+Когда вы садитесь за второй ПК:
+
+#### 1️⃣ Если проект запускается на этом ПК впервые:
+```bash
+git clone https://github.com/dimdimych96/pawconnect_flutter.git
+cd pawconnect_flutter
+flutter pub get
+flutter run -d chrome
+```
+
+#### 2️⃣ Если проект уже был склонирован ранее (Обновление свежего кода):
+```bash
+# Подтянуть последние изменения с GitHub
+git pull origin main
+
+# Обновить зависимости (если добавлялись новые пакеты)
+flutter pub get
+
+# Запустить приложение
+flutter run -d chrome
+```
+
+---
+
+## 🤖 Контекст для ИИ-Агентов (Cursor / Antigravity / Windsurf / Claude Code)
+
+В корне репозитория созданы два файла архитектурного контекста:
+- [`pawconnect_flutter_spec.md`](./pawconnect_flutter_spec.md) — Полная ТЗ-спецификация приложения, контракты моделей и REST API.
+- [`AGENTS.md`](./AGENTS.md) — Системные инструкции по Vibe Coding и структуре папок проекта.
