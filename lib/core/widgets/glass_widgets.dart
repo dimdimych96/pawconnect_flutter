@@ -39,6 +39,8 @@ class GlassContainer extends StatelessWidget {
       height: height,
       padding: padding,
       decoration: BoxDecoration(
+        // Translucent dark base — the blurred content behind stays visible
+        // through the glass (roughly 35% opacity, see obsidianCardTranslucent).
         color: effectiveBg,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
@@ -53,7 +55,24 @@ class GlassContainer extends StatelessWidget {
           ),
         ],
       ),
-      child: child,
+      child: Stack(
+        children: [
+          // Liquid Glass specular sheen — subtle reflected light across the
+          // top edge, the signature "glass" cue. No white frost overlay:
+          // translucency comes from the blurred content behind the base tint.
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  gradient: AppColors.glassSpecular,
+                ),
+              ),
+            ),
+          ),
+          child,
+        ],
+      ),
     );
 
     Widget glass = Padding(

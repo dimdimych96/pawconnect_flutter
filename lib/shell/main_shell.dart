@@ -60,14 +60,14 @@ class MainShell extends ConsumerWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(28),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
               child: Container(
                 height: 68,
                 decoration: BoxDecoration(
                   color: AppColors.obsidianCardTranslucent,
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(
-                    color: AppColors.glassBorder,
+                    color: Colors.white.withValues(alpha: 0.22),
                     width: 1.0,
                   ),
                   boxShadow: [
@@ -78,40 +78,56 @@ class MainShell extends ConsumerWidget {
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                child: Stack(
                   children: [
-                    _NavItem(
-                      icon: Icons.map_outlined,
-                      activeIcon: Icons.map_rounded,
-                      label: 'Карта',
-                      isSelected: navigationShell.currentIndex == 0,
-                      activeColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                      onTap: () => _onTap(0),
+                    // Specular sheen along the top edge — the only "frost"
+                    // on the glass; the rest is pure blur of what's behind.
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(28),
+                            gradient: AppColors.glassSpecular,
+                          ),
+                        ),
+                      ),
                     ),
-                    _NavItem(
-                      icon: Icons.pets_outlined,
-                      activeIcon: Icons.pets_rounded,
-                      label: 'Паспорт',
-                      isSelected: navigationShell.currentIndex == 1,
-                      activeColor: AppColors.accentBlue,
-                      onTap: () => _onTap(1),
-                    ),
-                    _NavItem(
-                      icon: Icons.forum_outlined,
-                      activeIcon: Icons.forum_rounded,
-                      label: 'Лента',
-                      isSelected: navigationShell.currentIndex == 2,
-                      activeColor: AppColors.accentYellow,
-                      onTap: () => _onTap(2),
-                    ),
-                    _NavItem(
-                      icon: Icons.settings_outlined,
-                      activeIcon: Icons.settings_rounded,
-                      label: 'Настройки',
-                      isSelected: navigationShell.currentIndex == 3,
-                      activeColor: AppColors.textPrimary,
-                      onTap: () => _onTap(3),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _NavItem(
+                          icon: Icons.map_outlined,
+                          activeIcon: Icons.map_rounded,
+                          label: 'Карта',
+                          isSelected: navigationShell.currentIndex == 0,
+                          activeColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
+                          onTap: () => _onTap(0),
+                        ),
+                        _NavItem(
+                          icon: Icons.pets_outlined,
+                          activeIcon: Icons.pets_rounded,
+                          label: 'Паспорт',
+                          isSelected: navigationShell.currentIndex == 1,
+                          activeColor: AppColors.accentBlue,
+                          onTap: () => _onTap(1),
+                        ),
+                        _NavItem(
+                          icon: Icons.forum_outlined,
+                          activeIcon: Icons.forum_rounded,
+                          label: 'Лента',
+                          isSelected: navigationShell.currentIndex == 2,
+                          activeColor: AppColors.accentYellow,
+                          onTap: () => _onTap(2),
+                        ),
+                        _NavItem(
+                          icon: Icons.settings_outlined,
+                          activeIcon: Icons.settings_rounded,
+                          label: 'Настройки',
+                          isSelected: navigationShell.currentIndex == 3,
+                          activeColor: AppColors.textPrimary,
+                          onTap: () => _onTap(3),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -124,7 +140,7 @@ class MainShell extends ConsumerWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
+class _NavItem extends StatefulWidget {
   final IconData icon;
   final IconData activeIcon;
   final String label;
@@ -142,39 +158,79 @@ class _NavItem extends StatelessWidget {
   });
 
   @override
+  State<_NavItem> createState() => _NavItemState();
+}
+
+class _NavItemState extends State<_NavItem> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    final isSelected = widget.isSelected;
+    final activeColor = widget.activeColor;
     final color = isSelected ? activeColor : AppColors.textSecondary;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: isSelected
-            ? BoxDecoration(
-                color: activeColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: color,
-              size: 22,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: color,
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        // Interactive glass: the item dips slightly while pressed.
+        scale: _isPressed ? 0.88 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: isSelected
+              ? BoxDecoration(
+                  // Active tab "morphs" into a glowing glass pill.
+                  color: activeColor.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: activeColor.withValues(alpha: 0.35),
+                    width: 1.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: activeColor.withValues(alpha: 0.35),
+                      blurRadius: 16,
+                      spreadRadius: 0.5,
+                    ),
+                  ],
+                )
+              : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                transitionBuilder: (child, anim) => ScaleTransition(
+                  scale: Tween<double>(begin: 0.7, end: 1.0).animate(
+                    CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+                  ),
+                  child: child,
+                ),
+                child: Icon(
+                  isSelected ? widget.activeIcon : widget.icon,
+                  key: ValueKey(isSelected),
+                  color: color,
+                  size: 22,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

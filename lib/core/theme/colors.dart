@@ -4,7 +4,9 @@ abstract class AppColors {
   // Primary Obsidian Backgrounds
   static const Color obsidianBackground = Color(0xFF0A0A0C);
   static const Color obsidianCard = Color(0xFF1C1C1E);
-  static const Color obsidianCardTranslucent = Color(0xDC121216);
+  // Translucent glass base — roughly 30% opacity so the blurred content
+  // behind (map tiles, cards) stays clearly visible through the surface.
+  static const Color obsidianCardTranslucent = Color(0x4D121216);
   static const Color obsidianGlassSurface = Color(0x301C1C1E);
 
   // Glass Borders
@@ -31,6 +33,19 @@ abstract class AppColors {
       Color(0x28FFFFFF),
       Color(0x05FFFFFF),
     ],
+  );
+
+  // Liquid Glass specular reflection — thin sheen along the very top edge
+  // only, so the glass reads as glass without a visible gradient wash.
+  static const LinearGradient glassSpecular = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment(0.0, 0.18),
+    colors: [
+      Color(0x26FFFFFF),
+      Color(0x0AFFFFFF),
+      Color(0x00FFFFFF),
+    ],
+    stops: [0.0, 0.55, 1.0],
   );
 
   static const LinearGradient obsidianGradient = LinearGradient(
