@@ -144,7 +144,7 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: const Text('Мгновенные оповещения при побеге', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                     trailing: Switch.adaptive(
                       value: userState.pushNotificationsEnabled,
-                      activeThumbColor: AppColors.accentGreen,
+                      activeColor: AppColors.accentGreen,
                       onChanged: (val) => userNotifier.togglePushNotifications(val),
                     ),
                   ),
@@ -155,7 +155,7 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: const Text('Вызов аварийного баннера поверх экрана', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                     trailing: Switch.adaptive(
                       value: userState.isSimulatingBreach,
-                      activeThumbColor: AppColors.accentRed,
+                      activeColor: AppColors.accentRed,
                       onChanged: (val) => userNotifier.toggleSimulateBreach(val),
                     ),
                   ),

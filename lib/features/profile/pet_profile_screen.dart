@@ -509,10 +509,9 @@ class PetProfileScreen extends ConsumerWidget {
                             ),
                           ),
 
-                          // Riverpod Toggle Switch
                           Switch.adaptive(
                             value: reminder.isCompleted,
-                            activeThumbColor: AppColors.accentGreen,
+                            activeColor: AppColors.accentGreen,
                             onChanged: (val) {
                               remindersNotifier.toggleReminder(reminder.id, val);
                             },

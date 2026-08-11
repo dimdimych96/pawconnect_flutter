@@ -400,14 +400,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               left: 0,
               right: 0,
               bottom: 80,
-              child: AnimatedSlide(
-                duration: const Duration(milliseconds: 300),
-                offset: Offset.zero,
-                curve: Curves.easeOutCubic,
-                child: MarkerDetailSheet(
-                  marker: mapState.selectedMarker!,
-                  onClose: () => mapNotifier.selectMarker(null),
-                ),
+              top: 0,
+              child: MarkerDetailSheet(
+                marker: mapState.selectedMarker!,
+                onClose: () => mapNotifier.selectMarker(null),
               ),
             ),
         ],
