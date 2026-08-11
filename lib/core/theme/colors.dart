@@ -35,17 +35,12 @@ abstract class AppColors {
     ],
   );
 
-  // Liquid Glass specular reflection — thin sheen along the very top edge
-  // only, so the glass reads as glass without a visible gradient wash.
+  // Liquid Glass specular reflection — disabled to remove glow overlays
   static const LinearGradient glassSpecular = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment(0.0, 0.18),
     colors: [
-      Color(0x26FFFFFF),
-      Color(0x0AFFFFFF),
-      Color(0x00FFFFFF),
+      Colors.transparent,
+      Colors.transparent,
     ],
-    stops: [0.0, 0.55, 1.0],
   );
 
   static const LinearGradient obsidianGradient = LinearGradient(

@@ -6,46 +6,50 @@ import '../services/map_service.dart';
 class MapState {
   final List<MapMarkerModel> markers;
   final GpsDeviceModel? gpsDevice;
-  final String activeFilter; // 'all', 'lost_pet', 'playground', 'companion'
+  final Set<String> activeFilters; // 'lost_pet', 'playground', 'companion'
   final String searchQuery;
   final MapMarkerModel? selectedMarker;
   final bool isSearchExpanded;
   final bool isLoading;
+  final bool isFiltersOpen;
 
   const MapState({
     this.markers = const [],
     this.gpsDevice,
-    this.activeFilter = 'all',
+    this.activeFilters = const {'lost_pet', 'playground', 'companion'},
     this.searchQuery = '',
     this.selectedMarker,
     this.isSearchExpanded = false,
     this.isLoading = false,
+    this.isFiltersOpen = false,
   });
 
   MapState copyWith({
     List<MapMarkerModel>? markers,
     GpsDeviceModel? gpsDevice,
-    String? activeFilter,
+    Set<String>? activeFilters,
     String? searchQuery,
     MapMarkerModel? selectedMarker,
     bool clearSelectedMarker = false,
     bool? isSearchExpanded,
     bool? isLoading,
+    bool? isFiltersOpen,
   }) {
     return MapState(
       markers: markers ?? this.markers,
       gpsDevice: gpsDevice ?? this.gpsDevice,
-      activeFilter: activeFilter ?? this.activeFilter,
+      activeFilters: activeFilters ?? this.activeFilters,
       searchQuery: searchQuery ?? this.searchQuery,
       selectedMarker: clearSelectedMarker ? null : (selectedMarker ?? this.selectedMarker),
       isSearchExpanded: isSearchExpanded ?? this.isSearchExpanded,
       isLoading: isLoading ?? this.isLoading,
+      isFiltersOpen: isFiltersOpen ?? this.isFiltersOpen,
     );
   }
 
   List<MapMarkerModel> get filteredMarkers {
     return markers.where((m) {
-      final matchesFilter = activeFilter == 'all' || m.type == activeFilter;
+      final matchesFilter = activeFilters.contains(m.type);
       final matchesSearch = searchQuery.isEmpty ||
           m.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
           (m.breed != null && m.breed!.toLowerCase().contains(searchQuery.toLowerCase())) ||
@@ -73,8 +77,26 @@ class MapNotifier extends StateNotifier<MapState> {
     );
   }
 
-  void setFilter(String filter) {
-    state = state.copyWith(activeFilter: filter);
+  void toggleFilter(String filter) {
+    final currentFilters = Set<String>.from(state.activeFilters);
+    if (currentFilters.contains(filter)) {
+      currentFilters.remove(filter);
+    } else {
+      currentFilters.add(filter);
+    }
+    state = state.copyWith(activeFilters: currentFilters);
+  }
+
+  void toggleAllFilters(bool enableAll) {
+    if (enableAll) {
+      state = state.copyWith(activeFilters: const {'lost_pet', 'playground', 'companion'});
+    } else {
+      state = state.copyWith(activeFilters: const {});
+    }
+  }
+
+  void toggleFiltersOpen(bool isOpen) {
+    state = state.copyWith(isFiltersOpen: isOpen);
   }
 
   void setSearchQuery(String query) {

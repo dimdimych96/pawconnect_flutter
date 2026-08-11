@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/widgets/glass_widgets.dart';
 import '../../../models/map_marker_model.dart';
@@ -23,19 +24,6 @@ class MarkerDetailSheet extends StatelessWidget {
         return AppColors.accentBlue;
       default:
         return AppColors.accentBlue;
-    }
-  }
-
-  String _getTypeLabel() {
-    switch (marker.type) {
-      case 'lost_pet':
-        return '🚨 ПОТЕРЯШКА';
-      case 'playground':
-        return '🦮 ПЛОЩАДКА';
-      case 'companion':
-        return '🐾 КОМПАНЬОН';
-      default:
-        return 'МЕТКА';
     }
   }
 
@@ -107,26 +95,10 @@ class MarkerDetailSheet extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // 2. Badge & Close Button Header
+              // 2. Close Button Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: badgeColor.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: badgeColor),
-                    ),
-                    child: Text(
-                      _getTypeLabel(),
-                      style: TextStyle(
-                        color: badgeColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
                   GestureDetector(
                     onTap: onClose,
                     child: CircleAvatar(
@@ -137,7 +109,7 @@ class MarkerDetailSheet extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
 
               // 3. Title, breed, distance
               Row(
@@ -173,11 +145,21 @@ class MarkerDetailSheet extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
+                        if (marker.address != null) ...[
+                          Text(
+                            marker.address!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
                         if (marker.breed != null) ...[
                           Text(
                             '${marker.breed}${marker.age != null ? ' • ${marker.age}' : ''}',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -195,6 +177,34 @@ class MarkerDetailSheet extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '•',
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 12),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(
+                                  text: '${marker.latitude}, ${marker.longitude}',
+                                ));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Координаты скопированы! 📋'),
+                                    backgroundColor: AppColors.accentGreen,
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                '${marker.latitude.toStringAsFixed(5)}, ${marker.longitude.toStringAsFixed(5)}',
+                                style: TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 11,
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -208,41 +218,82 @@ class MarkerDetailSheet extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
+                    child: GestureDetector(
+                      onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Маршрут к "${marker.title}" построен! 🗺'),
                             backgroundColor: AppColors.accentGreen,
+                            duration: const Duration(seconds: 2),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.directions_rounded, color: Colors.black, size: 20),
-                      label: const Text('Маршрут', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accentGreen,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      child: Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: badgeColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(19),
+                          border: Border.all(
+                            color: badgeColor.withValues(alpha: 0.35),
+                            width: 1.5,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Маршрут • 5 мин',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Установка соединения... 📞'),
-                            backgroundColor: AppColors.accentBlue,
-                          ),
-                        );
+                    child: GestureDetector(
+                      onTap: () {
+                        if (marker.type == 'playground') {
+                          Clipboard.setData(ClipboardData(
+                            text: 'PawConnect: ${marker.title} - ${marker.address ?? ""}',
+                          ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Ссылка на место скопирована! 🔗'),
+                              backgroundColor: AppColors.accentGreen,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Установка соединения... 📞'),
+                              backgroundColor: AppColors.accentBlue,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
                       },
-                      icon: const Icon(Icons.phone_rounded, color: AppColors.textPrimary, size: 18),
-                      label: const Text('Связаться', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.glassBorder),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      child: Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: AppColors.obsidianGlassSurface,
+                          borderRadius: BorderRadius.circular(19),
+                          border: Border.all(
+                            color: AppColors.glassBorder,
+                            width: 1.0,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          marker.type == 'playground' ? 'Поделиться' : 'Связаться',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -261,18 +312,39 @@ class MarkerDetailSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                GlassCard(
-                  padding: const EdgeInsets.all(14),
-                  child: Text(
-                    marker.description!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.4,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, right: 8),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 0,
+                        top: -16,
+                        child: Text(
+                          '“',
+                          style: TextStyle(
+                            fontFamily: 'Georgia',
+                            fontSize: 54,
+                            fontWeight: FontWeight.bold,
+                            color: badgeColor.withValues(alpha: 0.25),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 22, top: 6),
+                        child: Text(
+                          marker.description!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic,
+                            color: AppColors.textSecondary,
+                            height: 1.45,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
               ],
 
               // 6. Photo Gallery Block
@@ -314,48 +386,7 @@ class MarkerDetailSheet extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // 7. Coordinates & Location Card
-              const Text(
-                'Адрес и координаты',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              GlassCard(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.map_outlined, size: 16, color: AppColors.textSecondary),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            marker.type == 'playground'
-                                ? 'Новосибирск, Центральный район'
-                                : 'Новосибирск, в радиусе 1 км от центра',
-                            style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 16, color: AppColors.glassBorderSubtle),
-                    Text(
-                      'Широта: ${marker.latitude.toStringAsFixed(6)}\nДолгота: ${marker.longitude.toStringAsFixed(6)}',
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 11,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
+
 
               // 8. Reviews / Info Block
               Text(
@@ -368,40 +399,64 @@ class MarkerDetailSheet extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Column(
-                children: mockReviews.map((rev) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: GlassCard(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: mockReviews.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final rev = entry.value;
+                  final isLast = idx == mockReviews.length - 1;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                rev['author'] as String,
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                              ),
-                              Row(
-                                children: List.generate(5, (starIdx) {
-                                  return Icon(
-                                    Icons.star_rounded,
-                                    size: 14,
-                                    color: starIdx < (rev['rating'] as int) ? AppColors.accentYellow : Colors.white12,
-                                  );
-                                }),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
                           Text(
-                            rev['text'] as String,
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.3),
+                            rev['author'] as String,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '•',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Row(
+                            children: List.generate(5, (starIdx) {
+                              return Icon(
+                                Icons.star_rounded,
+                                size: 13,
+                                color: starIdx < (rev['rating'] as int)
+                                    ? AppColors.accentYellow
+                                    : Colors.white12,
+                              );
+                            }),
                           ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      Text(
+                        rev['text'] as String,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                      if (!isLast)
+                        const Divider(
+                          height: 20,
+                          color: AppColors.glassBorderSubtle,
+                        )
+                      else
+                        const SizedBox(height: 8),
+                    ],
                   );
                 }).toList(),
               ),

@@ -54,82 +54,90 @@ class MainShell extends ConsumerWidget {
             ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-              child: Container(
-                height: 68,
-                decoration: BoxDecoration(
-                  color: AppColors.obsidianCardTranslucent,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.22),
-                    width: 1.0,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    // Specular sheen along the top edge — the only "frost"
-                    // on the glass; the rest is pure blur of what's behind.
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(28),
-                            gradient: AppColors.glassSpecular,
-                          ),
-                        ),
+      bottomNavigationBar: IgnorePointer(
+        ignoring: mapState.selectedMarker != null,
+        child: AnimatedSlide(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOutCubic,
+          offset: mapState.selectedMarker != null ? const Offset(0, 1.5) : Offset.zero,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                  child: Container(
+                    height: 68,
+                    decoration: BoxDecoration(
+                      color: AppColors.obsidianCardTranslucent,
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        width: 1.0,
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _NavItem(
-                          icon: Icons.map_outlined,
-                          activeIcon: Icons.map_rounded,
-                          label: 'Карта',
-                          isSelected: navigationShell.currentIndex == 0,
-                          activeColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                          onTap: () => _onTap(0),
-                        ),
-                        _NavItem(
-                          icon: Icons.pets_outlined,
-                          activeIcon: Icons.pets_rounded,
-                          label: 'Паспорт',
-                          isSelected: navigationShell.currentIndex == 1,
-                          activeColor: AppColors.accentBlue,
-                          onTap: () => _onTap(1),
-                        ),
-                        _NavItem(
-                          icon: Icons.forum_outlined,
-                          activeIcon: Icons.forum_rounded,
-                          label: 'Лента',
-                          isSelected: navigationShell.currentIndex == 2,
-                          activeColor: AppColors.accentYellow,
-                          onTap: () => _onTap(2),
-                        ),
-                        _NavItem(
-                          icon: Icons.settings_outlined,
-                          activeIcon: Icons.settings_rounded,
-                          label: 'Настройки',
-                          isSelected: navigationShell.currentIndex == 3,
-                          activeColor: AppColors.textPrimary,
-                          onTap: () => _onTap(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
-                  ],
+                    child: Stack(
+                      children: [
+                        // Specular sheen along the top edge — the only "frost"
+                        // on the glass; the rest is pure blur of what's behind.
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(28),
+                                gradient: AppColors.glassSpecular,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _NavItem(
+                              icon: Icons.map_outlined,
+                              activeIcon: Icons.map_rounded,
+                              label: 'Карта',
+                              isSelected: navigationShell.currentIndex == 0,
+                              activeColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
+                              onTap: () => _onTap(0),
+                            ),
+                            _NavItem(
+                              icon: Icons.pets_outlined,
+                              activeIcon: Icons.pets_rounded,
+                              label: 'Паспорт',
+                              isSelected: navigationShell.currentIndex == 1,
+                              activeColor: AppColors.accentBlue,
+                              onTap: () => _onTap(1),
+                            ),
+                            _NavItem(
+                              icon: Icons.forum_outlined,
+                              activeIcon: Icons.forum_rounded,
+                              label: 'Лента',
+                              isSelected: navigationShell.currentIndex == 2,
+                              activeColor: AppColors.accentYellow,
+                              onTap: () => _onTap(2),
+                            ),
+                            _NavItem(
+                              icon: Icons.settings_outlined,
+                              activeIcon: Icons.settings_rounded,
+                              label: 'Настройки',
+                              isSelected: navigationShell.currentIndex == 3,
+                              activeColor: AppColors.textPrimary,
+                              onTap: () => _onTap(3),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

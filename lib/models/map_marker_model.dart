@@ -8,6 +8,7 @@ class MapMarkerModel {
   final String? breed;
   final String? age;
   final String? image;
+  final String? address;
   final DateTime createdAt;
 
   MapMarkerModel({
@@ -20,6 +21,7 @@ class MapMarkerModel {
     this.breed,
     this.age,
     this.image,
+    this.address,
     required this.createdAt,
   });
 
@@ -34,6 +36,7 @@ class MapMarkerModel {
       breed: json['breed'],
       age: json['age'],
       image: json['image'],
+      address: json['address'],
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
   }
@@ -48,6 +51,7 @@ class MapMarkerModel {
         'breed': breed,
         'age': age,
         'image': image,
+        'address': address,
         'createdAt': createdAt.toIso8601String(),
       };
 }

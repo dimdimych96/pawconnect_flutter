@@ -34,6 +34,7 @@ class MapService {
       breed: 'Вельш-корги',
       age: '1.5 года',
       image: 'https://images.unsplash.com/photo-1612536057832-2ff7ead7819c?auto=format&fit=crop&w=400&q=80',
+      address: 'Красный проспект, 38 (возле ст. метро «Площадь Ленина»)',
       createdAt: DateTime.now().subtract(const Duration(hours: 3)),
     ),
     MapMarkerModel(
@@ -46,6 +47,7 @@ class MapService {
       breed: null,
       age: null,
       image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=400&q=80',
+      address: 'Центральный парк (вход со стороны ул. Фрунзе)',
       createdAt: DateTime.now().subtract(const Duration(days: 10)),
     ),
     MapMarkerModel(
@@ -57,7 +59,8 @@ class MapService {
       longitude: 82.9050,
       breed: null,
       age: null,
-      image: 'https://images.unsplash.com/photo-1534361960057-19889db98d18?auto=format&fit=crop&w=400&q=80',
+      image: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&w=400&q=80',
+      address: 'Нарымский сквер (около памятника Петру и Февронии)',
       createdAt: DateTime.now().subtract(const Duration(days: 15)),
     ),
     MapMarkerModel(
@@ -70,6 +73,7 @@ class MapService {
       breed: 'Лабрадор ретривер',
       age: '3 года',
       image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=400&q=80',
+      address: 'ул. Ленина, 12 (двор возле кинотеатра «Победа»)',
       createdAt: DateTime.now().subtract(const Duration(hours: 1)),
     ),
     MapMarkerModel(
@@ -82,6 +86,7 @@ class MapService {
       breed: 'Сибирский хаски',
       age: '2 года',
       image: 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=400&q=80',
+      address: 'ул. Октябрьская, 42 (Октябрьский сквер)',
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
     ),
   ];
