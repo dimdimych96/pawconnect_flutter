@@ -1,0 +1,37 @@
+<h2>Новый дизайн блока «Адрес и координаты»</h2>
+<p class="subtitle">Убираем скучные цифры на переднем плане, заменяем их понятным адресом и временем в пути</p>
+
+<div class="mockup" style="max-width: 480px; margin: 0 auto; background: #0A0A0C; padding: 20px;">
+  <div style="background: rgba(28,28,30,0.75); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); padding: 16px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+    
+    <!-- Address block with icon -->
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+      <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(48,209,88,0.1); border: 1px solid rgba(48,209,88,0.25); display: flex; align-items: center; justify-content: center; color: #30D158; font-size: 18px;">📍</div>
+      <div style="flex: 1;">
+        <h4 style="margin: 0; color: white; font-size: 14px; font-weight: bold;">Центральный парк</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 12px;">Новосибирск, ул. Фрунзе, 12 (возле фонтана)</p>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div style="height: 1px; background: rgba(255,255,255,0.08);"></div>
+
+    <!-- Distance and Time indicators -->
+    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #E5E5EA;">
+      <span style="display: flex; align-items: center; gap: 4px;">🚶 ~450 м (5 мин пешком)</span>
+      <span style="color: #8E8E93;">Центральный район</span>
+    </div>
+
+    <!-- Expandable Coordinates/Tech Info -->
+    <details style="background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); padding: 8px; font-size: 11px;">
+      <summary style="color: #30D158; font-weight: bold; cursor: pointer; outline: none; user-select: none;">Служебные координаты (для GPS)</summary>
+      <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-family: monospace; color: #8E8E93;">
+        <div>
+          Широта: 55.030200<br>
+          Долгота: 82.920400
+        </div>
+        <button style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 3px 6px; font-size: 9px; color: white; cursor: pointer;">Копировать</button>
+      </div>
+    </details>
+  </div>
+</div>

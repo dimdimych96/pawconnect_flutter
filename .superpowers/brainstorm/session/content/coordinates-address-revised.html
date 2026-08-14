@@ -1,0 +1,36 @@
+<h2>Доработанный Вариант 3 (Без бейджа)</h2>
+<p class="subtitle">Убрали бейдж района, сделав его аккуратным серым текстом, координаты приглушены внизу</p>
+
+<div class="mockup" style="max-width: 440px; margin: 0 auto; background: #0A0A0C; padding: 20px;">
+  <div style="background: rgba(28,28,30,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    
+    <!-- Header with Address & District info -->
+    <div>
+      <span style="color: #8E8E93; font-size: 10px; font-weight: bold; display: block; margin-bottom: 4px; letter-spacing: 0.5px;">ТОЧНЫЙ АДРЕС</span>
+      <h4 style="margin: 0; color: white; font-size: 15px; font-weight: bold;">ул. Фрунзе, 12</h4>
+      <p style="margin: 3px 0 0 0; color: #8E8E93; font-size: 12px;">Центральный район, Новосибирск</p>
+    </div>
+
+    <!-- Divider -->
+    <div style="height: 1px; background: rgba(255,255,255,0.08);"></div>
+
+    <!-- Subdued Coordinates at the bottom -->
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-family: monospace; font-size: 10px; color: rgba(255,255,255,0.35);">
+        55.030200° N • 82.920400° E
+      </span>
+      <span style="font-size: 10px; color: #30D158; cursor: pointer; font-weight: bold; text-decoration: underline;">Копировать</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="options" style="margin-top: 20px;">
+  <div class="option" data-choice="approved_revised" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Отлично, это то что нужно!</h3>
+      <p>Простой, чистый дизайн. Адрес выделен, район написан текстом, координаты приглушены с кнопкой копирования.</p>
+    </div>
+  </div>
+</div>

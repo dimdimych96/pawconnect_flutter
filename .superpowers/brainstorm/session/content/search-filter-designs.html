@@ -1,0 +1,72 @@
+<h2>4 варианта дизайна «Поиск и Фильтр»</h2>
+<p class="subtitle">Убираем нагромождение кнопок и перегруженный список категорий. Оставляем строго 1 кнопку поиска и 1 кнопку фильтрации</p>
+
+<div class="cards" data-choice="search_filter_layout">
+  <!-- Option 1 -->
+  <div class="card" data-choice="unified_bar" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+      <!-- Unified search & filter bar -->
+      <div style="width: 100%; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px; height: 38px; display: flex; align-items: center; padding: 0 10px;">
+        <span style="color: #30D158; font-size: 14px; margin-right: 8px;">🔍</span>
+        <span style="color: #8E8E93; font-size: 12px; flex: 1;">Поиск площадок, потеряшек...</span>
+        <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 10px;"></div>
+        <span style="color: white; font-size: 14px; cursor: pointer;">🎛️</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1. Единая поисковая строка (Unified Search Bar)</h3>
+      <p>Поиск и фильтрация объединены в один аккуратный плавающий элемент. Кнопка фильтра (слайдеры) расположена справа внутри строки.</p>
+    </div>
+  </div>
+
+  <!-- Option 2 -->
+  <div class="card" data-choice="symmetrical_fabs" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: #8E8E93; font-size: 12px;">КАРТА</span>
+      <div style="display: flex; gap: 8px;">
+        <!-- Search FAB -->
+        <div style="width: 38px; height: 38px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #30D158; font-size: 14px; cursor: pointer;">🔍</div>
+        <!-- Filter FAB -->
+        <div style="width: 38px; height: 38px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; cursor: pointer;">🎛️</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2. Раздельные плавающие кнопки (Side Fabs)</h3>
+      <p>Две компактные квадратные плашки сбоку (или сверху) на карте: одна для мгновенного раскрытия поиска, вторая для открытия меню фильтра.</p>
+    </div>
+  </div>
+
+  <!-- Option 3 -->
+  <div class="card" data-choice="minimal_top_header" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: white; font-weight: bold; font-size: 13px;">Карта активностей</span>
+        <div style="display: flex; gap: 6px;">
+          <span style="color: #30D158; cursor: pointer;">🔍 Поиск</span>
+          <span style="color: rgba(255,255,255,0.15);">•</span>
+          <span style="color: white; cursor: pointer;">🎛️ Фильтры</span>
+        </div>
+      </div>
+      <div style="font-size: 10px; color: #8E8E93; margin-top: 5px;">Активный фильтр: Площадки</div>
+    </div>
+    <div class="card-body">
+      <h3>3. Минималистичная текстовая шапка (Text Controls)</h3>
+      <p>Полностью отказываемся от графических кнопок-коробок. Управление картой встроено в верхний текстовый статус-бар.</p>
+    </div>
+  </div>
+
+  <!-- Option 4 -->
+  <div class="card" data-choice="split_corners" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <!-- Search on left -->
+      <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #30D158;">🔍</div>
+      <span style="color: #8E8E93; font-size: 10px; padding-top: 12px;">КАРТА</span>
+      <!-- Filter on right -->
+      <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">🎛️</div>
+    </div>
+    <div class="card-body">
+      <h3>4. Раздельные углы (Split Corners)</h3>
+      <p>Поиск расположен в левом верхнем углу, а фильтр — в правом верхнем. Разносит элементы по краям экрана для эргономики.</p>
+    </div>
+  </div>
+</div>

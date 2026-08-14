@@ -1,0 +1,82 @@
+<h2>4 варианта дизайна блока «Адрес и координаты»</h2>
+<p class="subtitle">Поскольку название места и расстояние уже показаны вверху, выберите лучший способ отобразить точный адрес</p>
+
+<div class="cards" data-choice="address_design">
+  <!-- Option 1 -->
+  <div class="card" data-choice="compact_pill" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: rgba(28,28,30,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <span style="color: #8E8E93; font-size: 10px; font-weight: bold; display: block; margin-bottom: 4px;">ТОЧНЫЙ АДРЕС</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span style="color: #30D158; font-size: 16px;">📍</span>
+          <span style="color: white; font-size: 13px; font-weight: 500;">ул. Фрунзе, 12 (возле фонтана)</span>
+        </div>
+      </div>
+      <div style="font-family: monospace; font-size: 9px; color: rgba(255,255,255,0.25);">
+        GPS: 55.030200, 82.920400
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1. Лаконичная адресная плашка</h3>
+      <p>Минималистичный текст с компактным значком. Цифры координат сдвинуты вниз и приглушены.</p>
+    </div>
+  </div>
+
+  <!-- Option 2 -->
+  <div class="card" data-choice="nav_buttons" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: rgba(28,28,30,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <span style="color: #8E8E93; font-size: 10px; font-weight: bold; display: block; margin-bottom: 4px;">АДРЕС</span>
+        <span style="color: white; font-size: 13px;">ул. Фрунзе, 12</span>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 8px; font-size: 9px; color: #30D158; font-weight: bold; cursor: pointer;">Яндекс.Карты</span>
+        <span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 8px; font-size: 9px; color: #0A84FF; font-weight: bold; cursor: pointer;">Google Maps</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2. Интерактивная навигация</h3>
+      <p>Ориентир на быстрый запуск внешних навигаторов. Координаты скрыты внутри кнопок открытия карт.</p>
+    </div>
+  </div>
+
+  <!-- Option 3 -->
+  <div class="card" data-choice="district_badge" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: rgba(28,28,30,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+        <div>
+          <span style="color: #8E8E93; font-size: 10px; font-weight: bold; display: block; margin-bottom: 4px;">ЛОКАЦИЯ</span>
+          <span style="color: white; font-size: 13px; font-weight: 500;">ул. Фрунзе, 12</span>
+        </div>
+        <span style="background: rgba(48,209,88,0.15); border: 1.5px solid #30D158; color: #30D158; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 8px; white-space: nowrap;">Центральный р-н</span>
+      </div>
+      <div style="font-family: monospace; font-size: 9px; color: rgba(255,255,255,0.25);">
+        55.030200° N • 82.920400° E
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3. Акцентный бейдж района</h3>
+      <p>Карточка содержит яркий цветной бейдж района в правом верхнем углу, визуально структурируя адрес.</p>
+    </div>
+  </div>
+
+  <!-- Option 4 -->
+  <div class="card" data-choice="radar_telemetry" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: rgba(28,28,30,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 120px; display: flex; align-items: center; gap: 12px;">
+      <div style="width: 36px; height: 36px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1.5px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #8E8E93; font-weight: bold;">СЗ</div>
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+        <div>
+          <span style="color: #8E8E93; font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px;">АДРЕСНЫЙ ОРИЕНТИР</span>
+          <span style="color: white; font-size: 12px;">ул. Фрунзе, 12 (у входа)</span>
+        </div>
+        <div style="font-family: monospace; font-size: 8px; color: rgba(255,255,255,0.3); margin-top: 4px;">
+          LAT/LNG: 55.0302 / 82.9204
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>4. Телеметрия и ориентир</h3>
+      <p>Показывает компасное направление от центра (например, СЗ — Северо-Запад) и краткие координаты.</p>
+    </div>
+  </div>
+</div>

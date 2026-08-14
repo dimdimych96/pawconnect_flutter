@@ -1,0 +1,69 @@
+<h2>Как организуем информацию внутри выдвинутой панели?</h2>
+<p class="subtitle">Поскольку оверлей будет открываться во весь экран, важно структурировать контент для удобства чтения</p>
+
+<div class="split">
+  <div class="mockup" style="flex: 1; padding: 10px;">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">A. Единый прокручиваемый список (Single Scroll List)</div>
+    <div class="mockup-body" style="background: #0A0A0C; padding: 15px; min-height: 250px; color: #E5E5EA; font-size: 13px; line-height: 1.4;">
+      <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px; color: white;">Dog Park "Центральный"</div>
+      <div style="color: #8E8E93; margin-bottom: 12px;">Площадка • ~320м</div>
+      
+      <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; margin-bottom: 10px;">
+        <span style="font-weight: bold; color: #30D158;">Описание</span><br>
+        Просторная площадка с барьерами, кольцами для прыжков и питьевым фонтанчиком.
+      </div>
+      
+      <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; margin-bottom: 10px;">
+        <span style="font-weight: bold; color: #0A84FF;">Как добраться</span><br>
+        Идите вдоль центральной аллеи парка, поверните направо возле фонтана.
+      </div>
+
+      <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px;">
+        <span style="font-weight: bold; color: #FFD60A;">Фотографии</span><br>
+        <div style="display: flex; gap: 5px; margin-top: 5px;">
+          <div style="width: 40px; height: 40px; background: #444; border-radius: 6px;"></div>
+          <div style="width: 40px; height: 40px; background: #444; border-radius: 6px;"></div>
+          <div style="width: 40px; height: 40px; background: #444; border-radius: 6px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="flex: 1; padding: 10px;">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">B. Вкладки (Tabbed Navigation)</div>
+    <div class="mockup-body" style="background: #0A0A0C; padding: 15px; min-height: 250px; color: #E5E5EA; font-size: 13px;">
+      <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px; color: white;">Dog Park "Центральный"</div>
+      <div style="color: #8E8E93; margin-bottom: 10px;">Площадка • ~320м</div>
+      
+      <!-- Tabs Header -->
+      <div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; font-size: 11px;">
+        <div style="flex: 1; text-align: center; padding-bottom: 6px; border-bottom: 2px solid #30D158; color: #30D158; font-weight: bold;">О ПРИЮТЕ</div>
+        <div style="flex: 1; text-align: center; padding-bottom: 6px; color: #8E8E93;">МАРШРУТ</div>
+        <div style="flex: 1; text-align: center; padding-bottom: 6px; color: #8E8E93;">ОТЗЫВЫ</div>
+      </div>
+      
+      <div style="line-height: 1.4; color: #D1D1D6;">
+        Просторная площадка с барьерами, кольцами для прыжков и питьевым фонтанчиком для собак всех размеров. Есть вечернее освещение и скамейки для владельцев.
+      </div>
+      <button style="margin-top: 15px; width: 100%; background: #30D158; border: none; padding: 8px; border-radius: 12px; font-weight: bold;">Связаться</button>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 20px;">
+  <div class="option" data-choice="single_scroll" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Единый прокручиваемый список (Single Scroll List)</h3>
+      <p>Простая структура, где вся информация идет друг за другом. Идеально для быстрого сканирования пальцем.</p>
+    </div>
+  </div>
+  
+  <div class="option" data-choice="tabs" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Вкладки (Tabbed Navigation)</h3>
+      <p>Вкладки: «О питомце / Описание», «Инструкция / Маршрут» и «Отзывы / Галерея». Организованно и аккуратно.</p>
+    </div>
+  </div>
+</div>

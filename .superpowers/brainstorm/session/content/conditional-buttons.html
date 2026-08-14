@@ -1,0 +1,77 @@
+<h2>Что показывать на месте «Связаться» для общественных Дог-парков?</h2>
+<p class="subtitle">Для потеряшек и компаньонов телефон необходим. Но для публичных площадок звонить некому. Выберите логику:</p>
+
+<div class="split" style="gap: 15px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+  <!-- Option A -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;" onclick="selectChoice('cond_share')">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">A. Замена на «Поделиться» (Share)</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <h4 style="margin: 0; color: white; font-size: 13px;">Дог-парк Центральный (Площадка)</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 10px;">ул. Фрунзе, 12 • Общественное место</p>
+      </div>
+      <!-- Route + Share -->
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <div style="flex: 1; background: rgba(48,209,88,0.2); border: 1.5px solid #30D158; color: white; font-size: 11px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ Маршрут</div>
+        <div style="flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 11px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">🔗 Поделиться</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;" onclick="selectChoice('cond_single')">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">B. Одна широкая кнопка (Single Wide Route)</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <h4 style="margin: 0; color: white; font-size: 13px;">Дог-парк Центральный (Площадка)</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 10px;">ул. Фрунзе, 12 • Общественное место</p>
+      </div>
+      <!-- Single Wide Route Button -->
+      <div style="margin-top: 10px;">
+        <div style="background: rgba(48,209,88,0.22); border: 1.5px solid #30D158; color: white; font-size: 11px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">➡️ Построить маршрут</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;" onclick="selectChoice('cond_fav')">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">C. Замена на «В избранное» (Favorite)</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <h4 style="margin: 0; color: white; font-size: 13px;">Дог-парк Центральный (Площадка)</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 10px;">ул. Фрунзе, 12 • Общественное место</p>
+      </div>
+      <!-- Route + Favorite -->
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <div style="flex: 1; background: rgba(48,209,88,0.2); border: 1.5px solid #30D158; color: white; font-size: 11px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ Маршрут</div>
+        <div style="flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 11px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">⭐️ В избранное</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 25px;">
+  <div class="option" data-choice="cond_share" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Замена на «Поделиться» (Share)</h3>
+      <p>Для площадок вторая кнопка превращается в «Поделиться» (копирует ссылку на дог-парк). Для животных остается «Связаться».</p>
+    </div>
+  </div>
+  
+  <div class="option" data-choice="cond_single" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Одна широкая кнопка (Single Wide Route)</h3>
+      <p>Для площадок показываем только одну большую кнопку маршрута на всю ширину. Для животных — две кнопки.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="cond_fav" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Замена на «В избранное» (Favorite)</h3>
+      <p>Для площадок вторая кнопка становится «В избранное» (добавляет место в закладки владельца). Для животных остается звонок.</p>
+    </div>
+  </div>
+</div>

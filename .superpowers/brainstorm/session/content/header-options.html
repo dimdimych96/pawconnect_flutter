@@ -1,0 +1,140 @@
+<h2>5 вариантов дизайна шапки и кнопок действий</h2>
+<p class="subtitle">Выберите компоновку верхней части панели (название, адрес, кнопки действия), чтобы улучшить визуальный баланс и эргономику</p>
+
+<div class="cards" data-choice="header_design" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+  <!-- Option 1 -->
+  <div class="card" data-choice="dynamic_island" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="background: rgba(48,209,88,0.15); border: 1px solid #30D158; color: #30D158; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 8px;">🦮 ПЛОЩАДКА</span>
+          <span style="color: #8E8E93; font-size: 14px;">✕</span>
+        </div>
+        <h3 style="margin: 0; color: white; font-size: 16px; font-weight: bold;">Дог-парк Центральный</h3>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12 (возле фонтана)</p>
+        <span style="color: #30D158; font-size: 10px; display: block; margin-top: 4px;">📍 ~450 м от вас • 55.0260, 82.9150</span>
+      </div>
+      <!-- Asymmetrical Actions -->
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <div style="flex: 1; background: #30D158; color: black; font-weight: bold; font-size: 12px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>➡️</span> Маршрут
+        </div>
+        <div style="width: 34px; height: 34px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+          📞
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1. Динамический асимметричный (Asymmetrical Icon)</h3>
+      <p>Главная кнопка «Маршрут» занимает 85% ширины, а «Связаться» превращается в компактную иконку телефона в квадратной плашке.</p>
+    </div>
+  </div>
+
+  <!-- Option 2 -->
+  <div class="card" data-choice="floating_pill_bar" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="background: rgba(48,209,88,0.15); border: 1px solid #30D158; color: #30D158; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 8px;">🦮 ПЛОЩАДКА</span>
+          <span style="color: #8E8E93; font-size: 14px;">✕</span>
+        </div>
+        <h3 style="margin: 0; color: white; font-size: 16px; font-weight: bold;">Дог-парк Центральный</h3>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        <span style="color: #30D158; font-size: 10px; display: block; margin-top: 4px;">📍 ~450 м • 55.0260, 82.9150</span>
+      </div>
+      <!-- Unified Capsule -->
+      <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; height: 38px; display: flex; align-items: center; margin-top: 10px; overflow: hidden;">
+        <div style="flex: 1; text-align: center; font-size: 11px; font-weight: bold; color: #30D158; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <span>➡️</span> В путь
+        </div>
+        <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.15);"></div>
+        <div style="flex: 1; text-align: center; font-size: 11px; font-weight: bold; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <span>📞</span> Набрать
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2. Единая капсула действий (Unified Capsule)</h3>
+      <p>Обе кнопки объединены в единую тонкую разделенную капсулу (как в картах Apple). Выглядит аккуратно и экономит высоту.</p>
+    </div>
+  </div>
+
+  <!-- Option 3 -->
+  <div class="card" data-choice="editorial_minimal" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px;">
+          <h3 style="margin: 0; color: white; font-size: 18px; font-weight: bold;">Дог-парк Центральный</h3>
+          <span style="color: #8E8E93; font-size: 14px;">✕</span>
+        </div>
+        <!-- Colored tag inline instead of badge -->
+        <span style="color: #30D158; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">🦮 ПЛОЩАДКА</span>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12 • ~450 м от вас</p>
+        <span style="color: rgba(255,255,255,0.25); font-family: monospace; font-size: 9px; display: block; margin-top: 3px;">55.0260, 82.9150</span>
+      </div>
+      <!-- Flat Text Buttons -->
+      <div style="display: flex; gap: 15px; margin-top: 10px;">
+        <span style="color: #30D158; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">➡️ ПОСТРОИТЬ МАРШРУТ</span>
+        <span style="color: white; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">📞 ПОЗВОНИТЬ</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3. Редакционный минимализм (Flat Text Link)</h3>
+      <p>Никаких объемных плашек и кнопок. Команды оформлены текстовыми ссылками в одну строку. Максимально чистый дизайн.</p>
+    </div>
+  </div>
+
+  <!-- Option 4 -->
+  <div class="card" data-choice="split_fab" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 160px; display: flex; justify-content: space-between; align-items: stretch;">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <span style="color: #30D158; font-size: 9px; font-weight: bold; display: block; margin-bottom: 4px;">🦮 ПЛОЩАДКА</span>
+          <h3 style="margin: 0; color: white; font-size: 15px; font-weight: bold;">Дог-парк Центральный</h3>
+          <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        </div>
+        <span style="color: rgba(255,255,255,0.25); font-family: monospace; font-size: 9px; display: block; margin-top: 4px;">55.0260, 82.9150</span>
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; width: 80px;">
+        <span style="color: #8E8E93; font-size: 14px; cursor: pointer;">✕</span>
+        <!-- Round Action buttons -->
+        <div style="display: flex; gap: 6px;">
+          <div style="width: 32px; height: 32px; border-radius: 16px; background: #30D158; display: flex; align-items: center; justify-content: center; color: black; font-size: 12px; cursor: pointer;">➡️</div>
+          <div style="width: 32px; height: 32px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; cursor: pointer;">📞</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>4. Сплит с мини-кнопками (Split Side-Buttons)</h3>
+      <p>Текстовая информация расположена слева, а кнопки действия и крестик закрытия выстроены справа. Разгружает высоту.</p>
+    </div>
+  </div>
+
+  <!-- Option 5 -->
+  <div class="card" data-choice="modern_tabs" onclick="toggleSelect(this)">
+    <div style="padding: 15px; background: #0A0A0C; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="background: rgba(48,209,88,0.15); border: 1px solid #30D158; color: #30D158; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 8px;">🦮 ПЛОЩАДКА</span>
+          <span style="color: #8E8E93; font-size: 14px;">✕</span>
+        </div>
+        <h3 style="margin: 0; color: white; font-size: 16px; font-weight: bold;">Дог-парк Центральный</h3>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        <span style="color: #30D158; font-size: 10px; display: block; margin-top: 4px;">📍 ~450 м • 55.0260, 82.9150</span>
+      </div>
+      <!-- Equal Width Glass buttons with icons only -->
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <div style="flex: 1; background: rgba(48,209,88,0.2); border: 1.5px solid #30D158; color: white; font-weight: bold; font-size: 11px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>➡️</span> На карту
+        </div>
+        <div style="flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; font-weight: bold; font-size: 11px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>📞</span> Контакты
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>5. Симметричный софт-гласс (Symmetrical Soft Glass)</h3>
+      <p>Равновеликие софт-кнопки с рамками. Кнопка маршрута подсвечена легким размытым фоном цвета категории.</p>
+    </div>
+  </div>
+</div>

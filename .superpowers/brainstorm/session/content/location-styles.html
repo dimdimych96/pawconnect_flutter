@@ -1,0 +1,62 @@
+<h2>Как доработаем блок «Адрес и координаты»?</h2>
+<p class="subtitle">Давайте выберем дизайн, который сделает координаты более удобными для чтения и взаимодействия</p>
+
+<div class="split" style="gap: 15px;">
+  <!-- Option A -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">A. Высокотехнологичные бейджи (Radar & Badges)</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: rgba(28,28,30,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); padding: 14px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 44px; height: 44px; border-radius: 22px; background: rgba(48,209,88,0.1); border: 1.5px dashed #30D158; display: flex; align-items: center; justify-content: center; color: #30D158; font-size: 18px;">📍</div>
+        <div style="flex: 1;">
+          <h4 style="margin: 0; color: white; font-size: 13px;">Адрес</h4>
+          <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">Новосибирск, Центральный район</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <div style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 8px; border-radius: 12px; text-align: center;">
+          <span style="color: #8E8E93; font-size: 9px; display: block; font-weight: bold;">ШИРОТА (LAT)</span>
+          <span style="color: white; font-family: monospace; font-size: 12px; font-weight: bold;">55.030200°</span>
+        </div>
+        <div style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 8px; border-radius: 12px; text-align: center;">
+          <span style="color: #8E8E93; font-size: 9px; display: block; font-weight: bold;">ДОЛГОТА (LNG)</span>
+          <span style="color: white; font-family: monospace; font-size: 12px; font-weight: bold;">82.920400°</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">B. Интерактивный блок с Копированием</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: rgba(28,28,30,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); padding: 14px; position: relative;">
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+          <span style="color: #8E8E93; font-size: 11px;">📍 Новосибирск, Центральный район</span>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-family: monospace; font-size: 11px; color: #D1D1D6;">55.030200, 82.920400</span>
+          <button style="background: #30D158; border: none; border-radius: 6px; padding: 4px 8px; font-size: 10px; font-weight: bold; color: black; cursor: pointer;">Копировать</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 20px;">
+  <div class="option" data-choice="high_tech" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Высокотехнологичные бейджи (Radar & Badges)</h3>
+      <p>Стильный радар-индикатор и отдельные симметричные плашки для широты и долготы.</p>
+    </div>
+  </div>
+  
+  <div class="option" data-choice="copyable" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Интерактивный блок с копированием</h3>
+      <p>Отображение координат в один клик с кнопкой быстрого копирования буфера обмена.</p>
+    </div>
+  </div>
+</div>

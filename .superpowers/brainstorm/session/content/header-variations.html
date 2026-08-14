@@ -1,0 +1,332 @@
+<h2>Матрица вариаций шапки (Без бейджей)</h2>
+<p class="subtitle">Ниже представлены по 3 вариации (A, B, C) для каждого из 5 основных стилей. Выберите идеальное сочетание.</p>
+
+<style>
+  .variant-section {
+    margin-bottom: 30px;
+    background: rgba(28,28,30,0.3);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .variant-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-left: 3px solid #30D158;
+    padding-left: 10px;
+  }
+  .variant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+  }
+  .variation-box {
+    background: #0A0A0C;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .variation-box:hover {
+    border-color: #30D158;
+  }
+  .variation-tag {
+    font-size: 10px;
+    font-weight: bold;
+    color: #8E8E93;
+    margin-bottom: 6px;
+    display: block;
+  }
+</style>
+
+<!-- SECTION 1 -->
+<div class="variant-section">
+  <div class="variant-title">Вариант 1: Динамический асимметричный (Asymmetrical Icon)</div>
+  <div class="variant-grid">
+    <!-- 1A -->
+    <div class="variation-box" onclick="selectChoice('1A')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 1A (Крестик сверху)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        <span style="color: #30D158; font-size: 9px; display: block; margin-top: 3px;">~450 м • 55.0260, 82.9150</span>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <div style="flex: 1; background: #30D158; color: black; font-weight: bold; font-size: 11px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ Маршрут</div>
+        <div style="width: 30px; height: 30px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">📞</div>
+      </div>
+    </div>
+
+    <!-- 1B -->
+    <div class="variation-box" onclick="selectChoice('1B')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 1B (Крестик в инфо-строке)</span>
+          <span style="visibility: hidden;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3px;">
+          <span style="color: #30D158; font-size: 9px;">~450 м • 55.0260, 82.9150</span>
+          <span style="color: #8E8E93; font-size: 11px;">✕</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <div style="flex: 1; background: #30D158; color: black; font-weight: bold; font-size: 11px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ Маршрут</div>
+        <div style="width: 30px; height: 30px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">📞</div>
+      </div>
+    </div>
+
+    <!-- 1C -->
+    <div class="variation-box" onclick="selectChoice('1C')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 1C (Цветная рамка телефона)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        <span style="color: #30D158; font-size: 9px; display: block; margin-top: 3px;">~450 м • 55.0260, 82.9150</span>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <div style="flex: 1; background: #30D158; color: black; font-weight: bold; font-size: 11px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ Маршрут</div>
+        <div style="width: 30px; height: 30px; background: rgba(48,209,88,0.1); border: 1.5px solid #30D158; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #30D158;">📞</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="variant-section">
+  <div class="variant-title">Вариант 2: Единая капсула действий (Unified Capsule)</div>
+  <div class="variant-grid">
+    <!-- 2A -->
+    <div class="variation-box" onclick="selectChoice('2A')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 2A (Стеклянная капсула)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; height: 34px; display: flex; align-items: center; margin-top: 8px;">
+        <div style="flex: 1; text-align: center; font-size: 10px; font-weight: bold; color: #30D158; cursor: pointer;">➡️ В путь</div>
+        <div style="width: 1px; height: 14px; background: rgba(255,255,255,0.15);"></div>
+        <div style="flex: 1; text-align: center; font-size: 10px; font-weight: bold; color: white; cursor: pointer;">📞 Набрать</div>
+      </div>
+    </div>
+
+    <!-- 2B -->
+    <div class="variation-box" onclick="selectChoice('2B')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 2B (Акцентная заливка маршрута)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; height: 34px; display: flex; align-items: center; margin-top: 8px; overflow: hidden;">
+        <div style="flex: 1; background: #30D158; color: black; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">➡️ В путь</div>
+        <div style="flex: 1; text-align: center; font-size: 10px; font-weight: bold; color: white;">📞 Набрать</div>
+      </div>
+    </div>
+
+    <!-- 2C -->
+    <div class="variation-box" onclick="selectChoice('2C')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 2C (Компактная капсула)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="align-self: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; height: 30px; display: flex; align-items: center; width: 160px; margin-top: 8px;">
+        <div style="flex: 1; text-align: center; font-size: 10px; color: #30D158;">➡️</div>
+        <div style="width: 1px; height: 12px; background: rgba(255,255,255,0.15);"></div>
+        <div style="flex: 1; text-align: center; font-size: 10px; color: white;">📞</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="variant-section">
+  <div class="variant-title">Вариант 3: Редакционный минимализм (Flat Text Link)</div>
+  <div class="variant-grid">
+    <!-- 3A -->
+    <div class="variation-box" onclick="selectChoice('3A')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 3A (Подчеркнутые ссылки)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="display: flex; gap: 15px; margin-top: 8px;">
+        <span style="color: #30D158; font-weight: bold; font-size: 11px; text-decoration: underline;">Маршрут</span>
+        <span style="color: white; font-weight: bold; font-size: 11px; text-decoration: underline;">Позвонить</span>
+      </div>
+    </div>
+
+    <!-- 3B -->
+    <div class="variation-box" onclick="selectChoice('3B')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 3B (Шевроны-стрелочки)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="display: flex; gap: 15px; margin-top: 8px;">
+        <span style="color: #30D158; font-weight: bold; font-size: 11px;">Маршрут ↗</span>
+        <span style="color: white; font-weight: bold; font-size: 11px;">Позвонить ↗</span>
+      </div>
+    </div>
+
+    <!-- 3C -->
+    <div class="variation-box" onclick="selectChoice('3C')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 3C (Цветные ссылки)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="display: flex; gap: 15px; margin-top: 8px;">
+        <span style="color: #30D158; font-weight: bold; font-size: 11px;">Маршрут</span>
+        <span style="color: #0A84FF; font-weight: bold; font-size: 11px;">Позвонить</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4 -->
+<div class="variant-section">
+  <div class="variant-title">Вариант 4: Сплит с мини-кнопками (Split Side-Buttons)</div>
+  <div class="variant-grid">
+    <!-- 4A -->
+    <div class="variation-box" onclick="selectChoice('4A')" style="flex-direction: row; align-items: stretch; justify-content: space-between;">
+      <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
+        <div>
+          <span class="variation-tag">ВАРИАЦИЯ 4A (Вертикальный стек справа)</span>
+          <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+          <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; width: 60px; height: 100%;">
+        <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="width: 26px; height: 26px; border-radius: 13px; background: #30D158; display: flex; align-items: center; justify-content: center; color: black; font-size: 10px;">➡️</div>
+          <div style="width: 26px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">📞</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4B -->
+    <div class="variation-box" onclick="selectChoice('4B')" style="flex-direction: row; align-items: stretch; justify-content: space-between;">
+      <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
+        <div>
+          <span class="variation-tag">ВАРИАЦИЯ 4B (Иконки в линию внизу справа)</span>
+          <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+          <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; width: 80px; height: 100%;">
+        <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        <div style="display: flex; gap: 6px;">
+          <div style="width: 26px; height: 26px; border-radius: 13px; background: #30D158; display: flex; align-items: center; justify-content: center; color: black; font-size: 10px;">➡️</div>
+          <div style="width: 26px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">📞</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4C -->
+    <div class="variation-box" onclick="selectChoice('4C')" style="flex-direction: row; align-items: stretch; justify-content: space-between;">
+      <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
+        <div>
+          <span class="variation-tag">ВАРИАЦИЯ 4C (Стеклянные сферы)</span>
+          <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+          <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; width: 80px; height: 100%;">
+        <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        <div style="display: flex; gap: 6px;">
+          <div style="width: 26px; height: 26px; border-radius: 13px; background: rgba(48,209,88,0.1); border: 1.5px solid #30D158; display: flex; align-items: center; justify-content: center; color: #30D158; font-size: 10px;">➡️</div>
+          <div style="width: 26px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">📞</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5 -->
+<div class="variant-section">
+  <div class="variant-title">Вариант 5: Симметричный софт-гласс (Symmetrical Soft Glass)</div>
+  <div class="variant-grid">
+    <!-- 5A -->
+    <div class="variation-box" onclick="selectChoice('5A')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 5A (Классический софт-гласс)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <div style="flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 11px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ На карту</div>
+        <div style="flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 11px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">📞 Контакты</div>
+      </div>
+    </div>
+
+    <!-- 5B -->
+    <div class="variation-box" onclick="selectChoice('5B')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 5B (Двойной цветной контур)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <div style="flex: 1; background: rgba(48,209,88,0.1); border: 1.5px solid #30D158; color: white; font-size: 11px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ На карту</div>
+        <div style="flex: 1; background: rgba(48,209,88,0.1); border: 1.5px solid #30D158; color: white; font-size: 11px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">📞 Контакты</div>
+      </div>
+    </div>
+
+    <!-- 5C -->
+    <div class="variation-box" onclick="selectChoice('5C')">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <span class="variation-tag">ВАРИАЦИЯ 5C (Общая подложка кнопок)</span>
+          <span style="color: #8E8E93; font-size: 12px;">✕</span>
+        </div>
+        <h4 style="margin: 0; color: white; font-size: 14px;">Дог-парк Центральный</h4>
+        <p style="margin: 2px 0 0 0; color: #8E8E93; font-size: 11px;">ул. Фрунзе, 12</p>
+      </div>
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 4px; display: flex; gap: 4px; margin-top: 8px;">
+        <div style="flex: 1; background: rgba(255,255,255,0.06); color: white; font-size: 11px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 4px;">➡️ Маршрут</div>
+        <div style="flex: 1; background: rgba(255,255,255,0.06); color: white; font-size: 11px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 4px;">📞 Набрать</div>
+      </div>
+    </div>
+  </div>
+</div>

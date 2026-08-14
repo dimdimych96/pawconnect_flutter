@@ -1,0 +1,84 @@
+<h2>Органическое слияние в стиле Liquid Glass (Gooey Metaball)</h2>
+<p class="subtitle">Посмотрите, как мы можем обыграть эффект «жидкой ртути» или «сливающихся капель» при движении шторки относительно таббара</p>
+
+<div class="split" style="gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+  <!-- Concept 1 -->
+  <div class="mockup" style="flex: 1; padding: 15px; background: #0A0A0C;" onclick="selectChoice('gooey_bridge')">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">1. Ртутный мостик (Gooey metaball bridge)</div>
+    <div class="mockup-body" style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; position: relative;">
+      
+      <!-- Collapsed: Merged -->
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span style="color: #8E8E93; font-size: 10px; display: block; margin-bottom: 5px;">В свернутом виде (Капли слиты):</span>
+        <div style="position: relative; width: 180px; height: 75px; background: rgba(28,28,30,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+          <span style="font-size: 10px; color: white;">Шторка прилипла к таббару</span>
+          <!-- Gooey bridge simulation -->
+          <div style="position: absolute; bottom: -8px; left: 30px; right: 30px; height: 12px; background: rgba(28,28,30,0.85); border-radius: 6px; filter: blur(2px);"></div>
+        </div>
+      </div>
+
+      <!-- Dragging: Stretching -->
+      <div style="text-align: center;">
+        <span style="color: #8E8E93; font-size: 10px; display: block; margin-bottom: 5px;">При перетаскивании (Растяжение):</span>
+        <div style="position: relative; width: 180px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+          <!-- Sheet moving up -->
+          <div style="width: 100%; height: 40px; background: rgba(28,28,30,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">Шторка едет вверх</div>
+          <!-- Gooey neck drawing -->
+          <div style="position: absolute; top: 38px; width: 30px; height: 24px; background: rgba(28,28,30,0.8); border-left: 2px solid rgba(255,255,255,0.06); border-right: 2px solid rgba(255,255,255,0.06); border-radius: 50% / 10%; filter: blur(1px);"></div>
+          <!-- Tab bar remaining -->
+          <div style="width: 100%; height: 30px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #8E8E93; font-size: 9px;">Таббар</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1. Ртутный мостик (Gooey Bridge)</h3>
+      <p>Когда шторка близко к таббару, они сливаются. При перетягивании вверх между ними натягивается «жидкая перемычка» (metaball), которая затем мягко лопается и стягивается обратно.</p>
+    </div>
+  </div>
+
+  <!-- Concept 2 -->
+  <div class="mockup" style="flex: 1; padding: 15px; background: #0A0A0C;" onclick="selectChoice('bubble_separation')">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">2. Почкование капли (Bubble Separation)</div>
+    <div class="mockup-body" style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: space-around; min-height: 180px;">
+      
+      <!-- Stage 1 -->
+      <div style="text-align: center;">
+        <span style="color: #8E8E93; font-size: 9px; display: block;">1. Выдувание капли из таббара</span>
+        <div style="width: 160px; height: 32px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; position: relative; margin-top: 5px;">
+          <div style="position: absolute; top: -10px; left: 60px; width: 40px; height: 20px; background: #30D158; border-radius: 10px 10px 0 0; opacity: 0.8; filter: blur(1px);"></div>
+        </div>
+      </div>
+
+      <!-- Stage 2 -->
+      <div style="text-align: center;">
+        <span style="color: #8E8E93; font-size: 9px; display: block;">2. Отрыв и превращение в панель</span>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 5px;">
+          <div style="width: 100px; height: 24px; background: rgba(28,28,30,0.9); border: 1.5px solid #30D158; border-radius: 12px; font-size: 8px; color: white; line-height: 24px;">Панель отделилась</div>
+          <div style="width: 160px; height: 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2. Почкование капли (Bubble Separation)</h3>
+      <p>При выборе маркера из активной иконки таббара «выдувается» круглая капля вверх, которая затем растягивается и превращается в полноценную панель деталей, отделяясь от таббара.</p>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 25px;">
+  <div class="option" data-choice="gooey_bridge" onclick="toggleSelect(this)">
+    <div class="letter">1</div>
+    <div class="content">
+      <h3>Ртутный мостик (Gooey Bridge)</h3>
+      <p>Отрисовка динамической ртутной перемычки между низом шторки и верхом таббара при перетаскивании.</p>
+    </div>
+  </div>
+  
+  <div class="option" data-choice="bubble_separation" onclick="toggleSelect(this)">
+    <div class="letter">2</div>
+    <div class="content">
+      <h3>Почкование капли (Bubble Separation)</h3>
+      <p>Капля рождается из самой активной вкладки таббара при тапе на маркер.</p>
+    </div>
+  </div>
+</div>

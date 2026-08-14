@@ -1,0 +1,73 @@
+<h2>Как доработаем дизайн блока «Описание»?</h2>
+<p class="subtitle">Выберите визуальный стиль, который лучше всего впишется в Apple Liquid Glass эстетику</p>
+
+<div class="split" style="gap: 15px;">
+  <!-- Option A -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">A. Карточка с левым акцентом</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; gap: 8px;">
+      <span style="color: #8E8E93; font-size: 11px; font-weight: bold; letter-spacing: 0.5px;">ОПИСАНИЕ</span>
+      <div style="background: rgba(28,28,30,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); border-left: 4px solid #30D158; padding: 14px; display: flex; flex-direction: column; gap: 6px;">
+        <p style="margin: 0; color: #E5E5EA; font-size: 13px; line-height: 1.45;">
+          Просторная площадка с барьерами, кольцами для прыжков и питьевым фонтанчиком для собак всех размеров.
+        </p>
+      </div>
+      <p style="color: #8E8E93; font-size: 11px; margin-top: 10px;">* Левая цветная линия перекликается с дизайном ленты сообщества и добавляет яркий фокус.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">B. Градиентное свечение (Vibrant Glow)</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; gap: 8px;">
+      <span style="color: #8E8E93; font-size: 11px; font-weight: bold; letter-spacing: 0.5px;">ОПИСАНИЕ</span>
+      <div style="background: linear-gradient(135deg, rgba(48,209,88,0.08) 0%, rgba(28,28,30,0.7) 100%); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(48,209,88,0.2); padding: 14px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 4px 20px rgba(48,209,88,0.15);">
+        <p style="margin: 0; color: #E5E5EA; font-size: 13px; line-height: 1.45;">
+          Просторная площадка с барьерами, кольцами для прыжков и питьевым фонтанчиком для собак всех размеров.
+        </p>
+      </div>
+      <p style="color: #8E8E93; font-size: 11px; margin-top: 10px;">* Карточка мягко подсвечена цветом категории изнутри, что создаёт премиальное ощущение глубины.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="mockup" style="flex: 1; padding: 10px; background: #0A0A0C;">
+    <div class="mockup-header" style="background: #1C1C1E; color: white;">C. Минималистичная цитата (Editorial Quote)</div>
+    <div class="mockup-body" style="padding: 15px; display: flex; flex-direction: column; gap: 8px;">
+      <span style="color: #8E8E93; font-size: 11px; font-weight: bold; letter-spacing: 0.5px;">ОПИСАНИЕ</span>
+      <div style="position: relative; padding-left: 20px; margin: 5px 0;">
+        <span style="position: absolute; left: 0; top: -5px; font-size: 32px; color: rgba(48,209,88,0.3); font-family: Georgia, serif; font-weight: bold;">“</span>
+        <p style="margin: 0; color: #E5E5EA; font-size: 14px; line-height: 1.45; font-style: italic;">
+          Просторная площадка с барьерами, кольцами для прыжков и питьевым фонтанчиком для собак всех размеров.
+        </p>
+      </div>
+      <p style="color: #8E8E93; font-size: 11px; margin-top: 10px;">* Никаких громоздких рамок и карточек. Чистый текст с элегантной акцентной кавычкой.</p>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 20px;">
+  <div class="option" data-choice="left_accent" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Карточка с левым акцентом (Left Accent)</h3>
+      <p>Консистентная рамка с цветным разделителем слева. Строго и аккуратно.</p>
+    </div>
+  </div>
+  
+  <div class="option" data-choice="vibrant_glow" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Градиентное свечение (Vibrant Glow)</h3>
+      <p>Светящаяся изнутри карточка с рамкой цвета категории.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="editorial_quote" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Минималистичная цитата (Editorial Quote)</h3>
+      <p>Легкий курсивный текст без рамок с акцентной кавычкой.</p>
+    </div>
+  </div>
+</div>
