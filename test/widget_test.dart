@@ -1,5 +1,4 @@
-// Smoke test for the PawConnect app.
-
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,8 +16,12 @@ void main() {
     // network fetches (with fallback to mock data) that keep timers alive.
     await tester.pump(const Duration(milliseconds: 500));
 
-    // The app shell should be present.
+    // The app shell and tab icons should be present.
     expect(find.byType(ProviderScope), findsOneWidget);
     expect(find.byType(PawConnectApp), findsOneWidget);
+    expect(find.byIcon(Icons.map_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.pets_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.forum_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
   });
 }

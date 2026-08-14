@@ -57,9 +57,7 @@ class GlassContainer extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Liquid Glass specular sheen — subtle reflected light across the
-          // top edge, the signature "glass" cue. No white frost overlay:
-          // translucency comes from the blurred content behind the base tint.
+          // Liquid Glass specular sheen
           Positioned.fill(
             child: IgnorePointer(
               child: DecoratedBox(

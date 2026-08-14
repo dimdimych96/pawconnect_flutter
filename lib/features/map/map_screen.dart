@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../providers/map_provider.dart';
+import '../../providers/user_provider.dart';
 import 'widgets/collar_marker_widget.dart';
 import 'widgets/category_marker_widget.dart';
 import 'widgets/marker_detail_sheet.dart';
@@ -84,13 +85,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final mapState = ref.watch(mapNotifierProvider);
+    final userState = ref.watch(userNotifierProvider);
     final mapNotifier = ref.read(mapNotifierProvider.notifier);
     final gpsDevice = mapState.gpsDevice;
 
     final maxLat = gpsDevice?.latitude ?? 55.0302;
     final maxLng = gpsDevice?.longitude ?? 82.9204;
     final safeZoneRadius = gpsDevice?.safeZoneRadius ?? 350.0;
-    final isBreached = gpsDevice?.isBreached ?? false;
+    final isBreached = (gpsDevice?.isBreached ?? false) || userState.isSimulatingBreach;
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -191,8 +193,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
           // 2. Top Header: Split Search & Filters (Sleek Apple Maps style)
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+            child: AnimatedPadding(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.fastOutSlowIn,
+              padding: EdgeInsets.only(
+                top: isBreached ? 84.0 : 8.0,
+                left: 16.0,
+                right: 16.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
