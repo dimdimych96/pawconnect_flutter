@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/widgets/glass_widgets.dart';
+import '../../../core/widgets/paw_image.dart';
 import '../../../models/map_marker_model.dart';
 
 class MarkerDetailSheet extends StatelessWidget {
@@ -116,20 +117,12 @@ class MarkerDetailSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (marker.image != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        marker.image!,
-                        width: 72,
-                        height: 72,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 72,
-                          height: 72,
-                          color: AppColors.obsidianGlassSurface,
-                          child: Icon(Icons.pets, color: badgeColor, size: 32),
-                        ),
-                      ),
+                    PawImage(
+                      url: marker.image,
+                      width: 72,
+                      height: 72,
+                      borderRadius: 16,
+                      fallbackColor: badgeColor,
                     ),
                   if (marker.image != null) const SizedBox(width: 14),
                   Expanded(
@@ -365,20 +358,12 @@ class MarkerDetailSheet extends StatelessWidget {
                   itemBuilder: (context, idx) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          mockGallery[idx],
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 100,
-                            height: 100,
-                            color: AppColors.obsidianGlassSurface,
-                            child: const Icon(Icons.image_rounded, color: Colors.white24, size: 30),
-                          ),
-                        ),
+                      child: PawImage(
+                        url: mockGallery[idx],
+                        width: 100,
+                        height: 100,
+                        borderRadius: 12,
+                        fallbackColor: badgeColor,
                       ),
                     );
                   },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/widgets/paw_image.dart';
 
 class CollarMarkerWidget extends StatefulWidget {
   final String petName;
@@ -80,13 +81,10 @@ class _CollarMarkerWidgetState extends State<CollarMarkerWidget> with SingleTick
                   ),
                 ),
                 // Inner Avatar
-                CircleAvatar(
+                PawAvatar(
+                  url: widget.photoUrl,
                   radius: 24,
-                  backgroundColor: AppColors.obsidianCard,
-                  backgroundImage: widget.photoUrl != null ? NetworkImage(widget.photoUrl!) : null,
-                  child: widget.photoUrl == null
-                      ? const Icon(Icons.pets, color: AppColors.accentGreen, size: 24)
-                      : null,
+                  fallbackColor: ringColor,
                 ),
                 // Status Indicator Pill
                 Positioned(

@@ -116,9 +116,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               },
             ),
             children: [
-              // CartoDB Dark Matter Tiles
+              // CartoDB Dark Matter Fastly CDN Tiles (CORS-friendly for Web & Mobile)
               TileLayer(
-                urlTemplate: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                urlTemplate: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.pawconnect.app',
                 maxZoom: 19,
               ),

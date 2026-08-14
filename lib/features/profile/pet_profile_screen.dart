@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
+import '../../core/widgets/paw_image.dart';
 import '../../providers/map_provider.dart';
 import '../../providers/reminders_provider.dart';
 import 'widgets/new_reminder_modal.dart';
@@ -121,18 +122,10 @@ class PetProfileScreen extends ConsumerWidget {
                                 ],
                               ),
                             ),
-                            ClipOval(
-                              child: Image.network(
-                                gpsDevice?.photoUrl ?? 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=400&q=80',
-                                width: 72,
-                                height: 72,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const CircleAvatar(
-                                  radius: 36,
-                                  backgroundColor: AppColors.accentGreen,
-                                  child: Icon(Icons.pets, size: 36, color: Colors.black),
-                                ),
-                              ),
+                            PawAvatar(
+                              url: gpsDevice?.photoUrl,
+                              radius: 36,
+                              fallbackColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
                             ),
                           ],
                         ),

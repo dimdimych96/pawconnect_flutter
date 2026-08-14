@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/widgets/paw_image.dart';
 import '../../../models/map_marker_model.dart';
 
 class CategoryMarkerWidget extends StatelessWidget {
@@ -65,14 +66,11 @@ class CategoryMarkerWidget extends StatelessWidget {
                 ),
               ],
             ),
-            child: ClipOval(
-              child: marker.image != null
-                  ? Image.network(
-                      marker.image!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(_getIcon(), color: badgeColor, size: 22),
-                    )
-                  : Icon(_getIcon(), color: badgeColor, size: 22),
+            child: PawAvatar(
+              url: marker.image,
+              radius: 21,
+              fallbackColor: badgeColor,
+              fallbackIcon: _getIcon(),
             ),
           ),
           CustomPaint(

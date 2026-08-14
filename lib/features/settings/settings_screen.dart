@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
+import '../../core/widgets/paw_image.dart';
 import '../../providers/user_provider.dart';
 import 'widgets/edit_profile_modal.dart';
 
@@ -94,11 +95,11 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _openEditProfileModal(context, ref, userState.ownerName, userState.ownerAvatar),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  PawAvatar(
+                    url: userState.ownerAvatar,
                     radius: 30,
-                    backgroundColor: AppColors.accentBlue,
-                    backgroundImage: NetworkImage(userState.ownerAvatar),
-                    child: null,
+                    fallbackColor: AppColors.accentBlue,
+                    fallbackIcon: Icons.person_rounded,
                   ),
                   const SizedBox(width: 16),
                   Expanded(

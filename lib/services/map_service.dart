@@ -98,7 +98,7 @@ class MapService {
         if (lat != null) 'lat': lat,
         if (lng != null) 'lng': lng,
         if (radius != null) 'radius': radius,
-      });
+      }).timeout(const Duration(milliseconds: 300));
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List).map((e) => MapMarkerModel.fromJson(e)).toList();
       }
@@ -111,7 +111,7 @@ class MapService {
   /// Fetch GPS Collar Device with Dio fallback to MockData
   Future<GpsDeviceModel> getActiveGpsDevice() async {
     try {
-      final response = await _dio.get('/gps/active');
+      final response = await _dio.get('/gps/active').timeout(const Duration(milliseconds: 300));
       if (response.statusCode == 200 && response.data != null) {
         return GpsDeviceModel.fromJson(response.data);
       }
@@ -129,7 +129,7 @@ class MapService {
         'safeZoneLatitude': lat,
         'safeZoneLongitude': lng,
         'safeZoneRadius': radius,
-      });
+      }).timeout(const Duration(milliseconds: 300));
       if (response.statusCode == 200 && response.data != null) {
         return GpsDeviceModel.fromJson(response.data);
       }

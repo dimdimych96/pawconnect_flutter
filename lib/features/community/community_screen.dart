@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
+import '../../core/widgets/paw_image.dart';
 import '../../models/community_post_model.dart';
 import '../../providers/community_provider.dart';
 import '../../services/community_service.dart';
@@ -275,16 +276,10 @@ class _PostCard extends StatelessWidget {
             // Author Avatar & Meta Header
             Row(
               children: [
-                CircleAvatar(
+                PawAvatar(
+                  url: post.authorAvatar,
                   radius: 20,
-                  backgroundColor: AppColors.obsidianCard,
-                  backgroundImage: post.authorAvatar != null ? NetworkImage(post.authorAvatar!) : null,
-                  child: post.authorAvatar == null
-                      ? Text(
-                          post.authorName[0],
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                        )
-                      : null,
+                  fallbackColor: AppColors.accentBlue,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -357,15 +352,12 @@ class _PostCard extends StatelessWidget {
 
             if (post.imageUrl != null) ...[
               const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  post.imageUrl!,
-                  width: double.infinity,
-                  height: 180,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                ),
+              PawImage(
+                url: post.imageUrl,
+                width: double.infinity,
+                height: 180,
+                borderRadius: 16,
+                fallbackColor: AppColors.accentBlue,
               ),
             ],
 

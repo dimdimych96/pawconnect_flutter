@@ -38,6 +38,99 @@ class MainShell extends ConsumerWidget {
           // Active Screen Branch
           navigationShell,
 
+          // Global Floating Liquid Glass Tab Bar
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: IgnorePointer(
+              ignoring: mapState.selectedMarker != null,
+              child: AnimatedSlide(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOutCubic,
+                offset: mapState.selectedMarker != null ? const Offset(0, 1.5) : Offset.zero,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(26),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                          child: Container(
+                            height: 52,
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xC8121814),
+                              borderRadius: BorderRadius.circular(26),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.12),
+                                width: 1.0,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.65),
+                                  blurRadius: 36,
+                                  offset: const Offset(0, 16),
+                                ),
+                                BoxShadow(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  blurRadius: 0,
+                                  spreadRadius: 0,
+                                  offset: const Offset(0, -1),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _NavItem(
+                                  icon: Icons.map_outlined,
+                                  activeIcon: Icons.map_rounded,
+                                  label: 'Карта',
+                                  isSelected: navigationShell.currentIndex == 0,
+                                  activeColor: isBreached ? AppColors.accentRed : const Color(0xFF34D399),
+                                  onTap: () => _onTap(0),
+                                ),
+                                const SizedBox(width: 6),
+                                _NavItem(
+                                  icon: Icons.pets_outlined,
+                                  activeIcon: Icons.pets_rounded,
+                                  label: 'Паспорт',
+                                  isSelected: navigationShell.currentIndex == 1,
+                                  activeColor: AppColors.accentBlue,
+                                  onTap: () => _onTap(1),
+                                ),
+                                const SizedBox(width: 6),
+                                _NavItem(
+                                  icon: Icons.forum_outlined,
+                                  activeIcon: Icons.forum_rounded,
+                                  label: 'Лента',
+                                  isSelected: navigationShell.currentIndex == 2,
+                                  activeColor: AppColors.accentYellow,
+                                  onTap: () => _onTap(2),
+                                ),
+                                const SizedBox(width: 6),
+                                _NavItem(
+                                  icon: Icons.settings_outlined,
+                                  activeIcon: Icons.settings_rounded,
+                                  label: 'Настройки',
+                                  isSelected: navigationShell.currentIndex == 3,
+                                  activeColor: const Color(0xFF34D399),
+                                  onTap: () => _onTap(3),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           // Global Top Emergency Geofence Breach Banner
           if (isBreached)
             Positioned(
@@ -53,93 +146,6 @@ class MainShell extends ConsumerWidget {
               ),
             ),
         ],
-      ),
-      bottomNavigationBar: IgnorePointer(
-        ignoring: mapState.selectedMarker != null,
-        child: AnimatedSlide(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOutCubic,
-          offset: mapState.selectedMarker != null ? const Offset(0, 1.5) : Offset.zero,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(26),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Container(
-                      height: 52,
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xC8121814),
-                        borderRadius: BorderRadius.circular(26),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          width: 1.0,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.65),
-                            blurRadius: 36,
-                            offset: const Offset(0, 16),
-                          ),
-                          BoxShadow(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            blurRadius: 0,
-                            spreadRadius: 0,
-                            offset: const Offset(0, -1),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _NavItem(
-                            icon: Icons.map_outlined,
-                            activeIcon: Icons.map_rounded,
-                            label: 'Карта',
-                            isSelected: navigationShell.currentIndex == 0,
-                            activeColor: isBreached ? AppColors.accentRed : const Color(0xFF34D399),
-                            onTap: () => _onTap(0),
-                          ),
-                          const SizedBox(width: 6),
-                          _NavItem(
-                            icon: Icons.pets_outlined,
-                            activeIcon: Icons.pets_rounded,
-                            label: 'Паспорт',
-                            isSelected: navigationShell.currentIndex == 1,
-                            activeColor: AppColors.accentBlue,
-                            onTap: () => _onTap(1),
-                          ),
-                          const SizedBox(width: 6),
-                          _NavItem(
-                            icon: Icons.forum_outlined,
-                            activeIcon: Icons.forum_rounded,
-                            label: 'Лента',
-                            isSelected: navigationShell.currentIndex == 2,
-                            activeColor: AppColors.accentYellow,
-                            onTap: () => _onTap(2),
-                          ),
-                          const SizedBox(width: 6),
-                          _NavItem(
-                            icon: Icons.settings_outlined,
-                            activeIcon: Icons.settings_rounded,
-                            label: 'Настройки',
-                            isSelected: navigationShell.currentIndex == 3,
-                            activeColor: const Color(0xFF34D399),
-                            onTap: () => _onTap(3),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
