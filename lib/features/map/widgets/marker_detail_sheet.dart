@@ -81,7 +81,12 @@ class MarkerDetailSheet extends StatelessWidget {
           borderColor: badgeColor.withValues(alpha: 0.35),
           child: ListView(
             controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+            padding: EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 10.0,
+              bottom: 32.0 + MediaQuery.of(context).padding.bottom,
+            ),
             children: [
               // 1. Drag Handle
               Center(
