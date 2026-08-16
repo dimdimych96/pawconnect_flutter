@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
+import '../../core/widgets/pill_toast.dart';
 import '../../models/community_post_model.dart';
 import '../../providers/community_provider.dart';
 import '../../services/community_service.dart';
@@ -44,11 +45,10 @@ class CommunityScreen extends ConsumerWidget {
       builder: (context) => NewPostModal(
         onPublish: (newPost) {
           ref.read(communityNotifierProvider.notifier).addPost(newPost);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Пост успешно опубликован в сообществе!'),
-              backgroundColor: AppColors.accentGreen,
-            ),
+          PawToast.show(
+            context,
+            title: 'Пост опубликован в сообществе',
+            type: ToastType.success,
           );
         },
       ),
@@ -374,11 +374,10 @@ class _PostCard extends StatelessWidget {
                 ),
                 TextButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Комментарии откроются в полной версии'),
-                        backgroundColor: AppColors.accentBlue,
-                      ),
+                    PawToast.show(
+                      context,
+                      title: 'Комментарии откроются в полной версии',
+                      type: ToastType.info,
                     );
                   },
                   icon: const Icon(Icons.mode_comment_outlined, size: 16, color: AppColors.textSecondary),

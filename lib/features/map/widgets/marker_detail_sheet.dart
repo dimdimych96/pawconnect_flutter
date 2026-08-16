@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/widgets/glass_widgets.dart';
 import '../../../core/widgets/paw_image.dart';
+import '../../../core/widgets/pill_toast.dart';
 import '../../../models/map_marker_model.dart';
 
 class MarkerDetailSheet extends StatelessWidget {
@@ -188,12 +189,11 @@ class MarkerDetailSheet extends StatelessWidget {
                                 Clipboard.setData(ClipboardData(
                                   text: '${marker.latitude}, ${marker.longitude}',
                                 ));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Координаты скопированы! 📋'),
-                                    backgroundColor: AppColors.accentGreen,
-                                    duration: Duration(seconds: 1),
-                                  ),
+                                PawToast.show(
+                                  context,
+                                  title: 'Координаты скопированы',
+                                  subtitle: '${marker.latitude.toStringAsFixed(5)}, ${marker.longitude.toStringAsFixed(5)}',
+                                  type: ToastType.success,
                                 );
                               },
                               child: Text(
@@ -224,12 +224,10 @@ class MarkerDetailSheet extends StatelessWidget {
                           onBuildRoute!();
                         }
                         onClose();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Маршрут к "${marker.title}" построен! 🗺'),
-                            backgroundColor: AppColors.accentBlue,
-                            duration: const Duration(seconds: 2),
-                          ),
+                        PawToast.show(
+                          context,
+                          title: 'Маршрут к "${marker.title}" построен',
+                          type: ToastType.info,
                         );
                       },
                       child: Container(
@@ -262,20 +260,17 @@ class MarkerDetailSheet extends StatelessWidget {
                           Clipboard.setData(ClipboardData(
                             text: 'PawConnect: ${marker.title} - ${marker.address ?? ""}',
                           ));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Ссылка на место скопирована! 🔗'),
-                              backgroundColor: AppColors.accentGreen,
-                              duration: Duration(seconds: 2),
-                            ),
+                          PawToast.show(
+                            context,
+                            title: 'Ссылка на место скопирована',
+                            type: ToastType.success,
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Установка соединения... 📞'),
-                              backgroundColor: AppColors.accentBlue,
-                              duration: Duration(seconds: 2),
-                            ),
+                          PawToast.show(
+                            context,
+                            title: 'Установка соединения',
+                            subtitle: 'Вызываем владельца метки',
+                            type: ToastType.info,
                           );
                         }
                       },

@@ -299,24 +299,28 @@ class _LeftHeaderRailState extends State<LeftHeaderRail> {
                     isSelected: _isSearchExpanded,
                     onTap: _toggleSearch,
                   ),
-                  const SizedBox(height: 2),
+                  // Lower section collapses while search is open so the rail
+                  // shrinks to the top button height (48) without overflowing.
+                  if (!_isSearchExpanded) ...[
+                    const SizedBox(height: 2),
 
-                  // Divider
-                  Container(
-                    height: 1,
-                    margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                    color: Colors.white.withValues(alpha: 0.10),
-                  ),
-                  const SizedBox(height: 2),
+                    // Divider
+                    Container(
+                      height: 1,
+                      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                      color: Colors.white.withValues(alpha: 0.10),
+                    ),
+                    const SizedBox(height: 2),
 
-                  // Lower Section: Layer Filter Button
-                  _HeaderRailIconButton(
-                    icon: Icons.layers_rounded,
-                    tooltip: 'Слои и фильтры карты',
-                    isSelected: _isLayersExpanded,
-                    hasActiveBadge: hasFilterActive,
-                    onTap: _toggleLayers,
-                  ),
+                    // Lower Section: Layer Filter Button
+                    _HeaderRailIconButton(
+                      icon: Icons.layers_rounded,
+                      tooltip: 'Слои и фильтры карты',
+                      isSelected: _isLayersExpanded,
+                      hasActiveBadge: hasFilterActive,
+                      onTap: _toggleLayers,
+                    ),
+                  ],
                 ],
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
+import '../../core/widgets/pill_toast.dart';
 import '../../providers/user_provider.dart';
 import 'widgets/edit_profile_modal.dart';
 
@@ -19,11 +20,10 @@ class SettingsScreen extends ConsumerWidget {
         currentAvatar: currentAvatar,
         onSave: (newName, newAvatar) {
           ref.read(userNotifierProvider.notifier).updateProfile(newName, newAvatar);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Профиль владельца обновлен!'),
-              backgroundColor: AppColors.accentGreen,
-            ),
+          PawToast.show(
+            context,
+            title: 'Профиль владельца обновлен',
+            type: ToastType.success,
           );
         },
       ),
@@ -49,11 +49,10 @@ class SettingsScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Выполнен выход из аккаунта'),
-                  backgroundColor: AppColors.accentRed,
-                ),
+              PawToast.show(
+                context,
+                title: 'Выполнен выход из аккаунта',
+                type: ToastType.alert,
               );
             },
             style: ElevatedButton.styleFrom(

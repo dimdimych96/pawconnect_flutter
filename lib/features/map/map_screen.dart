@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/theme/colors.dart';
+import '../../core/widgets/pill_toast.dart';
 import '../../providers/map_provider.dart';
 import '../../providers/user_provider.dart';
 import 'widgets/collar_marker_widget.dart';
@@ -27,6 +28,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey<State<LeftHeaderRail>> _leftHeaderRailKey = GlobalKey<State<LeftHeaderRail>>();
   bool _isPetFocus = false;
+  bool _isToastVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    PawToast.isVisible.addListener(_onToastVisibility);
+  }
+
+  void _onToastVisibility() {
+    setState(() => _isToastVisible = PawToast.isVisible.value);
+  }
+
+  @override
+  void dispose() {
+    PawToast.isVisible.removeListener(_onToastVisibility);
+    _mapController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   // Mock 24h walking trail points around Central Park Novosibirsk
   final List<LatLng> _walkTrailPoints = const [
@@ -38,13 +58,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     LatLng(55.0295, 82.9170),
     LatLng(55.0302, 82.9204),
   ];
-
-  @override
-  void dispose() {
-    _mapController.dispose();
-    _searchController.dispose();
-    super.dispose();
-  }
 
   void _fitRouteBounds(ActiveRouteModel route) {
     final bounds = LatLngBounds.fromPoints(route.waypoints);
@@ -59,24 +72,22 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void _centerOnMax(double lat, double lng) {
     setState(() => _isPetFocus = true);
     _mapController.move(LatLng(lat, lng), 16.0);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Камера сфокусирована на ошейнике Макса 🐾'),
-        duration: Duration(seconds: 2),
-        backgroundColor: AppColors.accentGreen,
-      ),
+    PawToast.show(
+      context,
+      title: 'Камера сфокусирована на ошейнике Макса',
+      subtitle: 'GPS-ошейник в центре карты',
+      type: ToastType.success,
     );
   }
 
   void _centerOnUser(double lat, double lng) {
     setState(() => _isPetFocus = false);
     _mapController.move(LatLng(lat, lng), 16.0);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Камера сфокусирована на вашей геопозиции 📍'),
-        duration: Duration(seconds: 2),
-        backgroundColor: AppColors.accentBlue,
-      ),
+    PawToast.show(
+      context,
+      title: 'Камера сфокусирована на вашей геопозиции',
+      subtitle: 'Ваше местоположение в центре карты',
+      type: ToastType.info,
     );
   }
 
@@ -262,20 +273,33 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               top: MediaQuery.of(context).padding.top + (isBreached ? 84.0 : 8.0),
               left: 14.0,
               right: 14.0,
-              child: LeftHeaderRail(
-                key: _leftHeaderRailKey,
-                searchController: _searchController,
-                onSearchChanged: (val) {
-                  mapNotifier.setSearchQuery(val);
-                },
-                activeFilters: mapState.activeFilters,
-                onToggleFilter: (category) {
-                  mapNotifier.toggleFilter(category);
-                },
-                onClearSearch: () {
-                  _searchController.clear();
-                  mapNotifier.setSearchQuery('');
-                },
+              child: AnimatedSlide(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                offset: _isToastVisible ? const Offset(-0.35, 0) : Offset.zero,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutCubic,
+                  opacity: _isToastVisible ? 0.0 : 1.0,
+                  child: IgnorePointer(
+                    ignoring: _isToastVisible,
+                    child: LeftHeaderRail(
+                      key: _leftHeaderRailKey,
+                      searchController: _searchController,
+                      onSearchChanged: (val) {
+                        mapNotifier.setSearchQuery(val);
+                      },
+                      activeFilters: mapState.activeFilters,
+                      onToggleFilter: (category) {
+                        mapNotifier.toggleFilter(category);
+                      },
+                      onClearSearch: () {
+                        _searchController.clear();
+                        mapNotifier.setSearchQuery('');
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
 

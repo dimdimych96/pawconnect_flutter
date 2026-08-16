@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
+import '../../core/widgets/pill_toast.dart';
 import '../../providers/map_provider.dart';
 import '../../providers/reminders_provider.dart';
 import 'widgets/new_reminder_modal.dart';
@@ -49,11 +50,10 @@ class PetProfileScreen extends ConsumerWidget {
       builder: (context) => NewReminderModal(
         onAdd: (newReminder) {
           ref.read(remindersNotifierProvider.notifier).addReminder(newReminder);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Напоминание "${newReminder.title}" добавлено!'),
-              backgroundColor: AppColors.accentBlue,
-            ),
+          PawToast.show(
+            context,
+            title: 'Напоминание "${newReminder.title}" добавлено',
+            type: ToastType.info,
           );
         },
       ),
