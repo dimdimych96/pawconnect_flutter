@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/map_marker_model.dart';
 import '../models/gps_device_model.dart';
+import '../models/route_model.dart';
 import '../services/map_service.dart';
 
 class MapState {
@@ -12,6 +14,9 @@ class MapState {
   final bool isSearchExpanded;
   final bool isLoading;
   final bool isFiltersOpen;
+  final double userLatitude;
+  final double userLongitude;
+  final ActiveRouteModel? activeRoute;
 
   const MapState({
     this.markers = const [],
@@ -22,6 +27,9 @@ class MapState {
     this.isSearchExpanded = false,
     this.isLoading = false,
     this.isFiltersOpen = false,
+    this.userLatitude = 55.0285,
+    this.userLongitude = 82.9165,
+    this.activeRoute,
   });
 
   MapState copyWith({
@@ -34,6 +42,10 @@ class MapState {
     bool? isSearchExpanded,
     bool? isLoading,
     bool? isFiltersOpen,
+    double? userLatitude,
+    double? userLongitude,
+    ActiveRouteModel? activeRoute,
+    bool clearActiveRoute = false,
   }) {
     return MapState(
       markers: markers ?? this.markers,
@@ -44,7 +56,21 @@ class MapState {
       isSearchExpanded: isSearchExpanded ?? this.isSearchExpanded,
       isLoading: isLoading ?? this.isLoading,
       isFiltersOpen: isFiltersOpen ?? this.isFiltersOpen,
+      userLatitude: userLatitude ?? this.userLatitude,
+      userLongitude: userLongitude ?? this.userLongitude,
+      activeRoute: clearActiveRoute ? null : (activeRoute ?? this.activeRoute),
     );
+  }
+
+  int get distanceToPetInMeters {
+    if (gpsDevice == null) return 0;
+    const distanceCalc = Distance();
+    final meters = distanceCalc.as(
+      LengthUnit.Meter,
+      LatLng(userLatitude, userLongitude),
+      LatLng(gpsDevice!.latitude, gpsDevice!.longitude),
+    );
+    return meters.round();
   }
 
   List<MapMarkerModel> get filteredMarkers {
@@ -130,6 +156,36 @@ class MapNotifier extends StateNotifier<MapState> {
       newRadius,
     );
     state = state.copyWith(gpsDevice: updatedDevice);
+  }
+
+  void updateUserLocation(double lat, double lng) {
+    state = state.copyWith(userLatitude: lat, userLongitude: lng);
+  }
+
+  Future<void> buildRouteTo(LatLng destination, String title, {String type = 'marker', String mode = 'walk'}) async {
+    final start = LatLng(state.userLatitude, state.userLongitude);
+    final realRoute = await _mapService.fetchRealRoute(
+      origin: start,
+      destination: destination,
+      title: title,
+      type: type,
+      mode: mode,
+    );
+    state = state.copyWith(activeRoute: realRoute, clearSelectedMarker: true);
+  }
+
+  void setTransportMode(String mode) {
+    if (state.activeRoute == null) return;
+    buildRouteTo(
+      state.activeRoute!.endPoint,
+      state.activeRoute!.destinationTitle,
+      type: state.activeRoute!.destinationType,
+      mode: mode,
+    );
+  }
+
+  void clearRoute() {
+    state = state.copyWith(clearActiveRoute: true);
   }
 }
 

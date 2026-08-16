@@ -8,11 +8,13 @@ import '../../../models/map_marker_model.dart';
 class MarkerDetailSheet extends StatelessWidget {
   final MapMarkerModel marker;
   final VoidCallback onClose;
+  final VoidCallback? onBuildRoute;
 
   const MarkerDetailSheet({
     super.key,
     required this.marker,
     required this.onClose,
+    this.onBuildRoute,
   });
 
   Color _getBadgeColor() {
@@ -218,10 +220,14 @@ class MarkerDetailSheet extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
+                        if (onBuildRoute != null) {
+                          onBuildRoute!();
+                        }
+                        onClose();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Маршрут к "${marker.title}" построен! 🗺'),
-                            backgroundColor: AppColors.accentGreen,
+                            backgroundColor: AppColors.accentBlue,
                             duration: const Duration(seconds: 2),
                           ),
                         );

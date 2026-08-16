@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/map_marker_model.dart';
 import '../models/gps_device_model.dart';
+import '../models/route_model.dart';
 
 class MapService {
   final Dio _dio;
@@ -138,6 +140,124 @@ class MapService {
       safeZoneLatitude: lat,
       safeZoneLongitude: lng,
       safeZoneRadius: radius,
+    );
+  }
+
+  /// Fetch Real Route from OSRM OpenStreetMap API
+  Future<ActiveRouteModel> fetchRealRoute({
+    required LatLng origin,
+    required LatLng destination,
+    required String title,
+    required String type,
+    String mode = 'walk',
+  }) async {
+    final osrmProfile = mode == 'drive' ? 'car' : 'foot';
+    final url =
+        'https://router.project-osrm.org/route/v1/$osrmProfile/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}?overview=full&geometries=geojson&steps=true';
+
+    try {
+      final response = await _dio.get(
+        url,
+        options: Options(headers: {'Accept': 'application/json'}),
+      ).timeout(const Duration(seconds: 4));
+
+      if (response.statusCode == 200 && response.data != null) {
+        final routes = response.data['routes'] as List?;
+        if (routes != null && routes.isNotEmpty) {
+          final primaryRoute = routes.first;
+          final distanceMeters = (primaryRoute['distance'] as num).round();
+          final durationSec = (primaryRoute['duration'] as num).round();
+          final durationMin = (durationSec / 60).ceil().clamp(1, 180);
+
+          final geometry = primaryRoute['geometry'];
+          final coordinates = (geometry['coordinates'] as List).map<LatLng>((coord) {
+            final lng = (coord[0] as num).toDouble();
+            final lat = (coord[1] as num).toDouble();
+            return LatLng(lat, lng);
+          }).toList();
+
+          final stepsList = <RouteStep>[];
+          final legs = primaryRoute['legs'] as List?;
+          if (legs != null && legs.isNotEmpty) {
+            final rawSteps = legs.first['steps'] as List?;
+            if (rawSteps != null) {
+              for (final step in rawSteps) {
+                final name = step['name'] as String? ?? '';
+                final stepDist = (step['distance'] as num).round();
+                final maneuver = step['maneuver'] as Map?;
+                final typeStr = maneuver != null ? (maneuver['type'] as String? ?? '') : '';
+                final modifier = maneuver != null ? (maneuver['modifier'] as String? ?? '') : '';
+
+                String instruction = 'Продолжайте движение';
+                if (typeStr == 'depart') {
+                  instruction = name.isNotEmpty ? 'Начните движение по $name' : 'Начните движение по маршруту';
+                } else if (typeStr == 'arrive') {
+                  instruction = 'Вы прибыли в пункт назначения: $title';
+                } else if (typeStr == 'turn' || typeStr == 'end of road') {
+                  final dir = modifier.contains('right')
+                      ? 'направо'
+                      : (modifier.contains('left') ? 'налево' : '');
+                  instruction = name.isNotEmpty ? 'Поверните $dir на $name' : 'Поверните $dir';
+                } else if (name.isNotEmpty) {
+                  instruction = 'Двигайтесь по $name';
+                }
+
+                if (stepDist > 5 || stepsList.isEmpty) {
+                  stepsList.add(RouteStep(instruction: instruction, distanceMeters: stepDist));
+                }
+              }
+            }
+          }
+
+          if (stepsList.isEmpty) {
+            stepsList.add(RouteStep(instruction: 'Следуйте по проложенному маршруту', distanceMeters: distanceMeters));
+          }
+
+          return ActiveRouteModel(
+            destinationTitle: title,
+            destinationType: type,
+            startPoint: origin,
+            endPoint: destination,
+            waypoints: coordinates,
+            distanceMeters: distanceMeters,
+            durationMinutes: durationMin,
+            transportMode: mode,
+            steps: stepsList,
+          );
+        }
+      }
+    } catch (_) {
+      // Graceful offline fallback
+    }
+
+    // Offline / fallback calculation
+    const distanceCalc = Distance();
+    final distanceMeters = distanceCalc.as(LengthUnit.Meter, origin, destination).round();
+    final midLat = (origin.latitude + destination.latitude) / 2;
+    final midLng = (origin.longitude + destination.longitude) / 2;
+
+    final fallbackWaypoints = [
+      origin,
+      LatLng(origin.latitude + (destination.latitude - origin.latitude) * 0.35, origin.longitude + 0.0008),
+      LatLng(midLat + 0.0006, midLng - 0.0004),
+      LatLng(destination.latitude - (destination.latitude - origin.latitude) * 0.25, destination.longitude - 0.0005),
+      destination,
+    ];
+
+    int durationMin = (distanceMeters / (mode == 'drive' ? 400 : (mode == 'dog_run' ? 150 : 80))).ceil().clamp(1, 120);
+
+    return ActiveRouteModel(
+      destinationTitle: title,
+      destinationType: type,
+      startPoint: origin,
+      endPoint: destination,
+      waypoints: fallbackWaypoints,
+      distanceMeters: distanceMeters,
+      durationMinutes: durationMin,
+      transportMode: mode,
+      steps: [
+        RouteStep(instruction: 'Двигайтесь по прямой к пункту "$title"', distanceMeters: distanceMeters),
+      ],
     );
   }
 }

@@ -11,6 +11,10 @@ import 'widgets/collar_marker_widget.dart';
 import 'widgets/category_marker_widget.dart';
 import 'widgets/marker_detail_sheet.dart';
 import 'widgets/new_marker_modal.dart';
+import 'widgets/user_marker_widget.dart';
+import 'widgets/route_banner_widget.dart';
+import 'widgets/right_control_rail.dart';
+import '../../models/route_model.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -22,6 +26,7 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
+  bool _isPetFocus = false;
 
   // Mock 24h walking trail points around Central Park Novosibirsk
   final List<LatLng> _walkTrailPoints = const [
@@ -41,7 +46,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     super.dispose();
   }
 
+  void _fitRouteBounds(ActiveRouteModel route) {
+    final bounds = LatLngBounds.fromPoints(route.waypoints);
+    _mapController.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: const EdgeInsets.only(top: 140, bottom: 120, left: 50, right: 50),
+      ),
+    );
+  }
+
   void _centerOnMax(double lat, double lng) {
+    setState(() => _isPetFocus = true);
     _mapController.move(LatLng(lat, lng), 16.0);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -52,19 +68,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  void _zoomIn() {
-    final currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, currentZoom + 1.0);
+  void _centerOnUser(double lat, double lng) {
+    setState(() => _isPetFocus = false);
+    _mapController.move(LatLng(lat, lng), 16.0);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Камера сфокусирована на вашей геопозиции 📍'),
+        duration: Duration(seconds: 2),
+        backgroundColor: AppColors.accentBlue,
+      ),
+    );
   }
 
-  void _zoomOut() {
-    final currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, currentZoom - 1.0);
-  }
-
-  void _resetNorth() {
-    _mapController.rotate(0.0);
-  }
 
   void _openNewMarkerModal(double lat, double lng) {
     showModalBottomSheet(
@@ -116,9 +131,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               },
             ),
             children: [
-              // CartoDB Dark Matter Fastly CDN Tiles (CORS-friendly for Web & Mobile)
+              // CartoDB Dark Matter Tiles (CORS-friendly for Web & Mobile)
               TileLayer(
-                urlTemplate: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.pawconnect.app',
                 maxZoom: 19,
@@ -155,9 +170,42 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 ],
               ),
 
+              // Active Route Polyline Layer (Glowing cyan line)
+              if (mapState.activeRoute != null)
+                PolylineLayer(
+                  polylines: [
+                    // Glow underlayer
+                    Polyline(
+                      points: mapState.activeRoute!.waypoints,
+                      strokeWidth: 9.0,
+                      color: AppColors.accentBlue.withValues(alpha: 0.35),
+                    ),
+                    // Main route polyline
+                    Polyline(
+                      points: mapState.activeRoute!.waypoints,
+                      strokeWidth: 5.0,
+                      color: AppColors.accentBlue,
+                    ),
+                  ],
+                ),
+
               // Markers Layer
               MarkerLayer(
                 markers: [
+                  // User Device Marker
+                  Marker(
+                    point: LatLng(mapState.userLatitude, mapState.userLongitude),
+                    width: 60,
+                    height: 60,
+                    child: UserMarkerWidget(
+                      ownerName: userState.ownerName,
+                      avatarUrl: userState.ownerAvatar,
+                      onTap: () {
+                        _centerOnUser(mapState.userLatitude, mapState.userLongitude);
+                      },
+                    ),
+                  ),
+
                   // Collar Marker (Max)
                   Marker(
                     point: LatLng(maxLat, maxLng),
@@ -192,16 +240,32 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
 
-          // 2. Top Header: Split Search & Filters (Sleek Apple Maps style)
-          SafeArea(
-            child: AnimatedPadding(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.fastOutSlowIn,
-              padding: EdgeInsets.only(
-                top: isBreached ? 84.0 : 8.0,
-                left: 16.0,
-                right: 16.0,
+          // 2. Top Header: Search & Filters OR Active Route Navigation Banner
+          if (mapState.activeRoute != null)
+            Positioned(
+              top: isBreached ? 80.0 : 0.0,
+              left: 0,
+              right: 0,
+              child: RouteBannerWidget(
+                route: mapState.activeRoute!,
+                onModeChanged: (mode) {
+                  mapNotifier.setTransportMode(mode);
+                },
+                onClose: () {
+                  mapNotifier.clearRoute();
+                },
               ),
+            )
+          else
+            SafeArea(
+              child: AnimatedPadding(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.fastOutSlowIn,
+                padding: EdgeInsets.only(
+                  top: isBreached ? 84.0 : 8.0,
+                  left: 16.0,
+                  right: 16.0,
+                ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -338,90 +402,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
 
-          // 3. Floating Action Buttons (Right / Bottom controls)
+          // 3. Right Liquid Glass Control Rail (Unified Pet/User Focus & Add Event)
           Positioned(
-            right: 16,
-            bottom: 100,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Compass reset button
-                GlassContainer(
-                  width: 46,
-                  height: 46,
-                  padding: EdgeInsets.zero,
-                  borderRadius: 14,
-                  onTap: _resetNorth,
-                  child: const Center(
-                    child: Icon(Icons.explore_outlined, color: AppColors.textPrimary, size: 24),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Zoom Capsule (+ / -)
-                GlassContainer(
-                  width: 46,
-                  padding: EdgeInsets.zero,
-                  borderRadius: 14,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.add, color: AppColors.textPrimary, size: 22),
-                        onPressed: _zoomIn,
-                        constraints: const BoxConstraints(minWidth: 46, minHeight: 44),
-                      ),
-                      const Divider(height: 1, color: AppColors.glassBorderSubtle),
-                      IconButton(
-                        icon: const Icon(Icons.remove, color: AppColors.textPrimary, size: 22),
-                        onPressed: _zoomOut,
-                        constraints: const BoxConstraints(minWidth: 46, minHeight: 44),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // FAB + to add new marker
-                FloatingActionButton(
-                  heroTag: 'add_marker_fab',
-                  backgroundColor: AppColors.accentGreen,
-                  elevation: 6,
-                  onPressed: () => _openNewMarkerModal(maxLat, maxLng),
-                  child: const Icon(Icons.add, color: Colors.black, size: 28),
-                ),
-              ],
-            ),
-          ),
-
-          // 4. Centering Button «Где Макс?» (Bottom Left Floating Pill)
-          Positioned(
-            left: 16,
-            bottom: 100,
-            child: GlassCapsule(
-              isActive: true,
-              activeColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              onTap: () => _centerOnMax(maxLat, maxLng),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.my_location_rounded,
-                    color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Где ${gpsDevice?.petName ?? "Макс"}?',
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
+            right: 14,
+            bottom: 80,
+            child: RightControlRail(
+              petName: gpsDevice?.petName ?? 'Макс',
+              distanceMeters: mapState.distanceToPetInMeters,
+              isBreached: isBreached,
+              isPetFocus: _isPetFocus,
+              onPetFocus: () => _centerOnMax(maxLat, maxLng),
+              onUserFocus: () => _centerOnUser(mapState.userLatitude, mapState.userLongitude),
+              onAddEvent: () => _openNewMarkerModal(maxLat, maxLng),
+              onBuildRoute: () async {
+                await mapNotifier.buildRouteTo(
+                  LatLng(maxLat, maxLng),
+                  gpsDevice?.petName ?? 'Макс',
+                  type: 'collar',
+                );
+                final route = ref.read(mapNotifierProvider).activeRoute;
+                if (route != null) {
+                  _fitRouteBounds(route);
+                }
+              },
             ),
           ),
 
@@ -435,6 +438,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               child: MarkerDetailSheet(
                 marker: mapState.selectedMarker!,
                 onClose: () => mapNotifier.selectMarker(null),
+                onBuildRoute: () async {
+                  final dest = LatLng(mapState.selectedMarker!.latitude, mapState.selectedMarker!.longitude);
+                  await mapNotifier.buildRouteTo(
+                    dest,
+                    mapState.selectedMarker!.title,
+                    type: mapState.selectedMarker!.type,
+                  );
+                  final route = ref.read(mapNotifierProvider).activeRoute;
+                  if (route != null) {
+                    _fitRouteBounds(route);
+                  }
+                },
               ),
             ),
         ],
