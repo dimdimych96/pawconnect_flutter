@@ -1,10 +1,8 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/theme/colors.dart';
-import '../../core/widgets/glass_widgets.dart';
 import '../../providers/map_provider.dart';
 import '../../providers/user_provider.dart';
 import 'widgets/collar_marker_widget.dart';
@@ -14,6 +12,7 @@ import 'widgets/new_marker_modal.dart';
 import 'widgets/user_marker_widget.dart';
 import 'widgets/route_banner_widget.dart';
 import 'widgets/right_control_rail.dart';
+import 'widgets/left_header_rail.dart';
 import '../../models/route_model.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -26,6 +25,7 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
+  final GlobalKey<State<LeftHeaderRail>> _leftHeaderRailKey = GlobalKey<State<LeftHeaderRail>>();
   bool _isPetFocus = false;
 
   // Mock 24h walking trail points around Central Park Novosibirsk
@@ -122,6 +122,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               minZoom: 4.0,
               maxZoom: 19.0,
               onTap: (_, __) {
+                (_leftHeaderRailKey.currentState as dynamic)?.closeAll();
                 if (mapState.selectedMarker != null) {
                   mapNotifier.selectMarker(null);
                 }
@@ -257,150 +258,26 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             )
           else
-            SafeArea(
-              child: AnimatedPadding(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.fastOutSlowIn,
-                padding: EdgeInsets.only(
-                  top: isBreached ? 84.0 : 8.0,
-                  left: 16.0,
-                  right: 16.0,
-                ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Collapsible Search Button / Bar (Left)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.fastOutSlowIn,
-                    width: mapState.isSearchExpanded
-                        ? MediaQuery.of(context).size.width - 32
-                        : 44.0,
-                    height: 44.0,
-                    child: GlassContainer(
-                      borderRadius: 12,
-                      padding: EdgeInsets.zero,
-                      child: InkWell(
-                        onTap: () {
-                          if (!mapState.isSearchExpanded) {
-                            mapNotifier.toggleSearchExpanded(true);
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: !mapState.isSearchExpanded
-                            ? const Center(
-                                child: Icon(
-                                  Icons.search_rounded,
-                                  color: AppColors.textPrimary,
-                                  size: 20,
-                                ),
-                              )
-                            : Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const SizedBox(width: 12),
-                                  const Icon(
-                                    Icons.search_rounded,
-                                    color: AppColors.accentGreen,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _searchController,
-                                      autofocus: true,
-                                      cursorColor: AppColors.accentGreen,
-                                      textAlignVertical: TextAlignVertical.center,
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                      onChanged: (val) {
-                                        mapNotifier.setSearchQuery(val);
-                                      },
-                                      decoration: const InputDecoration(
-                                        hintText: 'Поиск площадок, потеряшек...',
-                                        hintStyle: TextStyle(
-                                          color: AppColors.textSecondary,
-                                          fontSize: 14,
-                                        ),
-                                        border: InputBorder.none,
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      _searchController.clear();
-                                      mapNotifier.setSearchQuery('');
-                                      mapNotifier.toggleSearchExpanded(false);
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                      color: Colors.transparent,
-                                      child: const Icon(
-                                        Icons.close_rounded,
-                                        color: AppColors.textSecondary,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                  ),
-
-                  // Filter Button (Right) — only shown when search is not expanded
-                  if (!mapState.isSearchExpanded)
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        GlassContainer(
-                          width: 44,
-                          height: 44,
-                          borderRadius: 12,
-                          padding: EdgeInsets.zero,
-                          onTap: () async {
-                            mapNotifier.toggleFiltersOpen(true);
-                            await _showFilterPicker(context, mapState.activeFilters, mapNotifier);
-                            mapNotifier.toggleFiltersOpen(false);
-                          },
-                          child: const Center(
-                            child: Icon(
-                              Icons.tune_rounded,
-                              color: AppColors.textPrimary,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        if (mapState.activeFilters.length < 3)
-                          Positioned(
-                            right: -2,
-                            top: -2,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: _getFilterBadgeColor(mapState.activeFilters),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: _getFilterBadgeColor(mapState.activeFilters).withValues(alpha: 0.5),
-                                    blurRadius: 4,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                ],
+            Positioned(
+              top: MediaQuery.of(context).padding.top + (isBreached ? 84.0 : 8.0),
+              left: 14.0,
+              right: 14.0,
+              child: LeftHeaderRail(
+                key: _leftHeaderRailKey,
+                searchController: _searchController,
+                onSearchChanged: (val) {
+                  mapNotifier.setSearchQuery(val);
+                },
+                activeFilters: mapState.activeFilters,
+                onToggleFilter: (category) {
+                  mapNotifier.toggleFilter(category);
+                },
+                onClearSearch: () {
+                  _searchController.clear();
+                  mapNotifier.setSearchQuery('');
+                },
               ),
             ),
-          ),
 
           // 3. Right Liquid Glass Control Rail (Unified Pet/User Focus & Add Event)
           Positioned(
@@ -453,175 +330,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Color _getFilterBadgeColor(Set<String> filters) {
-    if (filters.isEmpty) return AppColors.accentRed;
-    final first = filters.first;
-    switch (first) {
-      case 'lost_pet':
-        return AppColors.accentRed;
-      case 'playground':
-        return AppColors.accentGreen;
-      case 'companion':
-        return AppColors.accentBlue;
-      default:
-        return AppColors.accentGreen;
-    }
-  }
-
-  Future<void> _showFilterPicker(BuildContext context, Set<String> currentFilters, MapNotifier mapNotifier) {
-    return showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final mapState = ref.watch(mapNotifierProvider);
-            final filters = mapState.activeFilters;
-            final notifier = ref.read(mapNotifierProvider.notifier);
-            final allSelected = filters.length == 3;
-
-            return BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-              child: Container(
-                padding: const EdgeInsets.only(top: 12, bottom: 24, left: 20, right: 20),
-                decoration: BoxDecoration(
-                  color: AppColors.obsidianGlassSurface,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
-                  border: Border.all(
-                    color: AppColors.glassBorder,
-                    width: 1.0,
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Top drag bar indicator
-                    Container(
-                      width: 36,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const Text(
-                      'Фильтрация карты',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _FilterOptionItem(
-                      label: 'Все активности',
-                      isActive: allSelected,
-                      activeColor: AppColors.accentGreen,
-                      onTap: () {
-                        notifier.toggleAllFilters(!allSelected);
-                      },
-                    ),
-                    const Divider(color: AppColors.glassBorderSubtle, height: 1),
-                    _FilterOptionItem(
-                      label: '🚨 Потерянные питомцы',
-                      isActive: filters.contains('lost_pet'),
-                      activeColor: AppColors.accentRed,
-                      onTap: () {
-                        notifier.toggleFilter('lost_pet');
-                      },
-                    ),
-                    const Divider(color: AppColors.glassBorderSubtle, height: 1),
-                    _FilterOptionItem(
-                      label: '🦮 Площадки для собак',
-                      isActive: filters.contains('playground'),
-                      activeColor: AppColors.accentGreen,
-                      onTap: () {
-                        notifier.toggleFilter('playground');
-                      },
-                    ),
-                    const Divider(color: AppColors.glassBorderSubtle, height: 1),
-                    _FilterOptionItem(
-                      label: '🐾 Поиск компаньонов',
-                      isActive: filters.contains('companion'),
-                      activeColor: AppColors.accentBlue,
-                      onTap: () {
-                        notifier.toggleFilter('companion');
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-class _FilterOptionItem extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final Color activeColor;
-  final VoidCallback onTap;
-
-  const _FilterOptionItem({
-    required this.label,
-    required this.isActive,
-    required this.activeColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Colors.white : AppColors.textSecondary,
-                fontSize: 14,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: isActive ? activeColor.withValues(alpha: 0.15) : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isActive ? activeColor : Colors.white.withValues(alpha: 0.2),
-                  width: 1.5,
-                ),
-              ),
-              child: isActive
-                  ? Icon(
-                      Icons.check_rounded,
-                      color: activeColor,
-                      size: 14,
-                    )
-                  : null,
-            ),
-          ],
-        ),
       ),
     );
   }
