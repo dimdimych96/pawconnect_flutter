@@ -13,7 +13,6 @@ import 'widgets/new_marker_modal.dart';
 import 'widgets/user_marker_widget.dart';
 import 'widgets/route_banner_widget.dart';
 import 'widgets/right_control_rail.dart';
-import 'widgets/left_header_rail.dart';
 import '../../models/route_model.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -25,26 +24,11 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
-  final TextEditingController _searchController = TextEditingController();
-  final GlobalKey<State<LeftHeaderRail>> _leftHeaderRailKey = GlobalKey<State<LeftHeaderRail>>();
   bool _isPetFocus = false;
-  bool _isToastVisible = false;
-
-  @override
-  void initState() {
-    super.initState();
-    PawToast.isVisible.addListener(_onToastVisibility);
-  }
-
-  void _onToastVisibility() {
-    setState(() => _isToastVisible = PawToast.isVisible.value);
-  }
 
   @override
   void dispose() {
-    PawToast.isVisible.removeListener(_onToastVisibility);
     _mapController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -58,7 +42,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     LatLng(55.0295, 82.9170),
     LatLng(55.0302, 82.9204),
   ];
-
   void _fitRouteBounds(ActiveRouteModel route) {
     final bounds = LatLngBounds.fromPoints(route.waypoints);
     _mapController.fitCamera(
@@ -90,7 +73,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       type: ToastType.info,
     );
   }
-
 
   void _openNewMarkerModal(double lat, double lng) {
     showModalBottomSheet(
@@ -133,17 +115,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               minZoom: 4.0,
               maxZoom: 19.0,
               onTap: (_, __) {
-                (_leftHeaderRailKey.currentState as dynamic)?.closeAll();
                 if (mapState.selectedMarker != null) {
                   mapNotifier.selectMarker(null);
-                }
-                if (mapState.isSearchExpanded) {
-                  mapNotifier.toggleSearchExpanded(false);
                 }
               },
             ),
             children: [
-              // CartoDB Dark Matter Tiles (CORS-friendly for Web & Mobile)
               TileLayer(
                 urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c', 'd'],
@@ -151,7 +128,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 maxZoom: 19,
               ),
 
-              // Safe Zone Circle
               if (gpsDevice != null && gpsDevice.safeZoneLatitude != null)
                 CircleLayer(
                   circles: [
@@ -171,7 +147,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ],
                 ),
 
-              // 24h Walk Trail Polyline
               PolylineLayer(
                 polylines: [
                   Polyline(
@@ -182,17 +157,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 ],
               ),
 
-              // Active Route Polyline Layer (Glowing cyan line)
               if (mapState.activeRoute != null)
                 PolylineLayer(
                   polylines: [
-                    // Glow underlayer
                     Polyline(
                       points: mapState.activeRoute!.waypoints,
                       strokeWidth: 9.0,
                       color: AppColors.accentBlue.withValues(alpha: 0.35),
                     ),
-                    // Main route polyline
                     Polyline(
                       points: mapState.activeRoute!.waypoints,
                       strokeWidth: 5.0,
@@ -201,10 +173,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ],
                 ),
 
-              // Markers Layer
               MarkerLayer(
                 markers: [
-                  // User Device Marker
                   Marker(
                     point: LatLng(mapState.userLatitude, mapState.userLongitude),
                     width: 60,
@@ -218,7 +188,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ),
                   ),
 
-                  // Collar Marker (Max)
                   Marker(
                     point: LatLng(maxLat, maxLng),
                     width: 64,
@@ -233,7 +202,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ),
                   ),
 
-                  // Category Markers (Lost pets, Playgrounds, Companions)
                   ...mapState.filteredMarkers.map((marker) {
                     return Marker(
                       point: LatLng(marker.latitude, marker.longitude),
@@ -252,7 +220,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
 
-          // 2. Top Header: Search & Filters OR Active Route Navigation Banner
+          // 2. Route Navigation Banner (if active)
           if (mapState.activeRoute != null)
             Positioned(
               top: isBreached ? 80.0 : 0.0,
@@ -267,43 +235,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   mapNotifier.clearRoute();
                 },
               ),
-            )
-          else
-            Positioned(
-              top: MediaQuery.of(context).padding.top + (isBreached ? 84.0 : 8.0),
-              left: 14.0,
-              right: 14.0,
-              child: AnimatedSlide(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                offset: _isToastVisible ? const Offset(-0.35, 0) : Offset.zero,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOutCubic,
-                  opacity: _isToastVisible ? 0.0 : 1.0,
-                  child: IgnorePointer(
-                    ignoring: _isToastVisible,
-                    child: LeftHeaderRail(
-                      key: _leftHeaderRailKey,
-                      searchController: _searchController,
-                      onSearchChanged: (val) {
-                        mapNotifier.setSearchQuery(val);
-                      },
-                      activeFilters: mapState.activeFilters,
-                      onToggleFilter: (category) {
-                        mapNotifier.toggleFilter(category);
-                      },
-                      onClearSearch: () {
-                        _searchController.clear();
-                        mapNotifier.setSearchQuery('');
-                      },
-                    ),
-                  ),
-                ),
-              ),
             ),
 
-          // 3. Right Liquid Glass Control Rail (Unified Pet/User Focus & Add Event)
+          // 3. Right Liquid Glass Control Rail (Unified Pet/User Focus, Layers Drawer & Add Event)
           Positioned(
             right: 14,
             bottom: 80,
@@ -312,6 +246,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               distanceMeters: mapState.distanceToPetInMeters,
               isBreached: isBreached,
               isPetFocus: _isPetFocus,
+              activeFilters: mapState.activeFilters,
+              onToggleFilter: (category) {
+                mapNotifier.toggleFilter(category);
+              },
               onPetFocus: () => _centerOnMax(maxLat, maxLng),
               onUserFocus: () => _centerOnUser(mapState.userLatitude, mapState.userLongitude),
               onAddEvent: () => _openNewMarkerModal(maxLat, maxLng),

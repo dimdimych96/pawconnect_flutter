@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../shell/main_shell.dart';
 import '../features/map/map_screen.dart';
+import '../features/search/search_screen.dart';
 import '../features/profile/pet_profile_screen.dart';
 import '../features/community/community_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -27,7 +28,17 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 2: Profile & Collar
+        // Tab 2: Search & Discovery
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/search',
+              name: 'search',
+              builder: (context, state) => const SearchScreen(),
+            ),
+          ],
+        ),
+        // Tab 3: Profile & Collar
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -37,7 +48,7 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 3: Community Feed
+        // Tab 4: Community Feed
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -47,7 +58,7 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 4: Settings
+        // Tab 5: Settings
         StatefulShellBranch(
           routes: [
             GoRoute(

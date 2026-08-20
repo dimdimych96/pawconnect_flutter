@@ -2,11 +2,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../core/theme/colors.dart';
 
-class RightControlRail extends StatelessWidget {
+class RightControlRail extends StatefulWidget {
   final String petName;
   final int distanceMeters;
   final bool isBreached;
   final bool isPetFocus;
+  final Set<String> activeFilters;
+  final ValueChanged<String> onToggleFilter;
   final VoidCallback onPetFocus;
   final VoidCallback onUserFocus;
   final VoidCallback onAddEvent;
@@ -18,6 +20,8 @@ class RightControlRail extends StatelessWidget {
     required this.distanceMeters,
     required this.isBreached,
     required this.isPetFocus,
+    required this.activeFilters,
+    required this.onToggleFilter,
     required this.onPetFocus,
     required this.onUserFocus,
     required this.onAddEvent,
@@ -25,24 +29,128 @@ class RightControlRail extends StatelessWidget {
   });
 
   @override
+  State<RightControlRail> createState() => _RightControlRailState();
+}
+
+class _RightControlRailState extends State<RightControlRail> {
+  bool _isLayersExpanded = false;
+
+  void _toggleLayers() {
+    setState(() {
+      _isLayersExpanded = !_isLayersExpanded;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final activeGreen = isBreached ? AppColors.accentRed : AppColors.accentGreen;
+    final activeGreen = widget.isBreached ? AppColors.accentRed : AppColors.accentGreen;
+    final isPetFocus = widget.isPetFocus;
+    final activeFiltersCount = widget.activeFilters.length;
+    final hasFilterActive = activeFiltersCount < 3;
 
     return Stack(
       alignment: Alignment.centerRight,
       clipBehavior: Clip.none,
       children: [
-        // 1. Sliding Distance & Quick Route Badge (Left of the rail when Pet mode is active)
+        // 1. Sliding Map Layers Drawer Card (Slides out to the left when Layers is clicked)
         AnimatedPositioned(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           top: 4.0,
+          right: _isLayersExpanded ? 52.0 : 34.0,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: _isLayersExpanded ? 1.0 : 0.0,
+            child: IgnorePointer(
+              ignoring: !_isLayersExpanded,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                  child: Container(
+                    width: 240,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xEA16181C),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.14),
+                        width: 1.0,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.75),
+                          blurRadius: 28,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Слои карты',
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '$activeFiltersCount активны',
+                              style: TextStyle(
+                                color: hasFilterActive ? AppColors.accentGreen : AppColors.textSecondary,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _LayerRowItem(
+                          icon: Icons.warning_amber_rounded,
+                          title: 'Потерянные питомцы',
+                          isActive: widget.activeFilters.contains('lost_pet'),
+                          onToggle: () => widget.onToggleFilter('lost_pet'),
+                        ),
+                        const SizedBox(height: 6),
+                        _LayerRowItem(
+                          icon: Icons.park_rounded,
+                          title: 'Площадки для собак',
+                          isActive: widget.activeFilters.contains('playground'),
+                          onToggle: () => widget.onToggleFilter('playground'),
+                        ),
+                        const SizedBox(height: 6),
+                        _LayerRowItem(
+                          icon: Icons.people_alt_rounded,
+                          title: 'Поиск компаньонов',
+                          isActive: widget.activeFilters.contains('companion'),
+                          onToggle: () => widget.onToggleFilter('companion'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // 2. Sliding Distance & Quick Route Badge (Left of the rail when Pet mode is active)
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          top: 44.0,
           right: isPetFocus ? 52.0 : 34.0,
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
-            opacity: isPetFocus ? 1.0 : 0.0,
+            opacity: (isPetFocus && !_isLayersExpanded) ? 1.0 : 0.0,
             child: IgnorePointer(
-              ignoring: !isPetFocus,
+              ignoring: !(isPetFocus && !_isLayersExpanded),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: BackdropFilter(
@@ -68,7 +176,6 @@ class RightControlRail extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Pulsing status dot
                         Container(
                           width: 8,
                           height: 8,
@@ -86,7 +193,7 @@ class RightControlRail extends StatelessWidget {
                         ),
                         const SizedBox(width: 7),
                         Text(
-                          '$petName: $distanceMeters м',
+                          '${widget.petName}: ${widget.distanceMeters} м',
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 12,
@@ -95,11 +202,10 @@ class RightControlRail extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Quick Route Icon Button inside badge
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap: onBuildRoute,
+                            onTap: widget.onBuildRoute,
                             borderRadius: BorderRadius.circular(14),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -149,7 +255,7 @@ class RightControlRail extends StatelessWidget {
           ),
         ),
 
-        // 2. Single Right Control Rail (Unified Liquid Glass Monolith)
+        // 3. Single Right Control Rail (Unified Liquid Glass Monolith)
         ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: BackdropFilter(
@@ -175,7 +281,7 @@ class RightControlRail extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Upper Segmented Section: Pet Focus vs User Focus
+                  // Upper Segmented Section: Layers, Pet Focus, User Focus
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.05),
@@ -189,13 +295,26 @@ class RightControlRail extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Map Layer Filter Button
+                        _RailIconButton(
+                          icon: Icons.layers_rounded,
+                          tooltip: 'Слои и фильтры карты',
+                          isSelected: _isLayersExpanded,
+                          hasActiveBadge: hasFilterActive,
+                          activeColor: AppColors.accentGreen,
+                          onTap: _toggleLayers,
+                        ),
+                        const SizedBox(height: 4),
                         // Pet Focus Button
                         _RailIconButton(
                           icon: Icons.pets_rounded,
-                          tooltip: 'Центрировать на питомце ($petName)',
+                          tooltip: 'Центрировать на питомце (${widget.petName})',
                           isSelected: isPetFocus,
                           activeColor: activeGreen,
-                          onTap: onPetFocus,
+                          onTap: () {
+                            setState(() => _isLayersExpanded = false);
+                            widget.onPetFocus();
+                          },
                         ),
                         const SizedBox(height: 4),
                         // User Focus Button
@@ -204,7 +323,10 @@ class RightControlRail extends StatelessWidget {
                           tooltip: 'Моя геопозиция',
                           isSelected: !isPetFocus,
                           activeColor: AppColors.accentBlue,
-                          onTap: onUserFocus,
+                          onTap: () {
+                            setState(() => _isLayersExpanded = false);
+                            widget.onUserFocus();
+                          },
                         ),
                       ],
                     ),
@@ -224,7 +346,10 @@ class RightControlRail extends StatelessWidget {
                     isSelected: false,
                     isAccentAdd: true,
                     activeColor: activeGreen,
-                    onTap: onAddEvent,
+                    onTap: () {
+                      setState(() => _isLayersExpanded = false);
+                      widget.onAddEvent();
+                    },
                   ),
                 ],
               ),
@@ -236,11 +361,97 @@ class RightControlRail extends StatelessWidget {
   }
 }
 
+class _LayerRowItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool isActive;
+  final VoidCallback onToggle;
+
+  const _LayerRowItem({
+    required this.icon,
+    required this.title,
+    required this.isActive,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onToggle,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1.0,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: Colors.white.withValues(alpha: 0.85),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 30,
+              height: 17,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.accentGreen : Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: AnimatedAlign(
+                duration: const Duration(milliseconds: 200),
+                alignment: isActive ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: 13,
+                  height: 13,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _RailIconButton extends StatefulWidget {
   final IconData icon;
   final String tooltip;
   final bool isSelected;
   final bool isAccentAdd;
+  final bool hasActiveBadge;
   final Color activeColor;
   final VoidCallback onTap;
 
@@ -249,6 +460,7 @@ class _RailIconButton extends StatefulWidget {
     required this.tooltip,
     required this.isSelected,
     this.isAccentAdd = false,
+    this.hasActiveBadge = false,
     required this.activeColor,
     required this.onTap,
   });
@@ -335,12 +547,34 @@ class _RailIconButtonState extends State<_RailIconButton> {
                     ]
                   : null,
             ),
-            child: Center(
-              child: Icon(
-                widget.icon,
-                color: iconColor,
-                size: isAccentAdd ? 20 : 18,
-              ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  widget.icon,
+                  color: iconColor,
+                  size: isAccentAdd ? 20 : 18,
+                ),
+                if (widget.hasActiveBadge && !isSelected)
+                  Positioned(
+                    top: 3,
+                    right: 3,
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: AppColors.accentGreen,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.accentGreen,
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
