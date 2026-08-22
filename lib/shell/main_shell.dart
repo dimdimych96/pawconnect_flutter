@@ -54,7 +54,7 @@ class MainShell extends ConsumerWidget {
                 offset: isSheetOrNavActive ? const Offset(0, 1.5) : Offset.zero,
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: Center(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(26),
