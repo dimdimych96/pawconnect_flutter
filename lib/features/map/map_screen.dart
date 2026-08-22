@@ -80,7 +80,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  void _centerOnMax(double lat, double lng) {
+  void _centerOnMax(double lat, double lng, {bool isNavigating = false}) {
     setState(() => _isPetFocus = true);
     _mapController.move(LatLng(lat, lng), 16.0);
     PawToast.show(
@@ -88,10 +88,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       title: 'Камера сфокусирована на ошейнике Макса',
       subtitle: 'GPS-ошейник в центре карты',
       type: ToastType.success,
+      topOffset: isNavigating ? 96.0 : null,
     );
   }
 
-  void _centerOnUser(double lat, double lng) {
+  void _centerOnUser(double lat, double lng, {bool isNavigating = false}) {
     setState(() => _isPetFocus = false);
     _mapController.move(LatLng(lat, lng), 16.0);
     PawToast.show(
@@ -99,6 +100,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       title: 'Камера сфокусирована на вашей геопозиции',
       subtitle: 'Ваше местоположение в центре карты',
       type: ToastType.info,
+      topOffset: isNavigating ? 96.0 : null,
     );
   }
 
@@ -226,7 +228,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       avatarUrl: userState.ownerAvatar,
                       onTap: () {
                         _onMapInteraction();
-                        _centerOnUser(mapState.userLatitude, mapState.userLongitude);
+                        _centerOnUser(mapState.userLatitude, mapState.userLongitude, isNavigating: mapState.isNavigating);
                       },
                     ),
                   ),
@@ -241,7 +243,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       photoUrl: gpsDevice?.photoUrl,
                       onTap: () {
                         _onMapInteraction();
-                        _centerOnMax(maxLat, maxLng);
+                        _centerOnMax(maxLat, maxLng, isNavigating: mapState.isNavigating);
                       },
                     ),
                   ),
@@ -287,11 +289,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   },
                   onPetFocus: () {
                     _onMapInteraction();
-                    _centerOnMax(maxLat, maxLng);
+                    _centerOnMax(maxLat, maxLng, isNavigating: mapState.isNavigating);
                   },
                   onUserFocus: () {
                     _onMapInteraction();
-                    _centerOnUser(mapState.userLatitude, mapState.userLongitude);
+                    _centerOnUser(mapState.userLatitude, mapState.userLongitude, isNavigating: mapState.isNavigating);
                   },
                   onAddEvent: () {
                     _onMapInteraction();
@@ -360,6 +362,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     title: 'Навигация запущена',
                     subtitle: 'Следуйте по указаниям на экране',
                     type: ToastType.success,
+                    topOffset: 96.0,
                   );
                 },
                 onClose: () {

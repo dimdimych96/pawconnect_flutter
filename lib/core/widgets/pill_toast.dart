@@ -148,15 +148,10 @@ class PillToast extends StatelessWidget {
   }
 }
 
-/// Сервис показа пилюль-тостов поверх всего приложения (включая боттомшиты).
+/// Сервис показа пилюль-тостов поверх всего приложения.
 /// Использует корневой Overlay, поэтому тост виден на любом слое.
 class PawToast {
-  /// Показывает тост на корневом overlay.
-  /// [context] - любой контекст внутри MaterialApp.
   static OverlayEntry? _current;
-
-  /// Глобальный флаг видимости: экраны (например, карта) могут скрывать
-  /// свои элементы управления, пока тост виден.
   static final ValueNotifier<bool> isVisible = ValueNotifier(false);
 
   static void show(
@@ -165,11 +160,11 @@ class PawToast {
     String? subtitle,
     ToastType type = ToastType.success,
     Duration duration = const Duration(seconds: 2),
+    double? topOffset,
   }) {
     final overlay = _findOverlay(context);
     if (overlay == null) return;
 
-    // Скрываем предыдущий тост, если он ещё висит.
     _dismiss();
 
     late OverlayEntry entry;
@@ -185,6 +180,7 @@ class PawToast {
 
     entry = OverlayEntry(
       builder: (context) => _PillToastOverlay(
+        topOffset: topOffset,
         toast: PillToast(
           title: title,
           subtitle: subtitle,
@@ -199,7 +195,6 @@ class PawToast {
     isVisible.value = true;
     overlay.insert(entry);
 
-    // Автоскрытие через заданную длительность.
     Future.delayed(duration, close);
   }
 
@@ -212,10 +207,8 @@ class PawToast {
     isVisible.value = false;
   }
 
-  /// Ищет корневой overlay: сначала через Navigator, затем через Overlay.of.
   static OverlayState? _findOverlay(BuildContext context) {
     final navigator = Navigator.of(context, rootNavigator: true);
-    // Overlay доступен через контекст Navigator'а корневого уровня.
     return navigator.context.findAncestorStateOfType<OverlayState>() ??
         Overlay.maybeOf(context);
   }
@@ -224,10 +217,12 @@ class PawToast {
 class _PillToastOverlay extends StatefulWidget {
   final PillToast toast;
   final VoidCallback onDismiss;
+  final double? topOffset;
 
   const _PillToastOverlay({
     required this.toast,
     required this.onDismiss,
+    this.topOffset,
   });
 
   @override
@@ -238,13 +233,17 @@ class _PillToastOverlayState extends State<_PillToastOverlay> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 0,
+      top: widget.topOffset ?? 0,
       left: 0,
       right: 0,
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
+          padding: EdgeInsets.only(
+            left: 12,
+            right: 12,
+            top: widget.topOffset != null ? 8 : 8,
+          ),
           child: GestureDetector(
             onVerticalDragEnd: (details) {
               if ((details.primaryVelocity ?? 0) > 300) {
