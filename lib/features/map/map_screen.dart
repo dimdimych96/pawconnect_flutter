@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,9 +27,34 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   bool _isPetFocus = false;
+  bool _isControlsVisible = true;
+  Timer? _hideControlsTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startHideControlsTimer();
+  }
+
+  void _startHideControlsTimer() {
+    _hideControlsTimer?.cancel();
+    _hideControlsTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) {
+        setState(() => _isControlsVisible = false);
+      }
+    });
+  }
+
+  void _onMapInteraction() {
+    if (!_isControlsVisible) {
+      setState(() => _isControlsVisible = true);
+    }
+    _startHideControlsTimer();
+  }
 
   @override
   void dispose() {
+    _hideControlsTimer?.cancel();
     _mapController.dispose();
     super.dispose();
   }
@@ -104,13 +130,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final safeZoneRadius = gpsDevice?.safeZoneRadius ?? 350.0;
     final isBreached = (gpsDevice?.isBreached ?? false) || userState.isSimulatingBreach;
 
-    // Calculate RightControlRail bottom position depending on sheet state
-    double controlRailBottom = 80.0;
-    if (mapState.isNavigating) {
-      controlRailBottom = 110.0;
-    } else if (mapState.activeRoute != null) {
-      controlRailBottom = 230.0;
-    }
+    // Position RightControlRail safely in the upper-right area, clearing any top banners
+    final double controlRailTop = isBreached
+        ? 140.0
+        : (mapState.isNavigating ? 150.0 : 80.0);
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -124,7 +147,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               initialZoom: 15.0,
               minZoom: 4.0,
               maxZoom: 19.0,
+              onPositionChanged: (pos, hasGesture) {
+                if (hasGesture) _onMapInteraction();
+              },
               onTap: (_, __) {
+                _onMapInteraction();
                 if (mapState.selectedMarker != null) {
                   mapNotifier.selectMarker(null);
                 }
@@ -198,6 +225,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       ownerName: userState.ownerName,
                       avatarUrl: userState.ownerAvatar,
                       onTap: () {
+                        _onMapInteraction();
                         _centerOnUser(mapState.userLatitude, mapState.userLongitude);
                       },
                     ),
@@ -212,6 +240,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       isBreached: isBreached,
                       photoUrl: gpsDevice?.photoUrl,
                       onTap: () {
+                        _onMapInteraction();
                         _centerOnMax(maxLat, maxLng);
                       },
                     ),
@@ -225,6 +254,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       child: CategoryMarkerWidget(
                         marker: marker,
                         onTap: () {
+                          _onMapInteraction();
                           mapNotifier.selectMarker(marker);
                         },
                       ),
@@ -235,33 +265,52 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
 
-          // 2. Right Liquid Glass Control Rail (Adaptive position)
+          // 2. Right Liquid Glass Control Rail (Upper-Right placement + Smart Auto-Hide)
           Positioned(
             right: 14,
-            bottom: controlRailBottom,
-            child: RightControlRail(
-              petName: gpsDevice?.petName ?? 'Макс',
-              distanceMeters: mapState.distanceToPetInMeters,
-              isBreached: isBreached,
-              isPetFocus: _isPetFocus,
-              activeFilters: mapState.activeFilters,
-              onToggleFilter: (category) {
-                mapNotifier.toggleFilter(category);
-              },
-              onPetFocus: () => _centerOnMax(maxLat, maxLng),
-              onUserFocus: () => _centerOnUser(mapState.userLatitude, mapState.userLongitude),
-              onAddEvent: () => _openNewMarkerModal(maxLat, maxLng),
-              onBuildRoute: () async {
-                await mapNotifier.buildRouteTo(
-                  LatLng(maxLat, maxLng),
-                  gpsDevice?.petName ?? 'Макс',
-                  type: 'collar',
-                );
-                final route = ref.read(mapNotifierProvider).activeRoute;
-                if (route != null) {
-                  _fitRouteBounds(route);
-                }
-              },
+            top: controlRailTop,
+            child: AnimatedOpacity(
+              opacity: _isControlsVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: IgnorePointer(
+                ignoring: !_isControlsVisible,
+                child: RightControlRail(
+                  petName: gpsDevice?.petName ?? 'Макс',
+                  distanceMeters: mapState.distanceToPetInMeters,
+                  isBreached: isBreached,
+                  isPetFocus: _isPetFocus,
+                  activeFilters: mapState.activeFilters,
+                  onToggleFilter: (category) {
+                    _onMapInteraction();
+                    mapNotifier.toggleFilter(category);
+                  },
+                  onPetFocus: () {
+                    _onMapInteraction();
+                    _centerOnMax(maxLat, maxLng);
+                  },
+                  onUserFocus: () {
+                    _onMapInteraction();
+                    _centerOnUser(mapState.userLatitude, mapState.userLongitude);
+                  },
+                  onAddEvent: () {
+                    _onMapInteraction();
+                    _openNewMarkerModal(maxLat, maxLng);
+                  },
+                  onBuildRoute: () async {
+                    _onMapInteraction();
+                    await mapNotifier.buildRouteTo(
+                      LatLng(maxLat, maxLng),
+                      gpsDevice?.petName ?? 'Макс',
+                      type: 'collar',
+                    );
+                    final route = ref.read(mapNotifierProvider).activeRoute;
+                    if (route != null) {
+                      _fitRouteBounds(route);
+                    }
+                  },
+                ),
+              ),
             ),
           ),
 
@@ -300,9 +349,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 route: mapState.activeRoute!,
                 activeMode: mapState.selectedTransportMode,
                 onModeSelected: (mode) {
+                  _onMapInteraction();
                   mapNotifier.setTransportMode(mode);
                 },
                 onStartNavigation: () {
+                  _onMapInteraction();
                   mapNotifier.startNavigation();
                   PawToast.show(
                     context,
@@ -312,6 +363,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   );
                 },
                 onClose: () {
+                  _onMapInteraction();
                   mapNotifier.clearRoute();
                 },
               ),
@@ -322,9 +374,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             TurnByTurnHud(
               route: mapState.activeRoute!,
               currentStepIndex: mapState.currentStepIndex,
-              onNextStep: () => mapNotifier.nextStep(),
-              onPrevStep: () => mapNotifier.prevStep(),
+              onNextStep: () {
+                _onMapInteraction();
+                mapNotifier.nextStep();
+              },
+              onPrevStep: () {
+                _onMapInteraction();
+                mapNotifier.prevStep();
+              },
               onEndNavigation: () {
+                _onMapInteraction();
                 mapNotifier.endNavigation();
                 PawToast.show(
                   context,
