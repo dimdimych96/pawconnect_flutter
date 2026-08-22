@@ -143,7 +143,7 @@ class MapService {
     );
   }
 
-  /// Fetch Real Route from OSRM OpenStreetMap API
+  /// Fetch Real Route from OSRM OpenStreetMap API with Maneuvers and Fallback
   Future<ActiveRouteModel> fetchRealRoute({
     required LatLng origin,
     required LatLng destination,
@@ -167,7 +167,10 @@ class MapService {
           final primaryRoute = routes.first;
           final distanceMeters = (primaryRoute['distance'] as num).round();
           final durationSec = (primaryRoute['duration'] as num).round();
-          final durationMin = (durationSec / 60).ceil().clamp(1, 180);
+          int durationMin = (durationSec / 60).ceil().clamp(1, 180);
+          if (mode == 'park_safe') {
+            durationMin = (durationMin * 1.15).ceil();
+          }
 
           final geometry = primaryRoute['geometry'];
           final coordinates = (geometry['coordinates'] as List).map<LatLng>((coord) {
@@ -188,29 +191,54 @@ class MapService {
                 final typeStr = maneuver != null ? (maneuver['type'] as String? ?? '') : '';
                 final modifier = maneuver != null ? (maneuver['modifier'] as String? ?? '') : '';
 
-                String instruction = 'Продолжайте движение';
+                ManeuverType mType = ManeuverType.straight;
+                String instruction = 'Продолжайте движение прямо';
+
                 if (typeStr == 'depart') {
+                  mType = ManeuverType.straight;
                   instruction = name.isNotEmpty ? 'Начните движение по $name' : 'Начните движение по маршруту';
                 } else if (typeStr == 'arrive') {
+                  mType = ManeuverType.arrive;
                   instruction = 'Вы прибыли в пункт назначения: $title';
-                } else if (typeStr == 'turn' || typeStr == 'end of road') {
-                  final dir = modifier.contains('right')
-                      ? 'направо'
-                      : (modifier.contains('left') ? 'налево' : '');
-                  instruction = name.isNotEmpty ? 'Поверните $dir на $name' : 'Поверните $dir';
+                } else if (modifier.contains('slight') && modifier.contains('right')) {
+                  mType = ManeuverType.slightRight;
+                  instruction = name.isNotEmpty ? 'Плавно направо на $name' : 'Плавно направо';
+                } else if (modifier.contains('slight') && modifier.contains('left')) {
+                  mType = ManeuverType.slightLeft;
+                  instruction = name.isNotEmpty ? 'Плавно налево на $name' : 'Плавно налево';
+                } else if (modifier.contains('right') || typeStr.contains('right')) {
+                  mType = ManeuverType.turnRight;
+                  instruction = name.isNotEmpty ? 'Поверните направо на $name' : 'Поверните направо';
+                } else if (modifier.contains('left') || typeStr.contains('left')) {
+                  mType = ManeuverType.turnLeft;
+                  instruction = name.isNotEmpty ? 'Поверните налево на $name' : 'Поверните налево';
                 } else if (name.isNotEmpty) {
-                  instruction = 'Двигайтесь по $name';
+                  instruction = 'Двигайтесь прямо по $name';
                 }
 
                 if (stepDist > 5 || stepsList.isEmpty) {
-                  stepsList.add(RouteStep(instruction: instruction, distanceMeters: stepDist));
+                  stepsList.add(
+                    RouteStep(
+                      instruction: instruction,
+                      streetName: name.isNotEmpty ? name : 'Аллея',
+                      distanceMeters: stepDist,
+                      maneuverType: mType,
+                    ),
+                  );
                 }
               }
             }
           }
 
           if (stepsList.isEmpty) {
-            stepsList.add(RouteStep(instruction: 'Следуйте по проложенному маршруту', distanceMeters: distanceMeters));
+            stepsList.add(
+              RouteStep(
+                instruction: 'Следуйте по проложенному маршруту',
+                streetName: title,
+                distanceMeters: distanceMeters,
+                maneuverType: ManeuverType.straight,
+              ),
+            );
           }
 
           return ActiveRouteModel(
@@ -230,21 +258,69 @@ class MapService {
       // Graceful offline fallback
     }
 
-    // Offline / fallback calculation
+    // Offline fallback route calculation
     const distanceCalc = Distance();
     final distanceMeters = distanceCalc.as(LengthUnit.Meter, origin, destination).round();
     final midLat = (origin.latitude + destination.latitude) / 2;
     final midLng = (origin.longitude + destination.longitude) / 2;
 
-    final fallbackWaypoints = [
-      origin,
-      LatLng(origin.latitude + (destination.latitude - origin.latitude) * 0.35, origin.longitude + 0.0008),
-      LatLng(midLat + 0.0006, midLng - 0.0004),
-      LatLng(destination.latitude - (destination.latitude - origin.latitude) * 0.25, destination.longitude - 0.0005),
-      destination,
-    ];
+    List<LatLng> fallbackWaypoints;
+    List<RouteStep> fallbackSteps;
 
-    int durationMin = (distanceMeters / (mode == 'drive' ? 400 : (mode == 'dog_run' ? 150 : 80))).ceil().clamp(1, 120);
+    if (mode == 'park_safe') {
+      // Safe route curved through green park area
+      fallbackWaypoints = [
+        origin,
+        LatLng(origin.latitude + 0.0006, origin.longitude + 0.0010),
+        LatLng(midLat + 0.0012, midLng + 0.0005),
+        LatLng(destination.latitude - 0.0004, destination.longitude + 0.0004),
+        destination,
+      ];
+      fallbackSteps = [
+        RouteStep(
+          instruction: 'Начните движение по Парковой аллее',
+          streetName: 'Парковая аллея (зеленая зона)',
+          distanceMeters: (distanceMeters * 0.35).round(),
+          maneuverType: ManeuverType.straight,
+        ),
+        RouteStep(
+          instruction: 'Поверните направо в сторону сквера',
+          streetName: 'Сквер им. Калинина',
+          distanceMeters: (distanceMeters * 0.45).round(),
+          maneuverType: ManeuverType.turnRight,
+        ),
+        RouteStep(
+          instruction: 'Вы прибыли в безопасную зону',
+          streetName: title,
+          distanceMeters: (distanceMeters * 0.20).round(),
+          maneuverType: ManeuverType.arrive,
+        ),
+      ];
+    } else {
+      fallbackWaypoints = [
+        origin,
+        LatLng(origin.latitude + (destination.latitude - origin.latitude) * 0.35, origin.longitude + 0.0008),
+        LatLng(midLat + 0.0006, midLng - 0.0004),
+        LatLng(destination.latitude - (destination.latitude - origin.latitude) * 0.25, destination.longitude - 0.0005),
+        destination,
+      ];
+      fallbackSteps = [
+        RouteStep(
+          instruction: 'Двигайтесь прямо по ул. Ленина',
+          streetName: 'ул. Ленина',
+          distanceMeters: (distanceMeters * 0.4).round(),
+          maneuverType: ManeuverType.straight,
+        ),
+        RouteStep(
+          instruction: 'Поверните направо к пункту назначения',
+          streetName: title,
+          distanceMeters: (distanceMeters * 0.6).round(),
+          maneuverType: ManeuverType.turnRight,
+        ),
+      ];
+    }
+
+    int durationMin = (distanceMeters / (mode == 'drive' ? 400 : (mode == 'park_safe' ? 70 : 80))).ceil().clamp(1, 120);
 
     return ActiveRouteModel(
       destinationTitle: title,
@@ -255,9 +331,7 @@ class MapService {
       distanceMeters: distanceMeters,
       durationMinutes: durationMin,
       transportMode: mode,
-      steps: [
-        RouteStep(instruction: 'Двигайтесь по прямой к пункту "$title"', distanceMeters: distanceMeters),
-      ],
+      steps: fallbackSteps,
     );
   }
 }

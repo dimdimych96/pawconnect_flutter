@@ -11,7 +11,8 @@ import 'widgets/category_marker_widget.dart';
 import 'widgets/marker_detail_sheet.dart';
 import 'widgets/new_marker_modal.dart';
 import 'widgets/user_marker_widget.dart';
-import 'widgets/route_banner_widget.dart';
+import 'widgets/liquid_glass_bottom_sheet.dart';
+import 'widgets/turn_by_turn_hud.dart';
 import 'widgets/right_control_rail.dart';
 import '../../models/route_model.dart';
 
@@ -42,12 +43,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     LatLng(55.0295, 82.9170),
     LatLng(55.0302, 82.9204),
   ];
+
   void _fitRouteBounds(ActiveRouteModel route) {
     final bounds = LatLngBounds.fromPoints(route.waypoints);
     _mapController.fitCamera(
       CameraFit.bounds(
         bounds: bounds,
-        padding: const EdgeInsets.only(top: 140, bottom: 120, left: 50, right: 50),
+        padding: const EdgeInsets.only(top: 140, bottom: 260, left: 50, right: 50),
       ),
     );
   }
@@ -101,6 +103,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final maxLng = gpsDevice?.longitude ?? 82.9204;
     final safeZoneRadius = gpsDevice?.safeZoneRadius ?? 350.0;
     final isBreached = (gpsDevice?.isBreached ?? false) || userState.isSimulatingBreach;
+
+    // Calculate RightControlRail bottom position depending on sheet state
+    double controlRailBottom = 80.0;
+    if (mapState.isNavigating) {
+      controlRailBottom = 110.0;
+    } else if (mapState.activeRoute != null) {
+      controlRailBottom = 230.0;
+    }
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -163,12 +173,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     Polyline(
                       points: mapState.activeRoute!.waypoints,
                       strokeWidth: 9.0,
-                      color: AppColors.accentBlue.withValues(alpha: 0.35),
+                      color: (mapState.selectedTransportMode == 'park_safe'
+                              ? AppColors.accentGreen
+                              : AppColors.accentBlue)
+                          .withValues(alpha: 0.35),
                     ),
                     Polyline(
                       points: mapState.activeRoute!.waypoints,
                       strokeWidth: 5.0,
-                      color: AppColors.accentBlue,
+                      color: mapState.selectedTransportMode == 'park_safe'
+                          ? AppColors.accentGreen
+                          : AppColors.accentBlue,
                     ),
                   ],
                 ),
@@ -220,27 +235,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
 
-          // 2. Route Navigation Banner (if active)
-          if (mapState.activeRoute != null)
-            Positioned(
-              top: isBreached ? 80.0 : 0.0,
-              left: 0,
-              right: 0,
-              child: RouteBannerWidget(
-                route: mapState.activeRoute!,
-                onModeChanged: (mode) {
-                  mapNotifier.setTransportMode(mode);
-                },
-                onClose: () {
-                  mapNotifier.clearRoute();
-                },
-              ),
-            ),
-
-          // 3. Right Liquid Glass Control Rail (Unified Pet/User Focus, Layers Drawer & Add Event)
+          // 2. Right Liquid Glass Control Rail (Adaptive position)
           Positioned(
             right: 14,
-            bottom: 80,
+            bottom: controlRailBottom,
             child: RightControlRail(
               petName: gpsDevice?.petName ?? 'Макс',
               distanceMeters: mapState.distanceToPetInMeters,
@@ -267,8 +265,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
 
-          // 5. Sliding Marker Detail Sheet (if marker selected)
-          if (mapState.selectedMarker != null)
+          // 3. Sliding Marker Detail Sheet (if marker selected and no active route)
+          if (mapState.selectedMarker != null && mapState.activeRoute == null)
             Positioned(
               left: 0,
               right: 0,
@@ -290,6 +288,51 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   }
                 },
               ),
+            ),
+
+          // 4. Liquid Glass Bottom Sheet (Route Preview mode)
+          if (mapState.activeRoute != null && !mapState.isNavigating)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: LiquidGlassBottomSheet(
+                route: mapState.activeRoute!,
+                activeMode: mapState.selectedTransportMode,
+                onModeSelected: (mode) {
+                  mapNotifier.setTransportMode(mode);
+                },
+                onStartNavigation: () {
+                  mapNotifier.startNavigation();
+                  PawToast.show(
+                    context,
+                    title: 'Навигация запущена',
+                    subtitle: 'Следуйте по указаниям на экране',
+                    type: ToastType.success,
+                  );
+                },
+                onClose: () {
+                  mapNotifier.clearRoute();
+                },
+              ),
+            ),
+
+          // 5. Active Turn-by-Turn Navigation HUD (When navigating)
+          if (mapState.activeRoute != null && mapState.isNavigating)
+            TurnByTurnHud(
+              route: mapState.activeRoute!,
+              currentStepIndex: mapState.currentStepIndex,
+              onNextStep: () => mapNotifier.nextStep(),
+              onPrevStep: () => mapNotifier.prevStep(),
+              onEndNavigation: () {
+                mapNotifier.endNavigation();
+                PawToast.show(
+                  context,
+                  title: 'Навигация завершена',
+                  subtitle: 'Вы вернулись в режим обзора карты',
+                  type: ToastType.info,
+                );
+              },
             ),
         ],
       ),

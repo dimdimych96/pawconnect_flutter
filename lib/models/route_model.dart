@@ -1,14 +1,27 @@
 import 'package:latlong2/latlong.dart';
 
+enum ManeuverType {
+  straight,
+  turnLeft,
+  turnRight,
+  slightLeft,
+  slightRight,
+  arrive,
+}
+
 class RouteStep {
   final String instruction;
+  final String streetName;
   final int distanceMeters;
-  final String iconName;
+  final ManeuverType maneuverType;
+  final LatLng? location;
 
   const RouteStep({
     required this.instruction,
+    this.streetName = '',
     required this.distanceMeters,
-    this.iconName = 'straight',
+    this.maneuverType = ManeuverType.straight,
+    this.location,
   });
 }
 
@@ -20,7 +33,7 @@ class ActiveRouteModel {
   final List<LatLng> waypoints;
   final int distanceMeters;
   final int durationMinutes;
-  final String transportMode; // 'walk', 'drive', 'dog_run'
+  final String transportMode; // 'walk', 'park_safe', 'drive'
   final List<RouteStep> steps;
 
   const ActiveRouteModel({

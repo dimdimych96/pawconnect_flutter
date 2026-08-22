@@ -29,6 +29,9 @@ class MainShell extends ConsumerWidget {
 
     final gpsDevice = mapState.gpsDevice;
     final isBreached = (gpsDevice?.isBreached ?? false) || userState.isSimulatingBreach;
+    final isSheetOrNavActive = mapState.selectedMarker != null ||
+        mapState.activeRoute != null ||
+        mapState.isNavigating;
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -38,17 +41,17 @@ class MainShell extends ConsumerWidget {
           // Active Screen Branch
           navigationShell,
 
-          // Global Floating Liquid Glass Tab Bar
+          // Global Floating Liquid Glass Tab Bar (Hides during route preview & navigation)
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
             child: IgnorePointer(
-              ignoring: mapState.selectedMarker != null,
+              ignoring: isSheetOrNavActive,
               child: AnimatedSlide(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOutCubic,
-                offset: mapState.selectedMarker != null ? const Offset(0, 1.5) : Offset.zero,
+                offset: isSheetOrNavActive ? const Offset(0, 1.5) : Offset.zero,
                 child: SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 14),

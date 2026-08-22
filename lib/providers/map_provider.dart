@@ -17,6 +17,9 @@ class MapState {
   final double userLatitude;
   final double userLongitude;
   final ActiveRouteModel? activeRoute;
+  final bool isNavigating;
+  final int currentStepIndex;
+  final String selectedTransportMode; // 'walk', 'park_safe', 'drive'
 
   const MapState({
     this.markers = const [],
@@ -30,6 +33,9 @@ class MapState {
     this.userLatitude = 55.0285,
     this.userLongitude = 82.9165,
     this.activeRoute,
+    this.isNavigating = false,
+    this.currentStepIndex = 0,
+    this.selectedTransportMode = 'walk',
   });
 
   MapState copyWith({
@@ -46,6 +52,9 @@ class MapState {
     double? userLongitude,
     ActiveRouteModel? activeRoute,
     bool clearActiveRoute = false,
+    bool? isNavigating,
+    int? currentStepIndex,
+    String? selectedTransportMode,
   }) {
     return MapState(
       markers: markers ?? this.markers,
@@ -59,6 +68,9 @@ class MapState {
       userLatitude: userLatitude ?? this.userLatitude,
       userLongitude: userLongitude ?? this.userLongitude,
       activeRoute: clearActiveRoute ? null : (activeRoute ?? this.activeRoute),
+      isNavigating: isNavigating ?? this.isNavigating,
+      currentStepIndex: currentStepIndex ?? this.currentStepIndex,
+      selectedTransportMode: selectedTransportMode ?? this.selectedTransportMode,
     );
   }
 
@@ -82,6 +94,14 @@ class MapState {
           (m.description != null && m.description!.toLowerCase().contains(searchQuery.toLowerCase()));
       return matchesFilter && matchesSearch;
     }).toList();
+  }
+
+  RouteStep? get currentStep {
+    if (activeRoute == null || activeRoute!.steps.isEmpty) return null;
+    if (currentStepIndex >= 0 && currentStepIndex < activeRoute!.steps.length) {
+      return activeRoute!.steps[currentStepIndex];
+    }
+    return activeRoute!.steps.first;
   }
 }
 
@@ -137,7 +157,11 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void selectMarker(MapMarkerModel? marker) {
-    state = state.copyWith(selectedMarker: marker, clearSelectedMarker: marker == null);
+    state = state.copyWith(
+      selectedMarker: marker,
+      clearSelectedMarker: marker == null,
+      isNavigating: false,
+    );
   }
 
   void addMarker(MapMarkerModel newMarker) {
@@ -162,20 +186,32 @@ class MapNotifier extends StateNotifier<MapState> {
     state = state.copyWith(userLatitude: lat, userLongitude: lng);
   }
 
-  Future<void> buildRouteTo(LatLng destination, String title, {String type = 'marker', String mode = 'walk'}) async {
+  Future<void> buildRouteTo(
+    LatLng destination,
+    String title, {
+    String type = 'marker',
+    String? mode,
+  }) async {
+    final transportMode = mode ?? state.selectedTransportMode;
     final start = LatLng(state.userLatitude, state.userLongitude);
     final realRoute = await _mapService.fetchRealRoute(
       origin: start,
       destination: destination,
       title: title,
       type: type,
-      mode: mode,
+      mode: transportMode,
     );
-    state = state.copyWith(activeRoute: realRoute, clearSelectedMarker: true);
+    state = state.copyWith(
+      activeRoute: realRoute,
+      selectedTransportMode: transportMode,
+      currentStepIndex: 0,
+      clearSelectedMarker: true,
+    );
   }
 
   void setTransportMode(String mode) {
     if (state.activeRoute == null) return;
+    state = state.copyWith(selectedTransportMode: mode);
     buildRouteTo(
       state.activeRoute!.endPoint,
       state.activeRoute!.destinationTitle,
@@ -184,8 +220,41 @@ class MapNotifier extends StateNotifier<MapState> {
     );
   }
 
+  void startNavigation() {
+    if (state.activeRoute == null) return;
+    state = state.copyWith(
+      isNavigating: true,
+      currentStepIndex: 0,
+    );
+  }
+
+  void endNavigation() {
+    state = state.copyWith(
+      isNavigating: false,
+      clearActiveRoute: true,
+      currentStepIndex: 0,
+    );
+  }
+
+  void nextStep() {
+    if (state.activeRoute == null) return;
+    if (state.currentStepIndex < state.activeRoute!.steps.length - 1) {
+      state = state.copyWith(currentStepIndex: state.currentStepIndex + 1);
+    }
+  }
+
+  void prevStep() {
+    if (state.currentStepIndex > 0) {
+      state = state.copyWith(currentStepIndex: state.currentStepIndex - 1);
+    }
+  }
+
   void clearRoute() {
-    state = state.copyWith(clearActiveRoute: true);
+    state = state.copyWith(
+      clearActiveRoute: true,
+      isNavigating: false,
+      currentStepIndex: 0,
+    );
   }
 }
 
