@@ -34,7 +34,7 @@ class MainShell extends ConsumerWidget {
         mapState.isNavigating;
 
     return Scaffold(
-      backgroundColor: AppColors.obsidianBackground,
+      backgroundColor: Colors.transparent,
       extendBody: true,
       body: Stack(
         children: [
