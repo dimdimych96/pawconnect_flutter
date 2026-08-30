@@ -176,7 +176,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               TileLayer(
                 urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
                 userAgentPackageName: 'com.pawconnect.app',
-                maxZoom: 16,
+                maxNativeZoom: 16,
+                maxZoom: 19,
                 tileBuilder: (context, tileWidget, tile) {
                   return ColorFiltered(
                     colorFilter: ColorFilter.matrix(mapThemeState.matrix),
@@ -187,7 +188,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               TileLayer(
                 urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
                 userAgentPackageName: 'com.pawconnect.app',
-                maxZoom: 16,
+                maxNativeZoom: 16,
+                maxZoom: 19,
               ),
 
               if (gpsDevice != null && gpsDevice.safeZoneLatitude != null)
