@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vector_tile_renderer/vector_tile_renderer.dart' as vtr;
 
 class LayerColorPreset {
   final String key;
@@ -64,10 +65,111 @@ class MapThemeState {
     );
   }
 
+  static String _colorToHex(Color c) {
+    return '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+  }
+
+  /// Builds a dynamic Vector Mapbox-compatible Theme object for VectorTileLayer
+  vtr.Theme buildVectorTheme() {
+    final styleMap = {
+      'version': 8,
+      'name': 'PawConnect Dynamic Vector Theme',
+      'sources': {
+        'openmaptiles': {
+          'type': 'vector',
+          'url': 'https://tiles.basemaps.cartocdn.com/vectortiles/carto.streets/v1/{z}/{x}/{y}.mvt'
+        }
+      },
+      'layers': [
+        {
+          'id': 'background',
+          'type': 'background',
+          'paint': {
+            'background-color': _colorToHex(backgroundColor),
+          }
+        },
+        {
+          'id': 'water',
+          'type': 'fill',
+          'source': 'openmaptiles',
+          'source-layer': 'water',
+          'paint': {
+            'fill-color': _colorToHex(waterColor),
+            'fill-opacity': isLightMode ? 0.8 : 0.95,
+          }
+        },
+        {
+          'id': 'landuse_park',
+          'type': 'fill',
+          'source': 'openmaptiles',
+          'source-layer': 'park',
+          'paint': {
+            'fill-color': _colorToHex(parkColor),
+            'fill-opacity': isLightMode ? 0.85 : 0.90,
+          }
+        },
+        {
+          'id': 'landcover_grass',
+          'type': 'fill',
+          'source': 'openmaptiles',
+          'source-layer': 'landcover',
+          'paint': {
+            'fill-color': _colorToHex(parkColor),
+            'fill-opacity': 0.75,
+          }
+        },
+        {
+          'id': 'building',
+          'type': 'fill',
+          'source': 'openmaptiles',
+          'source-layer': 'building',
+          'paint': {
+            'fill-color': _colorToHex(buildingColor),
+            'fill-outline-color': _colorToHex(buildingColor.withValues(alpha: 0.6)),
+          }
+        },
+        {
+          'id': 'road_minor',
+          'type': 'line',
+          'source': 'openmaptiles',
+          'source-layer': 'transportation',
+          'filter': ['in', 'class', 'minor', 'service', 'track'],
+          'paint': {
+            'line-color': _colorToHex(roadColor),
+            'line-width': 1.2,
+          }
+        },
+        {
+          'id': 'road_primary',
+          'type': 'line',
+          'source': 'openmaptiles',
+          'source-layer': 'transportation',
+          'filter': ['in', 'class', 'primary', 'secondary', 'tertiary', 'trunk', 'motorway'],
+          'paint': {
+            'line-color': _colorToHex(isLightMode ? Colors.white : roadColor),
+            'line-width': 2.2,
+          }
+        },
+        {
+          'id': 'road_pedestrian',
+          'type': 'line',
+          'source': 'openmaptiles',
+          'source-layer': 'transportation',
+          'filter': ['in', 'class', 'path', 'pedestrian', 'footway', 'cycleway'],
+          'paint': {
+            'line-color': _colorToHex(isLightMode ? const Color(0xFFCBD5E1) : roadColor),
+            'line-width': 1.5,
+          }
+        }
+      ]
+    };
+
+    return vtr.ThemeReader().read(styleMap);
+  }
+
   /// 4x5 ColorFilter.matrix calculated from current per-layer balance
   List<double> get matrix {
     final parkG = parkColor.g / 255.0;
-    final parkR = parkColor.r / 255.0;
     final waterB = waterColor.b / 255.0;
     final roadC = roadColor.r / 255.0;
     final bgR = backgroundColor.r / 255.0;
@@ -75,7 +177,6 @@ class MapThemeState {
     final bgB = backgroundColor.b / 255.0;
 
     if (isLightMode) {
-      // Светлая тема
       final invertMult = -0.85;
       return <double>[
         invertMult * (roadC * 2.0).clamp(0.6, 1.4), 0.0, 0.0, 0.0, 240.0 + (bgR * 20),
@@ -84,7 +185,6 @@ class MapThemeState {
         0.0, 0.0, 0.0, 1.0, 0.0,
       ];
     } else {
-      // Темная тема
       final gBoost = (parkG * 4.5).clamp(0.8, 2.5);
       final bBoost = (waterB * 4.0).clamp(0.7, 2.0);
       final rBoost = (roadC * 3.5).clamp(0.6, 1.8);

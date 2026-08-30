@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:vector_map_tiles/vector_map_tiles.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/theme/colors.dart';
@@ -173,23 +174,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               },
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-                userAgentPackageName: 'com.pawconnect.app',
-                maxNativeZoom: 16,
-                maxZoom: 19,
-                tileBuilder: (context, tileWidget, tile) {
-                  return ColorFiltered(
-                    colorFilter: ColorFilter.matrix(mapThemeState.matrix),
-                    child: tileWidget,
-                  );
-                },
-              ),
-              TileLayer(
-                urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-                userAgentPackageName: 'com.pawconnect.app',
-                maxNativeZoom: 16,
-                maxZoom: 19,
+              VectorTileLayer(
+                key: ValueKey(mapThemeState.selectedPresetKey +
+                    mapThemeState.parkColor.toARGB32().toString() +
+                    mapThemeState.waterColor.toARGB32().toString() +
+                    mapThemeState.roadColor.toARGB32().toString() +
+                    mapThemeState.backgroundColor.toARGB32().toString()),
+                theme: mapThemeState.buildVectorTheme(),
+                tileProviders: TileProviders({
+                  'openmaptiles': NetworkVectorTileProvider(
+                    urlTemplate: 'https://tiles.basemaps.cartocdn.com/vectortiles/carto.streets/v1/{z}/{x}/{y}.mvt',
+                  ),
+                }),
               ),
 
               if (gpsDevice != null && gpsDevice.safeZoneLatitude != null)

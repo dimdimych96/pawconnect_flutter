@@ -1,0 +1,52 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:vector_map_tiles/vector_map_tiles.dart';
+import 'package:vector_tile_renderer/vector_tile_renderer.dart' as vtr;
+
+void main() {
+  test('Construct VectorTileLayer with NetworkVectorTileProvider', () {
+    final styleMap = {
+      'version': 8,
+      'sources': {
+        'openmaptiles': {
+          'type': 'vector',
+          'url': 'https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+        }
+      },
+      'layers': [
+        {
+          'id': 'background',
+          'type': 'background',
+          'paint': {'background-color': '#0A0A0C'}
+        },
+        {
+          'id': 'water',
+          'type': 'fill',
+          'source': 'openmaptiles',
+          'source-layer': 'water',
+          'paint': {'fill-color': '#0C1622'}
+        },
+        {
+          'id': 'park',
+          'type': 'fill',
+          'source': 'openmaptiles',
+          'source-layer': 'park',
+          'paint': {'fill-color': '#1E432E'}
+        }
+      ]
+    };
+
+    final theme = vtr.ThemeReader().read(styleMap);
+    final tileProviders = TileProviders({
+      'openmaptiles': NetworkVectorTileProvider(
+        urlTemplate: 'https://tiles.basemaps.cartocdn.com/vectortiles/carto.streets/v1/{z}/{x}/{y}.mvt',
+      ),
+    });
+
+    final layer = VectorTileLayer(
+      theme: theme,
+      tileProviders: tileProviders,
+    );
+
+    expect(layer, isNotNull);
+  });
+}
