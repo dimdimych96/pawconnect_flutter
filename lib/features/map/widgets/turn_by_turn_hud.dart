@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/theme/colors.dart';
 import '../../../models/route_model.dart';
 
@@ -135,7 +134,7 @@ class TurnByTurnHud extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
-                                  LucideIcons.chevronLeft,
+                                  Icons.chevron_left_rounded,
                                   color: AppColors.textSecondary,
                                   size: 16,
                                 ),
@@ -153,7 +152,7 @@ class TurnByTurnHud extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
-                                  LucideIcons.chevronRight,
+                                  Icons.chevron_right_rounded,
                                   color: AppColors.accentGreen,
                                   size: 16,
                                 ),
@@ -188,7 +187,7 @@ class TurnByTurnHud extends StatelessWidget {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(LucideIcons.gauge, color: AppColors.accentGreen, size: 14),
+                      Icon(Icons.speed_rounded, color: AppColors.accentGreen, size: 14),
                       SizedBox(width: 6),
                       Text(
                         '4.8 км/ч',
@@ -303,7 +302,7 @@ class TurnByTurnHud extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                LucideIcons.xCircle,
+                                Icons.cancel_rounded,
                                 color: AppColors.accentRed,
                                 size: 16,
                               ),
@@ -334,17 +333,17 @@ class TurnByTurnHud extends StatelessWidget {
   IconData _getManeuverIcon(ManeuverType type) {
     switch (type) {
       case ManeuverType.turnRight:
-        return LucideIcons.cornerUpRight;
+        return Icons.turn_right_rounded;
       case ManeuverType.turnLeft:
-        return LucideIcons.cornerUpLeft;
+        return Icons.turn_left_rounded;
       case ManeuverType.slightRight:
-        return LucideIcons.arrowUpRight;
+        return Icons.turn_slight_right_rounded;
       case ManeuverType.slightLeft:
-        return LucideIcons.arrowUpLeft;
+        return Icons.turn_slight_left_rounded;
       case ManeuverType.arrive:
-        return LucideIcons.mapPin;
+        return Icons.location_on_rounded;
       case ManeuverType.straight:
-        return LucideIcons.arrowUp;
+        return Icons.straight_rounded;
     }
   }
 }

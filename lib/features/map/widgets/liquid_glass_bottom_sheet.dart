@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/theme/colors.dart';
 import '../../../models/route_model.dart';
 
@@ -75,7 +74,7 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                       ),
                     ),
                     child: const Icon(
-                      LucideIcons.navigation,
+                      Icons.navigation_rounded,
                       color: AppColors.accentBlue,
                       size: 22,
                     ),
@@ -132,7 +131,7 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                         border: Border.all(color: AppColors.glassBorderSubtle),
                       ),
                       child: const Icon(
-                        LucideIcons.x,
+                        Icons.close_rounded,
                         color: AppColors.textSecondary,
                         size: 16,
                       ),
@@ -150,7 +149,7 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                       modeKey: 'walk',
                       title: 'Пешком',
                       duration: '${route.durationMinutes} мин',
-                      icon: LucideIcons.footprints,
+                      icon: Icons.pets_rounded,
                       isSelected: activeMode == 'walk',
                     ),
                   ),
@@ -160,7 +159,7 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                       modeKey: 'park_safe',
                       title: 'Парк / Выгул',
                       duration: '${(route.durationMinutes * 1.15).ceil()} мин',
-                      icon: LucideIcons.trees,
+                      icon: Icons.park_rounded,
                       isSelected: activeMode == 'park_safe',
                     ),
                   ),
@@ -170,7 +169,7 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                       modeKey: 'drive',
                       title: 'На авто',
                       duration: '${(route.durationMinutes / 3).ceil().clamp(1, 60)} мин',
-                      icon: LucideIcons.car,
+                      icon: Icons.directions_car_rounded,
                       isSelected: activeMode == 'drive',
                     ),
                   ),
@@ -198,7 +197,7 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        LucideIcons.navigation,
+                        Icons.navigation_rounded,
                         color: Colors.black,
                         size: 18,
                       ),

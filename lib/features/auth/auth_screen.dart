@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/pill_toast.dart';
 import '../../providers/auth_provider.dart';
@@ -229,7 +228,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   controller: _nameController,
                                   label: 'Ваше имя',
                                   hint: 'Алексей Иванов',
-                                  icon: LucideIcons.user,
+                                  icon: Icons.person_outline_rounded,
                                   validator: (val) =>
                                       (val == null || val.trim().isEmpty) ? 'Введите имя' : null,
                                 ),
@@ -241,7 +240,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 controller: _emailController,
                                 label: 'Email',
                                 hint: 'example@pawconnect.app',
-                                icon: LucideIcons.mail,
+                                icon: Icons.mail_outline_rounded,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (val) {
                                   if (val == null || val.trim().isEmpty) return 'Введите email';
@@ -256,11 +255,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 controller: _passwordController,
                                 label: 'Пароль',
                                 hint: '••••••••',
-                                icon: LucideIcons.lock,
+                                icon: Icons.lock_outline_rounded,
                                 obscureText: _obscurePassword,
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
+                                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                                     color: AppColors.textSecondary,
                                     size: 18,
                                   ),
