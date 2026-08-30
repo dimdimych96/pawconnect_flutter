@@ -4,6 +4,7 @@ import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
 import '../../core/widgets/pill_toast.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
 import 'widgets/edit_profile_modal.dart';
 
@@ -20,6 +21,7 @@ class SettingsScreen extends ConsumerWidget {
         currentAvatar: currentAvatar,
         onSave: (newName, newAvatar) {
           ref.read(userNotifierProvider.notifier).updateProfile(newName, newAvatar);
+          ref.read(authNotifierProvider.notifier).updateProfile(newName, newAvatar);
           PawToast.show(
             context,
             title: 'Профиль владельца обновлен',
@@ -30,7 +32,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -47,13 +49,16 @@ class SettingsScreen extends ConsumerWidget {
             child: const Text('Отмена', style: TextStyle(color: AppColors.textSecondary)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              PawToast.show(
-                context,
-                title: 'Выполнен выход из аккаунта',
-                type: ToastType.alert,
-              );
+              await ref.read(authNotifierProvider.notifier).logout();
+              if (context.mounted) {
+                PawToast.show(
+                  context,
+                  title: 'Выполнен выход из аккаунта',
+                  type: ToastType.alert,
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.accentRed,
@@ -70,6 +75,11 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userState = ref.watch(userNotifierProvider);
     final userNotifier = ref.read(userNotifierProvider.notifier);
+    final authState = ref.watch(authNotifierProvider);
+
+    final ownerName = authState.currentUser?.name ?? userState.ownerName;
+    final ownerAvatar = authState.currentUser?.avatarUrl ?? userState.ownerAvatar;
+    final ownerEmail = authState.currentUser?.email ?? 'alex@pawconnect.app';
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -91,11 +101,11 @@ class SettingsScreen extends ConsumerWidget {
             GlassCard(
               borderRadius: 24,
               padding: const EdgeInsets.all(18),
-              onTap: () => _openEditProfileModal(context, ref, userState.ownerName, userState.ownerAvatar),
+              onTap: () => _openEditProfileModal(context, ref, ownerName, ownerAvatar),
               child: Row(
                 children: [
                   PawAvatar(
-                    url: userState.ownerAvatar,
+                    url: ownerAvatar,
                     radius: 30,
                     fallbackColor: AppColors.accentBlue,
                     fallbackIcon: Icons.person_rounded,
@@ -106,7 +116,7 @@ class SettingsScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          userState.ownerName,
+                          ownerName,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -114,9 +124,9 @@ class SettingsScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Владелец Макса • Редактировать',
-                          style: TextStyle(
+                        Text(
+                          '$ownerEmail • Редактировать',
+                          style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.accentBlue,
                             fontWeight: FontWeight.w600,
@@ -135,29 +145,23 @@ class SettingsScreen extends ConsumerWidget {
             // 2. Preferences & Notifications
             GlassCard(
               borderRadius: 24,
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.all(18),
               child: Column(
                 children: [
-                  ListTile(
-                    leading: const Icon(Icons.notifications_active_rounded, color: AppColors.accentBlue),
-                    title: const Text('Push-уведомления геозоны', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-                    subtitle: const Text('Мгновенные оповещения при побеге', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                    trailing: Switch.adaptive(
-                      value: userState.pushNotificationsEnabled,
-                      activeColor: AppColors.accentGreen,
-                      onChanged: (val) => userNotifier.togglePushNotifications(val),
-                    ),
-                  ),
-                  const Divider(height: 1, color: AppColors.glassBorderSubtle),
-                  ListTile(
-                    leading: const Icon(Icons.warning_amber_rounded, color: AppColors.accentRed),
-                    title: const Text('Симуляция тревоги (Тест Аларма)', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-                    subtitle: const Text('Вызов аварийного баннера поверх экрана', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                    trailing: Switch.adaptive(
-                      value: userState.isSimulatingBreach,
-                      activeColor: AppColors.accentRed,
-                      onChanged: (val) => userNotifier.toggleSimulateBreach(val),
-                    ),
+                  _ToggleRow(
+                    label: 'Push-уведомления о питомце',
+                    subtitle: 'Оповещения о геозоне, заряде ошейника и событиях',
+                    value: userState.pushNotificationsEnabled,
+                    icon: Icons.notifications_active_rounded,
+                    activeColor: AppColors.accentGreen,
+                    onChanged: (val) {
+                      userNotifier.togglePushNotifications(val);
+                      PawToast.show(
+                        context,
+                        title: val ? 'Push-уведомления включены' : 'Push-уведомления выключены',
+                        type: ToastType.info,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -165,43 +169,44 @@ class SettingsScreen extends ConsumerWidget {
 
             const SizedBox(height: 16),
 
-            // 3. System Diagnostics Panel
-            const Text(
-              'Диагностика системы',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const GlassCard(
+            // 3. Diagnostics & System Info
+            GlassCard(
               borderRadius: 24,
-              padding: EdgeInsets.all(18),
+              padding: const EdgeInsets.all(18),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _DiagnosticRow(
-                    label: 'Платформа',
-                    value: 'Flutter Web (Dart 3.x)',
-                    icon: Icons.computer_rounded,
-                    color: AppColors.accentBlue,
+                  const Text(
+                    'Диагностика системы',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
-                  Divider(height: 16, color: AppColors.glassBorderSubtle),
-                  _DiagnosticRow(
-                    label: 'Бэкенд REST API',
-                    value: 'Online (Mock Active)',
-                    icon: Icons.cloud_done_rounded,
+                  const SizedBox(height: 16),
+                  const _DiagnosticRow(
+                    label: 'GPS-модем ошейника',
+                    value: 'Подключен (LTE-M)',
+                    icon: Icons.satellite_alt_rounded,
                     color: AppColors.accentGreen,
                   ),
                   Divider(height: 16, color: AppColors.glassBorderSubtle),
                   _DiagnosticRow(
+                    label: 'Бэкенд REST API',
+                    value: 'Online (JWT Session Active)',
+                    icon: Icons.cloud_done_rounded,
+                    color: AppColors.accentGreen,
+                  ),
+                  Divider(height: 16, color: AppColors.glassBorderSubtle),
+                  const _DiagnosticRow(
                     label: 'Задержка сети (Ping)',
                     value: '24 ms',
                     icon: Icons.speed_rounded,
                     color: AppColors.accentGreen,
                   ),
                   Divider(height: 16, color: AppColors.glassBorderSubtle),
-                  _DiagnosticRow(
+                  const _DiagnosticRow(
                     label: 'Версия приложения',
                     value: 'v1.0.4-liquid-glass',
                     icon: Icons.info_outline_rounded,
@@ -217,7 +222,7 @@ class SettingsScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _showLogoutDialog(context),
+                onPressed: () => _showLogoutDialog(context, ref),
                 icon: const Icon(Icons.logout_rounded, color: AppColors.accentRed),
                 label: const Text(
                   'Выйти из аккаунта',
@@ -280,3 +285,53 @@ class _DiagnosticRow extends StatelessWidget {
     );
   }
 }
+
+class _ToggleRow extends StatelessWidget {
+  final String label;
+  final String subtitle;
+  final bool value;
+  final IconData icon;
+  final Color activeColor;
+  final ValueChanged<bool> onChanged;
+
+  const _ToggleRow({
+    required this.label,
+    required this.subtitle,
+    required this.value,
+    required this.icon,
+    required this.activeColor,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.accentBlue, size: 22),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        Switch.adaptive(
+          value: value,
+          activeColor: activeColor,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}
+

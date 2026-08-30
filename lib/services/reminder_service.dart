@@ -1,11 +1,18 @@
 import 'package:dio/dio.dart';
+import '../core/config/app_config.dart';
 import '../models/pet_reminder_model.dart';
 
 class ReminderService {
   final Dio _dio;
 
   ReminderService({Dio? dio})
-      : _dio = dio ?? Dio(BaseOptions(baseUrl: 'https://api.pawconnect.app/api/v1', connectTimeout: const Duration(seconds: 2)));
+      : _dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: AppConfig.apiBaseUrl,
+                connectTimeout: const Duration(seconds: 3),
+              ),
+            );
 
   static final List<PetReminderModel> mockReminders = [
     PetReminderModel(

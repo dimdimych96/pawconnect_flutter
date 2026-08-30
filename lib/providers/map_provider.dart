@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/map_marker_model.dart';
 import '../models/gps_device_model.dart';
 import '../models/route_model.dart';
 import '../services/map_service.dart';
+import '../services/location_service.dart';
 
 class MapState {
   final List<MapMarkerModel> markers;
@@ -16,6 +18,9 @@ class MapState {
   final bool isFiltersOpen;
   final double userLatitude;
   final double userLongitude;
+  final double? userAccuracy;
+  final bool hasLocationPermission;
+  final bool isLocationTrackingActive;
   final ActiveRouteModel? activeRoute;
   final bool isNavigating;
   final int currentStepIndex;
@@ -32,6 +37,9 @@ class MapState {
     this.isFiltersOpen = false,
     this.userLatitude = 55.0285,
     this.userLongitude = 82.9165,
+    this.userAccuracy,
+    this.hasLocationPermission = true,
+    this.isLocationTrackingActive = false,
     this.activeRoute,
     this.isNavigating = false,
     this.currentStepIndex = 0,
@@ -50,6 +58,9 @@ class MapState {
     bool? isFiltersOpen,
     double? userLatitude,
     double? userLongitude,
+    double? userAccuracy,
+    bool? hasLocationPermission,
+    bool? isLocationTrackingActive,
     ActiveRouteModel? activeRoute,
     bool clearActiveRoute = false,
     bool? isNavigating,
@@ -67,6 +78,9 @@ class MapState {
       isFiltersOpen: isFiltersOpen ?? this.isFiltersOpen,
       userLatitude: userLatitude ?? this.userLatitude,
       userLongitude: userLongitude ?? this.userLongitude,
+      userAccuracy: userAccuracy ?? this.userAccuracy,
+      hasLocationPermission: hasLocationPermission ?? this.hasLocationPermission,
+      isLocationTrackingActive: isLocationTrackingActive ?? this.isLocationTrackingActive,
       activeRoute: clearActiveRoute ? null : (activeRoute ?? this.activeRoute),
       isNavigating: isNavigating ?? this.isNavigating,
       currentStepIndex: currentStepIndex ?? this.currentStepIndex,
@@ -107,20 +121,73 @@ class MapState {
 
 class MapNotifier extends StateNotifier<MapState> {
   final MapService _mapService;
+  final LocationService _locationService;
+  StreamSubscription<UserLocation>? _locationSubscription;
 
-  MapNotifier(this._mapService) : super(const MapState()) {
+  MapNotifier(
+    this._mapService, {
+    LocationService? locationService,
+  })  : _locationService = locationService ?? GeolocatorLocationService(),
+        super(const MapState()) {
     loadMapData();
+    initLocationTracking();
   }
 
   Future<void> loadMapData() async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true);
     final markers = await _mapService.getMapMarkers();
     final gpsDevice = await _mapService.getActiveGpsDevice();
+    if (!mounted) return;
     state = state.copyWith(
       markers: markers,
       gpsDevice: gpsDevice,
       isLoading: false,
     );
+  }
+
+  Future<void> initLocationTracking() async {
+    final serviceEnabled = await _locationService.isLocationServiceEnabled();
+    if (!mounted) return;
+    if (!serviceEnabled) {
+      state = state.copyWith(isLocationTrackingActive: false);
+      return;
+    }
+
+    var permission = await _locationService.checkPermission();
+    if (permission == LocationPermissionStatus.denied) {
+      permission = await _locationService.requestPermission();
+    }
+    if (!mounted) return;
+
+    final hasPerm = permission == LocationPermissionStatus.granted;
+    state = state.copyWith(hasLocationPermission: hasPerm);
+
+    // Fetch initial position (via GPS or real IP fallback)
+    final initialPos = await _locationService.getCurrentLocation();
+    if (!mounted) return;
+    if (initialPos != null) {
+      state = state.copyWith(
+        userLatitude: initialPos.latitude,
+        userLongitude: initialPos.longitude,
+        userAccuracy: initialPos.accuracy,
+        isLocationTrackingActive: true,
+      );
+    }
+
+    if (hasPerm) {
+      // Subscribe to live position stream
+      await _locationSubscription?.cancel();
+      _locationSubscription = _locationService.getLocationStream(distanceFilter: 5).listen((pos) {
+        if (!mounted) return;
+        state = state.copyWith(
+          userLatitude: pos.latitude,
+          userLongitude: pos.longitude,
+          userAccuracy: pos.accuracy,
+          isLocationTrackingActive: true,
+        );
+      });
+    }
   }
 
   void toggleFilter(String filter) {
@@ -179,6 +246,7 @@ class MapNotifier extends StateNotifier<MapState> {
       state.gpsDevice!.safeZoneLongitude ?? state.gpsDevice!.longitude,
       newRadius,
     );
+    if (!mounted) return;
     state = state.copyWith(gpsDevice: updatedDevice);
   }
 
@@ -201,6 +269,7 @@ class MapNotifier extends StateNotifier<MapState> {
       type: type,
       mode: transportMode,
     );
+    if (!mounted) return;
     state = state.copyWith(
       activeRoute: realRoute,
       selectedTransportMode: transportMode,
@@ -256,11 +325,19 @@ class MapNotifier extends StateNotifier<MapState> {
       currentStepIndex: 0,
     );
   }
+
+  @override
+  void dispose() {
+    _locationSubscription?.cancel();
+    super.dispose();
+  }
 }
 
 final mapServiceProvider = Provider<MapService>((ref) => MapService());
+final locationServiceProvider = Provider<LocationService>((ref) => GeolocatorLocationService());
 
 final mapNotifierProvider = StateNotifierProvider<MapNotifier, MapState>((ref) {
   final service = ref.watch(mapServiceProvider);
-  return MapNotifier(service);
+  final locationService = ref.watch(locationServiceProvider);
+  return MapNotifier(service, locationService: locationService);
 });

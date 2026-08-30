@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,14 +93,22 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  void _centerOnUser(double lat, double lng, {bool isNavigating = false}) {
+  void _centerOnUser(double lat, double lng, {bool isNavigating = false}) async {
     setState(() => _isPetFocus = false);
-    _mapController.move(LatLng(lat, lng), 16.0);
+    final mapNotifier = ref.read(mapNotifierProvider.notifier);
+    final mapState = ref.read(mapNotifierProvider);
+    if (!mapState.hasLocationPermission || !mapState.isLocationTrackingActive) {
+      await mapNotifier.initLocationTracking();
+    }
+    final updatedState = ref.read(mapNotifierProvider);
+    _mapController.move(LatLng(updatedState.userLatitude, updatedState.userLongitude), 16.0);
     PawToast.show(
       context,
       title: 'Камера сфокусирована на вашей геопозиции',
-      subtitle: 'Ваше местоположение в центре карты',
-      type: ToastType.info,
+      subtitle: updatedState.hasLocationPermission
+          ? 'Ваше местоположение в центре карты'
+          : 'Разрешите доступ к GPS для точного трекинга',
+      type: updatedState.hasLocationPermission ? ToastType.info : ToastType.alert,
       topOffset: isNavigating ? 96.0 : null,
     );
   }
@@ -161,7 +170,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.pawconnect.app',
                 maxZoom: 19,
@@ -266,6 +275,90 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ],
           ),
+
+          // Top GPS Enable Prompt (if GPS tracking not active yet)
+          if (!mapState.isLocationTrackingActive && !mapState.isNavigating && !isBreached)
+            Positioned(
+              top: 72,
+              left: 16,
+              right: 70,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xE01A1D24),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.accentBlue.withValues(alpha: 0.4),
+                        width: 1.0,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 16,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_searching_rounded, color: AppColors.accentBlue, size: 20),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'Включить реальный GPS',
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            PawToast.show(
+                              context,
+                              title: 'Определение геопозиции...',
+                              subtitle: 'Запрос GPS и сетевых координат',
+                              type: ToastType.info,
+                            );
+                            await mapNotifier.initLocationTracking();
+                            final st = ref.read(mapNotifierProvider);
+                            if (st.isLocationTrackingActive) {
+                              _mapController.move(LatLng(st.userLatitude, st.userLongitude), 16.0);
+                              PawToast.show(
+                                context,
+                                title: 'Геопозиция определена!',
+                                subtitle: 'Широта: ${st.userLatitude.toStringAsFixed(4)}, Долгота: ${st.userLongitude.toStringAsFixed(4)}',
+                                type: ToastType.success,
+                              );
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.accentBlue,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'Разрешить',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           // 2. Right Liquid Glass Control Rail (Upper-Right placement + Smart Auto-Hide)
           Positioned(

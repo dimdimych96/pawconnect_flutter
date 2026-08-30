@@ -1,11 +1,18 @@
 import 'package:dio/dio.dart';
+import '../core/config/app_config.dart';
 import '../models/community_post_model.dart';
 
 class CommunityService {
   final Dio _dio;
 
   CommunityService({Dio? dio})
-      : _dio = dio ?? Dio(BaseOptions(baseUrl: 'https://api.pawconnect.app/api/v1', connectTimeout: const Duration(seconds: 2)));
+      : _dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: AppConfig.apiBaseUrl,
+                connectTimeout: const Duration(seconds: 3),
+              ),
+            );
 
   static const List<String> novosibirskDistricts = [
     'Все районы',

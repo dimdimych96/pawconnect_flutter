@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:latlong2/latlong.dart';
+import '../core/config/app_config.dart';
 import '../models/map_marker_model.dart';
 import '../models/gps_device_model.dart';
 import '../models/route_model.dart';
@@ -7,7 +8,14 @@ import '../models/route_model.dart';
 class MapService {
   final Dio _dio;
 
-  MapService({Dio? dio}) : _dio = dio ?? Dio(BaseOptions(baseUrl: 'https://api.pawconnect.app/api/v1', connectTimeout: const Duration(seconds: 2)));
+  MapService({Dio? dio})
+      : _dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: AppConfig.apiBaseUrl,
+                connectTimeout: const Duration(seconds: 3),
+              ),
+            );
 
   // Initial Mock Collar Gps Device
   static final GpsDeviceModel mockGpsDevice = GpsDeviceModel(
