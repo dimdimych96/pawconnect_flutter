@@ -35,6 +35,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _isThemeSandboxOpen = false;
   Timer? _hideControlsTimer;
 
+  late final TileProviders _tileProviders = TileProviders({
+    'openmaptiles': MemoryCacheVectorTileProvider(
+      delegate: NetworkVectorTileProvider(
+        urlTemplate: 'https://tiles.basemaps.cartocdn.com/vectortiles/carto.streets/v1/{z}/{x}/{y}.mvt',
+        maximumZoom: 14,
+      ),
+      maxSizeBytes: 64 * 1024 * 1024,
+    ),
+  });
+
   @override
   void initState() {
     super.initState();
@@ -175,17 +185,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
             children: [
               VectorTileLayer(
-                key: ValueKey(mapThemeState.selectedPresetKey +
-                    mapThemeState.parkColor.toARGB32().toString() +
-                    mapThemeState.waterColor.toARGB32().toString() +
-                    mapThemeState.roadColor.toARGB32().toString() +
-                    mapThemeState.backgroundColor.toARGB32().toString()),
                 theme: mapThemeState.buildVectorTheme(),
-                tileProviders: TileProviders({
-                  'openmaptiles': NetworkVectorTileProvider(
-                    urlTemplate: 'https://tiles.basemaps.cartocdn.com/vectortiles/carto.streets/v1/{z}/{x}/{y}.mvt',
-                  ),
-                }),
+                tileProviders: _tileProviders,
               ),
 
               if (gpsDevice != null && gpsDevice.safeZoneLatitude != null)
