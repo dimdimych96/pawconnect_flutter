@@ -16,7 +16,9 @@ import 'widgets/user_marker_widget.dart';
 import 'widgets/liquid_glass_bottom_sheet.dart';
 import 'widgets/turn_by_turn_hud.dart';
 import 'widgets/right_control_rail.dart';
+import 'widgets/map_theme_sandbox_sheet.dart';
 import '../../models/route_model.dart';
+import '../../providers/map_theme_provider.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -29,6 +31,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   bool _isPetFocus = false;
   bool _isControlsVisible = true;
+  bool _isThemeSandboxOpen = false;
   Timer? _hideControlsTimer;
 
   @override
@@ -133,6 +136,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Widget build(BuildContext context) {
     final mapState = ref.watch(mapNotifierProvider);
     final userState = ref.watch(userNotifierProvider);
+    final mapThemeState = ref.watch(mapThemeNotifierProvider);
     final mapNotifier = ref.read(mapNotifierProvider.notifier);
     final gpsDevice = mapState.gpsDevice;
 
@@ -173,6 +177,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
                 userAgentPackageName: 'com.pawconnect.app',
                 maxZoom: 16,
+                tileBuilder: (context, tileWidget, tile) {
+                  return ColorFiltered(
+                    colorFilter: ColorFilter.matrix(mapThemeState.matrix),
+                    child: tileWidget,
+                  );
+                },
               ),
               TileLayer(
                 urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
@@ -408,6 +418,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       _fitRouteBounds(route);
                     }
                   },
+                  onOpenThemeSandbox: () {
+                    _onMapInteraction();
+                    setState(() => _isThemeSandboxOpen = true);
+                  },
                 ),
               ),
             ),
@@ -492,6 +506,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   type: ToastType.info,
                 );
               },
+            ),
+
+          // 6. Map Theme Sandbox Tuner Sheet (Live designer playground)
+          if (_isThemeSandboxOpen)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: MapThemeSandboxSheet(
+                onClose: () => setState(() => _isThemeSandboxOpen = false),
+              ),
             ),
         ],
       ),

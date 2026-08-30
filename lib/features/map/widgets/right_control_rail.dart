@@ -13,6 +13,7 @@ class RightControlRail extends StatefulWidget {
   final VoidCallback onUserFocus;
   final VoidCallback onAddEvent;
   final VoidCallback onBuildRoute;
+  final VoidCallback? onOpenThemeSandbox;
 
   const RightControlRail({
     super.key,
@@ -26,6 +27,7 @@ class RightControlRail extends StatefulWidget {
     required this.onUserFocus,
     required this.onAddEvent,
     required this.onBuildRoute,
+    this.onOpenThemeSandbox,
   });
 
   @override
@@ -328,6 +330,20 @@ class _RightControlRailState extends State<RightControlRail> {
                             widget.onUserFocus();
                           },
                         ),
+                        if (widget.onOpenThemeSandbox != null) ...[
+                          const SizedBox(height: 4),
+                          // Map Theme Sandbox Tuner Button
+                          _RailIconButton(
+                            icon: Icons.palette_rounded,
+                            tooltip: 'Тюнинг темы и цветов карты',
+                            isSelected: false,
+                            activeColor: AppColors.accentGreen,
+                            onTap: () {
+                              setState(() => _isLayersExpanded = false);
+                              widget.onOpenThemeSandbox!();
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   ),
