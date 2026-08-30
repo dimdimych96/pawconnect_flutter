@@ -182,7 +182,6 @@ class GeolocatorLocationService implements LocationService {
       case LocationPermission.unableToDetermine:
         return LocationPermissionStatus.restricted;
       case LocationPermission.denied:
-      default:
         return LocationPermissionStatus.denied;
     }
   }

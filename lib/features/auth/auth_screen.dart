@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/theme/colors.dart';
-import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/pill_toast.dart';
 import '../../providers/auth_provider.dart';
 

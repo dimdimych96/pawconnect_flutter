@@ -32,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --base-href "/pawconnect_flutter/"
+        run: flutter build web --release --base-href "/pawconnect_flutter/" --no-tree-shake-icons
 
       - name: Copy index.html to 404.html for SPA routing fallback
         run: cp build/web/index.html build/web/404.html
