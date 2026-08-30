@@ -7,6 +7,11 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="PawConnect - Apple Liquid Glass Pet Companion App">
 
+  <!-- Cache Busting Headers for Mobile PWAs -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <!-- iOS Safari Immersive Edge-to-Edge & Liquid Glass Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
@@ -52,11 +57,14 @@
 </head>
 <body>
   <script>
-    window._flutter = {
-      config: {
-        renderer: 'html',
-      },
-    };
+    // Unregister legacy Service Workers on new release to guarantee fresh mobile load
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.update();
+        }
+      });
+    }
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
