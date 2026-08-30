@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:vector_map_tiles/vector_map_tiles.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/theme/colors.dart';
@@ -34,16 +33,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _isControlsVisible = true;
   bool _isThemeSandboxOpen = false;
   Timer? _hideControlsTimer;
-
-  late final TileProviders _tileProviders = TileProviders({
-    'openmaptiles': MemoryCacheVectorTileProvider(
-      delegate: NetworkVectorTileProvider(
-        urlTemplate: 'https://tiles.basemaps.cartocdn.com/vectortiles/carto.streets/v1/{z}/{x}/{y}.mvt',
-        maximumZoom: 14,
-      ),
-      maxSizeBytes: 64 * 1024 * 1024,
-    ),
-  });
 
   @override
   void initState() {
@@ -184,10 +173,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               },
             ),
             children: [
-              VectorTileLayer(
-                key: ValueKey(mapThemeState.themeSignature),
-                theme: mapThemeState.buildVectorTheme(),
-                tileProviders: _tileProviders,
+              TileLayer(
+                urlTemplate:
+                    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+                userAgentPackageName: 'com.pawconnect.app',
+                maxNativeZoom: 16,
+                maxZoom: 19,
+                tileBuilder: (context, tileWidget, tile) {
+                  return ColorFiltered(
+                    colorFilter: ColorFilter.matrix(mapThemeState.matrix),
+                    child: tileWidget,
+                  );
+                },
+              ),
+              TileLayer(
+                urlTemplate:
+                    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+                userAgentPackageName: 'com.pawconnect.app',
+                maxNativeZoom: 16,
+                maxZoom: 19,
               ),
 
               if (gpsDevice != null && gpsDevice.safeZoneLatitude != null)

@@ -5,7 +5,7 @@ import '../../../core/theme/colors.dart';
 import '../../../core/widgets/pill_toast.dart';
 import '../../../providers/map_theme_provider.dart';
 
-/// Интерактивная Liquid Glass шторка для раздельного выбора цветов зон (парки, вода, дороги, фон)
+/// Интерактивная Liquid Glass шторка для тестирования и настройки цветов карты
 class MapThemeSandboxSheet extends ConsumerWidget {
   final VoidCallback onClose;
 
@@ -25,10 +25,10 @@ class MapThemeSandboxSheet extends ConsumerWidget {
         filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.82,
+            maxHeight: MediaQuery.of(context).size.height * 0.78,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xF014181E),
+            color: const Color(0xE614181D),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.14),
@@ -36,7 +36,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.70),
+                color: Colors.black.withValues(alpha: 0.65),
                 blurRadius: 36,
                 offset: const Offset(0, -10),
               ),
@@ -81,7 +81,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Раздельная палитра слоев карты',
+                            'Песочница темы карты',
                             style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 16,
@@ -90,7 +90,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            'Парки, Вода, Дороги, Здания, Подложка',
+                            'Live GPU тюнинг цветов и пресетов',
                             style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
@@ -109,7 +109,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
               const Divider(color: Colors.white12, height: 1),
 
-              // Scrollable Layer Color Pickers & Presets
+              // Scrollable Sliders & Presets Content
               Flexible(
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
@@ -148,7 +148,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
                     // 2. Presets Quick Carousel
                     const Text(
-                      'ГОТОВЫЕ ПРЕСЕТЫ ВСЕХ СЛОЕВ',
+                      'ГОТОВЫЕ ПРЕСЕТЫ',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 11,
@@ -202,85 +202,76 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
                     const SizedBox(height: 18),
 
-                    // 3. Independent Layer Color Tuners
-                    // Layer A: Parks & Greenery
-                    _LayerColorPickerRow(
-                      title: '🌿 Парки и зелёные зоны',
-                      currentColor: themeState.parkColor,
-                      palette: const [
-                        Color(0xFF1E432E), // Изумруд
-                        Color(0xFF30D158), // Apple Green
-                        Color(0xFF00F5D4), // Неоновый мятный
-                        Color(0xFF143621), // Хвойный темный
-                        Color(0xFF52796F), // Оливковый шалфей
-                        Color(0xFFC8E6C9), // Светло-зеленый (для белой темы)
-                      ],
-                      onSelectColor: themeNotifier.setParkColor,
+                    // 3. Live Sliders
+                    const Text(
+                      'НАСТРОЙКА СПЕКТРА И ЯРКОСТИ',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Slider: Green Boost (Парки)
+                    _ColorSlider(
+                      label: '🌿 Зелень парков (Green Boost)',
+                      valueText: '${((themeState.greenBoost - 1.0) * 100).toStringAsFixed(0)}%',
+                      value: themeState.greenBoost,
+                      min: 0.5,
+                      max: 2.5,
+                      accentColor: AppColors.accentGreen,
+                      onChanged: themeNotifier.setGreenBoost,
                     ),
 
-                    // Layer B: Water & Rivers
-                    _LayerColorPickerRow(
-                      title: '🌊 Вода (Река Обь, озёра)',
-                      currentColor: themeState.waterColor,
-                      palette: const [
-                        Color(0xFF0C1622), // Deep Navy
-                        Color(0xFF1E3A5F), // Атлантический синий
-                        Color(0xFF0077B6), // Неоновый синий
-                        Color(0xFF1A1230), // Индиго / Фиолетовый
-                        Color(0xFF081018), // Угольный темный
-                        Color(0xFFB3E5FC), // Светло-голубой (для белой темы)
-                      ],
-                      onSelectColor: themeNotifier.setWaterColor,
+                    // Slider: Contrast
+                    _ColorSlider(
+                      label: '🎚 Контрастность (Contrast)',
+                      valueText: '${(themeState.contrast * 100).toStringAsFixed(0)}%',
+                      value: themeState.contrast,
+                      min: 0.5,
+                      max: 2.0,
+                      accentColor: Colors.white70,
+                      onChanged: themeNotifier.setContrast,
                     ),
 
-                    // Layer C: Roads
-                    _LayerColorPickerRow(
-                      title: '🛣 Дороги и магистрали',
-                      currentColor: themeState.roadColor,
-                      palette: const [
-                        Color(0xFF2C2C32), // Контрастный графит
-                        Color(0xFF1F1F24), // Матовый асфальт
-                        Color(0xFF424769), // Сиреневый сланец
-                        Color(0xFF26262B), // Темно-серый
-                        Color(0xFFFFFFFF), // Белый (для светлой темы)
-                        Color(0xFF64748B), // Яркий серый
-                      ],
-                      onSelectColor: themeNotifier.setRoadColor,
+                    // Slider: Brightness
+                    _ColorSlider(
+                      label: '☀️ Яркость (Brightness)',
+                      valueText: themeState.brightness.toStringAsFixed(0),
+                      value: themeState.brightness,
+                      min: -40.0,
+                      max: 40.0,
+                      accentColor: Colors.amberAccent,
+                      onChanged: themeNotifier.setBrightness,
                     ),
 
-                    // Layer D: Buildings
-                    _LayerColorPickerRow(
-                      title: '🏢 Здания и кварталы',
-                      currentColor: themeState.buildingColor,
-                      palette: const [
-                        Color(0xFF141418), // Тёмный кварц
-                        Color(0xFF1C1C22), // Графит
-                        Color(0xFF22223B), // Сизый
-                        Color(0xFF111114), // Почти черный
-                        Color(0xFFE2E8F0), // Светлый (для светлой темы)
-                        Color(0xFF2E2E38), // Светлый графит
-                      ],
-                      onSelectColor: themeNotifier.setBuildingColor,
+                    // Slider: Blue Tint (Вода)
+                    _ColorSlider(
+                      label: '🌊 Синий / Река Обь (Blue Tint)',
+                      valueText: '${((themeState.blueTint - 1.0) * 100).toStringAsFixed(0)}%',
+                      value: themeState.blueTint,
+                      min: 0.5,
+                      max: 2.0,
+                      accentColor: AppColors.accentBlue,
+                      onChanged: themeNotifier.setBlueTint,
                     ),
 
-                    // Layer E: Background / Land
-                    _LayerColorPickerRow(
-                      title: '🌑 Фоновая подложка (Земля)',
-                      currentColor: themeState.backgroundColor,
-                      palette: const [
-                        Color(0xFF0A0A0C), // Obsidian Black
-                        Color(0xFF000000), // OLED Pure Black
-                        Color(0xFF080A08), // Хвойный темный фон
-                        Color(0xFF0F0E17), // Фиолетовый Cyber фон
-                        Color(0xFFF8FAFC), // Apple Light белый фон
-                        Color(0xFF18181B), // Серый цинк
-                      ],
-                      onSelectColor: themeNotifier.setBackgroundColor,
+                    // Slider: Red Tint
+                    _ColorSlider(
+                      label: '🔴 Красный спектр / Теплота (Red Tint)',
+                      valueText: '${((themeState.redTint - 1.0) * 100).toStringAsFixed(0)}%',
+                      value: themeState.redTint,
+                      min: 0.5,
+                      max: 2.0,
+                      accentColor: Colors.redAccent,
+                      onChanged: themeNotifier.setRedTint,
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
-                    // Action Buttons: Reset & Apply
+                    // Action Buttons: Reset & Copy Matrix Values
                     Row(
                       children: [
                         Expanded(
@@ -289,8 +280,8 @@ class MapThemeSandboxSheet extends ConsumerWidget {
                               themeNotifier.reset();
                               PawToast.show(
                                 context,
-                                title: 'Сброшено к Obsidian Emerald',
-                                subtitle: 'Базовая палитра восстановлена',
+                                title: 'Настройки сброшены',
+                                subtitle: 'Тема возвращена к Obsidian Emerald',
                                 type: ToastType.info,
                               );
                             },
@@ -312,8 +303,8 @@ class MapThemeSandboxSheet extends ConsumerWidget {
                             onPressed: () {
                               PawToast.show(
                                 context,
-                                title: 'Палитра зафиксирована',
-                                subtitle: 'Выбранные цвета применены к слоям карты',
+                                title: 'Пресет зафиксирован',
+                                subtitle: 'Текущие параметры применены к карте',
                                 type: ToastType.success,
                               );
                               onClose();
@@ -338,105 +329,6 @@ class MapThemeSandboxSheet extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _LayerColorPickerRow extends StatelessWidget {
-  final String title;
-  final Color currentColor;
-  final List<Color> palette;
-  final ValueChanged<Color> onSelectColor;
-
-  const _LayerColorPickerRow({
-    required this.title,
-    required this.currentColor,
-    required this.palette,
-    required this.onSelectColor,
-  });
-
-  String _toHex(Color c) {
-    return '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: currentColor,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: Colors.white24, width: 1),
-                ),
-                child: Text(
-                  _toHex(currentColor),
-                  style: TextStyle(
-                    color: currentColor.computeLuminance() > 0.5 ? Colors.black : Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'monospace',
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: palette.map((color) {
-              final isSelected = currentColor.toARGB32() == color.toARGB32();
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onSelectColor(color),
-                  child: Container(
-                    height: 28,
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isSelected ? Colors.white : Colors.white24,
-                        width: isSelected ? 2.5 : 1.0,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: color.withValues(alpha: 0.6),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: isSelected
-                        ? Icon(
-                            Icons.check_rounded,
-                            size: 14,
-                            color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
-                          )
-                        : null,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
       ),
     );
   }
@@ -485,6 +377,75 @@ class _ThemeTabButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ColorSlider extends StatelessWidget {
+  final String label;
+  final String valueText;
+  final double value;
+  final double min;
+  final double max;
+  final Color accentColor;
+  final ValueChanged<double> onChanged;
+
+  const _ColorSlider({
+    required this.label,
+    required this.valueText,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.accentColor,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                valueText,
+                style: TextStyle(
+                  color: accentColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: accentColor,
+              inactiveTrackColor: Colors.white12,
+              thumbColor: accentColor,
+              overlayColor: accentColor.withValues(alpha: 0.2),
+              trackHeight: 3.5,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+            ),
+            child: Slider(
+              value: value.clamp(min, max),
+              min: min,
+              max: max,
+              onChanged: onChanged,
+            ),
+          ),
+        ],
       ),
     );
   }

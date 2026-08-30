@@ -1,280 +1,161 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vector_tile_renderer/vector_tile_renderer.dart' as vtr;
 
-class LayerColorPreset {
+class MapThemePreset {
   final String key;
   final String title;
   final String description;
   final bool isLightMode;
-  final Color parkColor;
-  final Color waterColor;
-  final Color roadColor;
-  final Color buildingColor;
-  final Color backgroundColor;
+  final double greenBoost;
+  final double contrast;
+  final double brightness;
+  final double saturation;
+  final double redTint;
+  final double blueTint;
 
-  const LayerColorPreset({
+  const MapThemePreset({
     required this.key,
     required this.title,
     required this.description,
     required this.isLightMode,
-    required this.parkColor,
-    required this.waterColor,
-    required this.roadColor,
-    required this.buildingColor,
-    required this.backgroundColor,
+    required this.greenBoost,
+    required this.contrast,
+    required this.brightness,
+    required this.saturation,
+    required this.redTint,
+    required this.blueTint,
   });
 }
 
 class MapThemeState {
   final bool isLightMode;
-  final Color parkColor;
-  final Color waterColor;
-  final Color roadColor;
-  final Color buildingColor;
-  final Color backgroundColor;
+  final double greenBoost;    // 0.5 .. 2.5
+  final double contrast;      // 0.5 .. 2.0
+  final double brightness;    // -50 .. +50
+  final double saturation;    // 0.0 .. 2.0
+  final double redTint;       // 0.5 .. 2.0
+  final double blueTint;      // 0.5 .. 2.0
   final String selectedPresetKey;
 
   const MapThemeState({
     this.isLightMode = false,
-    this.parkColor = const Color(0xFF1E432E),
-    this.waterColor = const Color(0xFF0C1622),
-    this.roadColor = const Color(0xFF2C2C32),
-    this.buildingColor = const Color(0xFF141418),
-    this.backgroundColor = const Color(0xFF0A0A0C),
+    this.greenBoost = 1.35,
+    this.contrast = 1.05,
+    this.brightness = 0.0,
+    this.saturation = 1.0,
+    this.redTint = 0.90,
+    this.blueTint = 0.95,
     this.selectedPresetKey = 'emerald_dark',
   });
 
-  String get themeSignature =>
-      '${isLightMode ? "L" : "D"}_'
-      '${parkColor.toARGB32().toRadixString(16)}_'
-      '${waterColor.toARGB32().toRadixString(16)}_'
-      '${roadColor.toARGB32().toRadixString(16)}_'
-      '${buildingColor.toARGB32().toRadixString(16)}_'
-      '${backgroundColor.toARGB32().toRadixString(16)}';
-
   MapThemeState copyWith({
     bool? isLightMode,
-    Color? parkColor,
-    Color? waterColor,
-    Color? roadColor,
-    Color? buildingColor,
-    Color? backgroundColor,
+    double? greenBoost,
+    double? contrast,
+    double? brightness,
+    double? saturation,
+    double? redTint,
+    double? blueTint,
     String? selectedPresetKey,
   }) {
     return MapThemeState(
       isLightMode: isLightMode ?? this.isLightMode,
-      parkColor: parkColor ?? this.parkColor,
-      waterColor: waterColor ?? this.waterColor,
-      roadColor: roadColor ?? this.roadColor,
-      buildingColor: buildingColor ?? this.buildingColor,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
+      greenBoost: greenBoost ?? this.greenBoost,
+      contrast: contrast ?? this.contrast,
+      brightness: brightness ?? this.brightness,
+      saturation: saturation ?? this.saturation,
+      redTint: redTint ?? this.redTint,
+      blueTint: blueTint ?? this.blueTint,
       selectedPresetKey: selectedPresetKey ?? this.selectedPresetKey,
     );
   }
 
-  static String _colorToHex(Color c) {
-    return '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
-  }
-
-  /// Builds a dynamic Vector Mapbox-compatible Theme object for VectorTileLayer
-  vtr.Theme buildVectorTheme() {
-    final styleMap = {
-      'version': 8,
-      'name': 'PawConnect Dynamic Vector Theme',
-      'sources': {
-        'openmaptiles': {
-          'type': 'vector',
-          'url': 'https://tiles.basemaps.cartocdn.com/vectortiles/carto.streets/v1/{z}/{x}/{y}.mvt'
-        }
-      },
-      'layers': [
-        // 1. Background layer
-        {
-          'id': 'background',
-          'type': 'background',
-          'paint': {
-            'background-color': _colorToHex(backgroundColor),
-          }
-        },
-        // 2. Water layers (Ocean, rivers, lakes, canals)
-        {
-          'id': 'water',
-          'type': 'fill',
-          'source': 'openmaptiles',
-          'source-layer': 'water',
-          'paint': {
-            'fill-color': _colorToHex(waterColor),
-            'fill-opacity': isLightMode ? 0.85 : 0.95,
-          }
-        },
-        {
-          'id': 'waterway',
-          'type': 'line',
-          'source': 'openmaptiles',
-          'source-layer': 'waterway',
-          'paint': {
-            'line-color': _colorToHex(waterColor),
-            'line-width': 1.5,
-          }
-        },
-        // 3. Parks, Forestry, Leisure, Grass
-        {
-          'id': 'landuse_park',
-          'type': 'fill',
-          'source': 'openmaptiles',
-          'source-layer': 'park',
-          'paint': {
-            'fill-color': _colorToHex(parkColor),
-            'fill-opacity': isLightMode ? 0.85 : 0.92,
-          }
-        },
-        {
-          'id': 'landuse_overlay',
-          'type': 'fill',
-          'source': 'openmaptiles',
-          'source-layer': 'landuse',
-          'paint': {
-            'fill-color': _colorToHex(parkColor),
-            'fill-opacity': 0.70,
-          }
-        },
-        {
-          'id': 'landcover_grass',
-          'type': 'fill',
-          'source': 'openmaptiles',
-          'source-layer': 'landcover',
-          'paint': {
-            'fill-color': _colorToHex(parkColor),
-            'fill-opacity': 0.75,
-          }
-        },
-        // 4. Buildings
-        {
-          'id': 'building',
-          'type': 'fill',
-          'source': 'openmaptiles',
-          'source-layer': 'building',
-          'paint': {
-            'fill-color': _colorToHex(buildingColor),
-            'fill-outline-color': _colorToHex(buildingColor.withValues(alpha: 0.5)),
-          }
-        },
-        // 5. Transportation / Roads (Minor streets, footpaths)
-        {
-          'id': 'road_minor',
-          'type': 'line',
-          'source': 'openmaptiles',
-          'source-layer': 'transportation',
-          'paint': {
-            'line-color': _colorToHex(roadColor),
-            'line-width': 1.2,
-          }
-        },
-        // 6. Major Roads / Highways
-        {
-          'id': 'road_primary',
-          'type': 'line',
-          'source': 'openmaptiles',
-          'source-layer': 'transportation',
-          'filter': ['in', 'class', 'primary', 'secondary', 'tertiary', 'trunk', 'motorway'],
-          'paint': {
-            'line-color': _colorToHex(isLightMode ? Colors.white : roadColor),
-            'line-width': 2.4,
-          }
-        },
-      ]
-    };
-
-    return vtr.ThemeReader().read(styleMap);
-  }
-
-  /// 4x5 ColorFilter.matrix calculated from current per-layer balance
+  /// Вычисляет 20-элементную матрицу 4x5 для ColorFilter.matrix
   List<double> get matrix {
-    final parkG = parkColor.g / 255.0;
-    final waterB = waterColor.b / 255.0;
-    final roadC = roadColor.r / 255.0;
-    final bgR = backgroundColor.r / 255.0;
-    final bgG = backgroundColor.g / 255.0;
-    final bgB = backgroundColor.b / 255.0;
+    final c = contrast;
+    final b = brightness;
+    final r = redTint * c;
+    final g = greenBoost * c;
+    final bl = blueTint * c;
 
     if (isLightMode) {
-      final invertMult = -0.85;
+      // Светлая тема: инверсия с сохранением мягких природных тонов
       return <double>[
-        invertMult * (roadC * 2.0).clamp(0.6, 1.4), 0.0, 0.0, 0.0, 240.0 + (bgR * 20),
-        0.0, invertMult * (parkG * 2.0).clamp(0.6, 1.5), 0.0, 0.0, 246.0 + (bgG * 20),
-        0.0, 0.0, invertMult * (waterB * 2.0).clamp(0.6, 1.4), 0.0, 252.0 + (bgB * 20),
-        0.0, 0.0, 0.0, 1.0, 0.0,
+        -0.85 * r, 0.0,       0.0,       0.0, 245.0 + b,
+        0.0,       -0.75 * g, 0.0,       0.0, 248.0 + b + 5.0,
+        0.0,       0.0,       -0.85 * bl,0.0, 252.0 + b,
+        0.0,       0.0,       0.0,       1.0, 0.0,
       ];
     } else {
-      final gBoost = (parkG * 4.5).clamp(0.8, 2.5);
-      final bBoost = (waterB * 4.0).clamp(0.7, 2.0);
-      final rBoost = (roadC * 3.5).clamp(0.6, 1.8);
-
+      // Темная тема (Obsidian / Emerald / Cyber)
       return <double>[
-        rBoost, 0.0,    0.0,    0.0, bgR * 10,
-        0.0,    gBoost, 0.0,    0.0, (parkG > 0.2 ? (parkG - 0.2) * 50.0 : 0.0) + (bgG * 10),
-        0.0,    0.0,    bBoost, 0.0, (waterB > 0.15 ? (waterB - 0.15) * 40.0 : 0.0) + (bgB * 10),
-        0.0,    0.0,    0.0,    1.0, 0.0,
+        r,   0.0, 0.0, 0.0, b,
+        0.0, g,   0.0, 0.0, b + (greenBoost > 1.0 ? (greenBoost - 1.0) * 35.0 : 0.0),
+        0.0, 0.0, bl,  0.0, b + (blueTint > 1.0 ? (blueTint - 1.0) * 25.0 : 0.0),
+        0.0, 0.0, 0.0, 1.0, 0.0,
       ];
     }
   }
 
-  static const List<LayerColorPreset> builtInPresets = [
-    LayerColorPreset(
+  static const List<MapThemePreset> builtInPresets = [
+    MapThemePreset(
       key: 'emerald_dark',
       title: 'Obsidian Emerald',
-      description: 'Изумрудные парки, глубокая синяя Обь, темный графит',
+      description: 'Глубокий графит с сочными изумрудными парками',
       isLightMode: false,
-      parkColor: Color(0xFF1E432E),
-      waterColor: Color(0xFF0C1622),
-      roadColor: Color(0xFF2C2C32),
-      buildingColor: Color(0xFF141418),
-      backgroundColor: Color(0xFF0A0A0C),
+      greenBoost: 1.40,
+      contrast: 1.10,
+      brightness: 0.0,
+      saturation: 1.1,
+      redTint: 0.88,
+      blueTint: 0.92,
     ),
-    LayerColorPreset(
+    MapThemePreset(
       key: 'apple_light',
       title: 'Apple Light Clean',
-      description: 'Нежно-зеленые парки, голубая река, белые дороги',
+      description: 'Светлая минималистичная тема Apple Maps',
       isLightMode: true,
-      parkColor: Color(0xFFC8E6C9),
-      waterColor: Color(0xFFB3E5FC),
-      roadColor: Color(0xFFFFFFFF),
-      buildingColor: Color(0xFFE2E8F0),
-      backgroundColor: Color(0xFFF8FAFC),
+      greenBoost: 1.25,
+      contrast: 1.15,
+      brightness: 0.0,
+      saturation: 1.0,
+      redTint: 1.0,
+      blueTint: 1.05,
     ),
-    LayerColorPreset(
+    MapThemePreset(
       key: 'deep_forest',
       title: 'Deep Pine Forest',
-      description: 'Хвойный темно-зеленый массив и матовый асфальт',
+      description: 'Усиленная хвойная зелень и темные дороги',
       isLightMode: false,
-      parkColor: Color(0xFF133821),
-      waterColor: Color(0xFF09121D),
-      roadColor: Color(0xFF242428),
-      buildingColor: Color(0xFF121214),
-      backgroundColor: Color(0xFF080A08),
+      greenBoost: 1.75,
+      contrast: 1.25,
+      brightness: -10.0,
+      saturation: 1.3,
+      redTint: 0.75,
+      blueTint: 0.85,
     ),
-    LayerColorPreset(
+    MapThemePreset(
       key: 'cyber_mint',
       title: 'Cyberpunk Mint',
-      description: 'Неоновый мятный акцент, индиго вода, фиолетовые полутона',
+      description: 'Неоновый мятный акцент и футуристичный контраст',
       isLightMode: false,
-      parkColor: Color(0xFF00F5D4),
-      waterColor: Color(0xFF1A1230),
-      roadColor: Color(0xFF424769),
-      buildingColor: Color(0xFF22223B),
-      backgroundColor: Color(0xFF0F0E17),
+      greenBoost: 1.65,
+      contrast: 1.35,
+      brightness: 5.0,
+      saturation: 1.4,
+      redTint: 0.80,
+      blueTint: 1.55,
     ),
-    LayerColorPreset(
+    MapThemePreset(
       key: 'oled_black',
       title: 'OLED Pure Black',
-      description: '100% черный фон, контрастные парки для Super Retina',
+      description: '100% черный фон под Super Retina дисплеи',
       isLightMode: false,
-      parkColor: Color(0xFF1B402B),
-      waterColor: Color(0xFF081018),
-      roadColor: Color(0xFF26262B),
-      buildingColor: Color(0xFF111114),
-      backgroundColor: Color(0xFF000000),
+      greenBoost: 1.20,
+      contrast: 1.45,
+      brightness: -25.0,
+      saturation: 0.9,
+      redTint: 0.70,
+      blueTint: 0.75,
     ),
   ];
 }
@@ -282,32 +163,35 @@ class MapThemeState {
 class MapThemeNotifier extends StateNotifier<MapThemeState> {
   MapThemeNotifier() : super(const MapThemeState());
 
-  void setParkColor(Color color) {
-    state = state.copyWith(parkColor: color, selectedPresetKey: 'custom');
+  void setGreenBoost(double val) {
+    state = state.copyWith(greenBoost: val, selectedPresetKey: 'custom');
   }
 
-  void setWaterColor(Color color) {
-    state = state.copyWith(waterColor: color, selectedPresetKey: 'custom');
+  void setContrast(double val) {
+    state = state.copyWith(contrast: val, selectedPresetKey: 'custom');
   }
 
-  void setRoadColor(Color color) {
-    state = state.copyWith(roadColor: color, selectedPresetKey: 'custom');
+  void setBrightness(double val) {
+    state = state.copyWith(brightness: val, selectedPresetKey: 'custom');
   }
 
-  void setBuildingColor(Color color) {
-    state = state.copyWith(buildingColor: color, selectedPresetKey: 'custom');
+  void setSaturation(double val) {
+    state = state.copyWith(saturation: val, selectedPresetKey: 'custom');
   }
 
-  void setBackgroundColor(Color color) {
-    state = state.copyWith(backgroundColor: color, selectedPresetKey: 'custom');
+  void setRedTint(double val) {
+    state = state.copyWith(redTint: val, selectedPresetKey: 'custom');
+  }
+
+  void setBlueTint(double val) {
+    state = state.copyWith(blueTint: val, selectedPresetKey: 'custom');
   }
 
   void toggleLightMode(bool isLight) {
-    if (isLight) {
-      applyPreset('apple_light');
-    } else {
-      applyPreset('emerald_dark');
-    }
+    state = state.copyWith(
+      isLightMode: isLight,
+      selectedPresetKey: isLight ? 'apple_light' : 'emerald_dark',
+    );
   }
 
   void applyPreset(String presetKey) {
@@ -318,11 +202,12 @@ class MapThemeNotifier extends StateNotifier<MapThemeState> {
 
     state = MapThemeState(
       isLightMode: preset.isLightMode,
-      parkColor: preset.parkColor,
-      waterColor: preset.waterColor,
-      roadColor: preset.roadColor,
-      buildingColor: preset.buildingColor,
-      backgroundColor: preset.backgroundColor,
+      greenBoost: preset.greenBoost,
+      contrast: preset.contrast,
+      brightness: preset.brightness,
+      saturation: preset.saturation,
+      redTint: preset.redTint,
+      blueTint: preset.blueTint,
       selectedPresetKey: preset.key,
     );
   }
