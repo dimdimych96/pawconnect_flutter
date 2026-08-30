@@ -45,6 +45,14 @@ class MapThemeState {
     this.selectedPresetKey = 'emerald_dark',
   });
 
+  String get themeSignature =>
+      '${isLightMode ? "L" : "D"}_'
+      '${parkColor.toARGB32().toRadixString(16)}_'
+      '${waterColor.toARGB32().toRadixString(16)}_'
+      '${roadColor.toARGB32().toRadixString(16)}_'
+      '${buildingColor.toARGB32().toRadixString(16)}_'
+      '${backgroundColor.toARGB32().toRadixString(16)}';
+
   MapThemeState copyWith({
     bool? isLightMode,
     Color? parkColor,
@@ -81,6 +89,7 @@ class MapThemeState {
         }
       },
       'layers': [
+        // 1. Background layer
         {
           'id': 'background',
           'type': 'background',
@@ -88,6 +97,7 @@ class MapThemeState {
             'background-color': _colorToHex(backgroundColor),
           }
         },
+        // 2. Water layers (Ocean, rivers, lakes, canals)
         {
           'id': 'water',
           'type': 'fill',
@@ -95,9 +105,20 @@ class MapThemeState {
           'source-layer': 'water',
           'paint': {
             'fill-color': _colorToHex(waterColor),
-            'fill-opacity': isLightMode ? 0.8 : 0.95,
+            'fill-opacity': isLightMode ? 0.85 : 0.95,
           }
         },
+        {
+          'id': 'waterway',
+          'type': 'line',
+          'source': 'openmaptiles',
+          'source-layer': 'waterway',
+          'paint': {
+            'line-color': _colorToHex(waterColor),
+            'line-width': 1.5,
+          }
+        },
+        // 3. Parks, Forestry, Leisure, Grass
         {
           'id': 'landuse_park',
           'type': 'fill',
@@ -105,7 +126,17 @@ class MapThemeState {
           'source-layer': 'park',
           'paint': {
             'fill-color': _colorToHex(parkColor),
-            'fill-opacity': isLightMode ? 0.85 : 0.90,
+            'fill-opacity': isLightMode ? 0.85 : 0.92,
+          }
+        },
+        {
+          'id': 'landuse_overlay',
+          'type': 'fill',
+          'source': 'openmaptiles',
+          'source-layer': 'landuse',
+          'paint': {
+            'fill-color': _colorToHex(parkColor),
+            'fill-opacity': 0.70,
           }
         },
         {
@@ -118,6 +149,7 @@ class MapThemeState {
             'fill-opacity': 0.75,
           }
         },
+        // 4. Buildings
         {
           'id': 'building',
           'type': 'fill',
@@ -125,20 +157,21 @@ class MapThemeState {
           'source-layer': 'building',
           'paint': {
             'fill-color': _colorToHex(buildingColor),
-            'fill-outline-color': _colorToHex(buildingColor.withValues(alpha: 0.6)),
+            'fill-outline-color': _colorToHex(buildingColor.withValues(alpha: 0.5)),
           }
         },
+        // 5. Transportation / Roads (Minor streets, footpaths)
         {
           'id': 'road_minor',
           'type': 'line',
           'source': 'openmaptiles',
           'source-layer': 'transportation',
-          'filter': ['in', 'class', 'minor', 'service', 'track'],
           'paint': {
             'line-color': _colorToHex(roadColor),
             'line-width': 1.2,
           }
         },
+        // 6. Major Roads / Highways
         {
           'id': 'road_primary',
           'type': 'line',
@@ -147,20 +180,9 @@ class MapThemeState {
           'filter': ['in', 'class', 'primary', 'secondary', 'tertiary', 'trunk', 'motorway'],
           'paint': {
             'line-color': _colorToHex(isLightMode ? Colors.white : roadColor),
-            'line-width': 2.2,
+            'line-width': 2.4,
           }
         },
-        {
-          'id': 'road_pedestrian',
-          'type': 'line',
-          'source': 'openmaptiles',
-          'source-layer': 'transportation',
-          'filter': ['in', 'class', 'path', 'pedestrian', 'footway', 'cycleway'],
-          'paint': {
-            'line-color': _colorToHex(isLightMode ? const Color(0xFFCBD5E1) : roadColor),
-            'line-width': 1.5,
-          }
-        }
       ]
     };
 

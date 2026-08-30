@@ -185,6 +185,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
             children: [
               VectorTileLayer(
+                key: ValueKey(mapThemeState.themeSignature),
                 theme: mapThemeState.buildVectorTheme(),
                 tileProviders: _tileProviders,
               ),
