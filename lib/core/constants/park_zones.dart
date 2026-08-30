@@ -5,17 +5,17 @@ import 'package:pawconnect/core/theme/colors.dart';
 
 /// Centralized configuration for quick park highlight style tweaks
 class ParkHighlightConfig {
-  /// Fill color for park polygons (Opacity can be adjusted: e.g. 0.15 to 0.40)
-  static Color fillColor = AppColors.accentGreen.withValues(alpha: 0.22);
+  /// Fill color for park polygons (e.g. emerald glass, mint neon, olive)
+  static Color fillColor = const Color(0x2830D158);
 
   /// Border outline color for park polygons
-  static Color borderColor = AppColors.accentGreen.withValues(alpha: 0.65);
+  static Color borderColor = const Color(0x8030D158);
 
   /// Width of park polygon borders
   static double borderStrokeWidth = 1.5;
 
   /// Global master toggle for park highlights overlay
-  static bool enableParkHighlights = false;
+  static bool enableParkHighlights = true;
 }
 
 /// Precise real-world polygons for Novosibirsk's major parks and green walking zones

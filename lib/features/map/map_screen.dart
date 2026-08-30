@@ -17,6 +17,7 @@ import 'widgets/liquid_glass_bottom_sheet.dart';
 import 'widgets/turn_by_turn_hud.dart';
 import 'widgets/right_control_rail.dart';
 import '../../models/route_model.dart';
+import '../../core/constants/park_zones.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -178,6 +179,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
                 userAgentPackageName: 'com.pawconnect.app',
                 maxZoom: 16,
+              ),
+
+              // Park & Green Walking Zones Highlight Polygons
+              PolygonLayer(
+                polygons: ParkZonesData.getParkPolygons(),
               ),
 
               if (gpsDevice != null && gpsDevice.safeZoneLatitude != null)
