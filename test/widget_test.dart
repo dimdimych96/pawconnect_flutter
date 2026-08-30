@@ -12,9 +12,8 @@ void main() {
         child: PawConnectApp(),
       ),
     );
-    // Let the first frame settle. Avoid pumpAndSettle: providers kick off
-    // network fetches (with fallback to mock data) that keep timers alive.
-    await tester.pump(const Duration(milliseconds: 500));
+    // Let the first frame settle and flush map controls hide timer (4s)
+    await tester.pump(const Duration(seconds: 5));
 
     // The app shell and tab icons should be present.
     expect(find.byType(ProviderScope), findsOneWidget);
