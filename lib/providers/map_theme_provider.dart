@@ -38,14 +38,22 @@ class MapThemeState {
 
   const MapThemeState({
     this.isLightMode = false,
-    this.greenBoost = 1.35,
-    this.contrast = 1.05,
+    this.greenBoost = 1.0,
+    this.contrast = 1.0,
     this.brightness = 0.0,
     this.saturation = 1.0,
-    this.redTint = 0.90,
-    this.blueTint = 0.95,
-    this.selectedPresetKey = 'emerald_dark',
+    this.redTint = 1.0,
+    this.blueTint = 1.0,
+    this.selectedPresetKey = 'dark_obsidian',
   });
+
+  bool get isIdentity =>
+      greenBoost == 1.0 &&
+      contrast == 1.0 &&
+      brightness == 0.0 &&
+      saturation == 1.0 &&
+      redTint == 1.0 &&
+      blueTint == 1.0;
 
   MapThemeState copyWith({
     bool? isLightMode,
@@ -77,61 +85,50 @@ class MapThemeState {
     final g = greenBoost * c;
     final bl = blueTint * c;
 
-    if (isLightMode) {
-      // Светлая тема: инверсия с сохранением мягких природных тонов
-      return <double>[
-        -0.85 * r, 0.0,       0.0,       0.0, 245.0 + b,
-        0.0,       -0.75 * g, 0.0,       0.0, 248.0 + b + 5.0,
-        0.0,       0.0,       -0.85 * bl,0.0, 252.0 + b,
-        0.0,       0.0,       0.0,       1.0, 0.0,
-      ];
-    } else {
-      // Темная тема (Obsidian / Emerald / Cyber)
-      return <double>[
-        r,   0.0, 0.0, 0.0, b,
-        0.0, g,   0.0, 0.0, b + (greenBoost > 1.0 ? (greenBoost - 1.0) * 35.0 : 0.0),
-        0.0, 0.0, bl,  0.0, b + (blueTint > 1.0 ? (blueTint - 1.0) * 25.0 : 0.0),
-        0.0, 0.0, 0.0, 1.0, 0.0,
-      ];
-    }
+    return <double>[
+      r,   0.0, 0.0, 0.0, b,
+      0.0, g,   0.0, 0.0, b,
+      0.0, 0.0, bl,  0.0, b,
+      0.0, 0.0, 0.0, 1.0, 0.0,
+    ];
   }
 
   static const List<MapThemePreset> builtInPresets = [
     MapThemePreset(
-      key: 'emerald_dark',
-      title: 'Obsidian Emerald',
-      description: 'Глубокий графит с сочными изумрудными парками',
+      key: 'dark_obsidian',
+      title: 'Obsidian Dark',
+      description: 'Чистая тёмная тема Яндекс Карт без цветовых искажений',
       isLightMode: false,
-      greenBoost: 1.40,
-      contrast: 1.10,
+      greenBoost: 1.0,
+      contrast: 1.0,
       brightness: 0.0,
-      saturation: 1.1,
-      redTint: 0.88,
-      blueTint: 0.92,
+      saturation: 1.0,
+      redTint: 1.0,
+      blueTint: 1.0,
     ),
     MapThemePreset(
       key: 'apple_light',
       title: 'Apple Light Clean',
-      description: 'Светлая минималистичная тема Apple Maps',
+      description: 'Светлая минималистичная тема Яндекс Карт',
       isLightMode: true,
-      greenBoost: 1.25,
-      contrast: 1.15,
+      greenBoost: 1.0,
+      contrast: 1.0,
       brightness: 0.0,
       saturation: 1.0,
       redTint: 1.0,
-      blueTint: 1.05,
+      blueTint: 1.0,
     ),
     MapThemePreset(
-      key: 'deep_forest',
-      title: 'Deep Pine Forest',
-      description: 'Усиленная хвойная зелень и темные дороги',
+      key: 'oled_black',
+      title: 'OLED Pure Black',
+      description: '100% глубокий черный под Super Retina дисплеи',
       isLightMode: false,
-      greenBoost: 1.75,
-      contrast: 1.25,
-      brightness: -10.0,
-      saturation: 1.3,
-      redTint: 0.75,
-      blueTint: 0.85,
+      greenBoost: 1.0,
+      contrast: 1.35,
+      brightness: -25.0,
+      saturation: 0.9,
+      redTint: 0.85,
+      blueTint: 0.90,
     ),
     MapThemePreset(
       key: 'cyber_mint',
@@ -190,7 +187,7 @@ class MapThemeNotifier extends StateNotifier<MapThemeState> {
   void toggleLightMode(bool isLight) {
     state = state.copyWith(
       isLightMode: isLight,
-      selectedPresetKey: isLight ? 'apple_light' : 'emerald_dark',
+      selectedPresetKey: isLight ? 'apple_light' : 'dark_obsidian',
     );
   }
 
@@ -213,7 +210,7 @@ class MapThemeNotifier extends StateNotifier<MapThemeState> {
   }
 
   void reset() {
-    applyPreset('emerald_dark');
+    applyPreset('dark_obsidian');
   }
 }
 

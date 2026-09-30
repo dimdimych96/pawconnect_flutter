@@ -175,12 +175,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate:
-                    'https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=ru_RU',
+                urlTemplate: mapThemeState.isLightMode
+                    ? 'https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=ru_RU'
+                    : 'https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=ru_RU&theme=dark',
                 userAgentPackageName: 'com.pawconnect.app',
                 maxNativeZoom: 18,
                 maxZoom: 19,
                 tileBuilder: (context, tileWidget, tile) {
+                  if (mapThemeState.isIdentity) {
+                    return tileWidget;
+                  }
                   return ColorFiltered(
                     colorFilter: ColorFilter.matrix(mapThemeState.matrix),
                     child: tileWidget,

@@ -4,16 +4,18 @@ import 'package:pawconnect/providers/map_theme_provider.dart';
 
 void main() {
   group('MapThemeProvider Tests', () {
-    test('Initial state is Dark Obsidian with emerald boost', () {
+    test('Initial state is Dark Obsidian with clean neutral palette (no green overlay)', () {
       final container = ProviderContainer();
       final state = container.read(mapThemeNotifierProvider);
 
       expect(state.isLightMode, isFalse);
-      expect(state.greenBoost, greaterThan(1.0));
+      expect(state.greenBoost, equals(1.0));
+      expect(state.isIdentity, isTrue);
+      expect(state.selectedPresetKey, equals('dark_obsidian'));
       expect(state.matrix.length, equals(20));
     });
 
-    test('Toggling Light Mode inverts matrix', () {
+    test('Toggling Light Mode updates preset and light flag', () {
       final container = ProviderContainer();
       final notifier = container.read(mapThemeNotifierProvider.notifier);
 
@@ -21,8 +23,7 @@ void main() {
       final state = container.read(mapThemeNotifierProvider);
 
       expect(state.isLightMode, isTrue);
-      // Inverted matrix has negative multiplier on diagonal or positive offset
-      expect(state.matrix[0], lessThan(0));
+      expect(state.selectedPresetKey, equals('apple_light'));
     });
 
     test('Applying Cyber Mint preset updates tints', () {
@@ -45,8 +46,9 @@ void main() {
       notifier.reset();
 
       final state = container.read(mapThemeNotifierProvider);
-      expect(state.selectedPresetKey, equals('emerald_dark'));
+      expect(state.selectedPresetKey, equals('dark_obsidian'));
       expect(state.brightness, equals(0.0));
+      expect(state.greenBoost, equals(1.0));
     });
   });
 }
