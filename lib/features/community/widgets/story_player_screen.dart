@@ -164,7 +164,7 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
               _accumulatedDrag = 0.0;
             },
             onVerticalDragUpdate: (details) {
-              _accumulatedDrag += details.primaryDelta ?? 0.0;
+              _accumulatedDrag = (_accumulatedDrag + (details.primaryDelta ?? 0.0)).clamp(0.0, 500.0);
               if (_accumulatedDrag > 100.0) {
                 _dismiss();
               }
@@ -201,8 +201,14 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
           Positioned(
             left: 16,
             right: 16,
-            bottom: 32,
-            child: _buildBottomStatusPill(currentStory),
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: _buildBottomStatusPill(currentStory),
+              ),
+            ),
           ),
         ],
       ),

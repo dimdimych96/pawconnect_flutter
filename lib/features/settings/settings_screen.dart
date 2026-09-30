@@ -14,6 +14,7 @@ class SettingsScreen extends ConsumerWidget {
   void _openEditProfileModal(BuildContext context, WidgetRef ref, String currentName, String currentAvatar) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => EditProfileModal(
@@ -35,6 +36,7 @@ class SettingsScreen extends ConsumerWidget {
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.obsidianCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

@@ -45,6 +45,7 @@ class PetProfileScreen extends ConsumerWidget {
   void _openNewReminderModal(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => NewReminderModal(

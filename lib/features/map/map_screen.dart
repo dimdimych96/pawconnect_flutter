@@ -120,6 +120,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void _openNewMarkerModal(double lat, double lng) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => NewMarkerModal(

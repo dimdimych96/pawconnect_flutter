@@ -26,6 +26,7 @@ class CommunityScreen extends ConsumerWidget {
   void _openNewPostModal(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => NewPostModal(
@@ -59,7 +60,7 @@ class CommunityScreen extends ConsumerWidget {
     int initialIndex,
     CommunityNotifier notifier,
   ) {
-    Navigator.of(context).push(
+    Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (_) => StoryPlayerScreen(
@@ -640,7 +641,7 @@ class _FeedErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 48, bottom: 100),
       children: [
         Center(
           child: Container(
@@ -737,7 +738,7 @@ class _FeedEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 48, bottom: 100),
       children: [
         Center(
           child: Container(

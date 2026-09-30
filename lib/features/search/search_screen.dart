@@ -289,7 +289,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 100),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final marker = filtered[index];
