@@ -170,6 +170,11 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     state = state.copyWith(postCommentsCache: updatedCache);
   }
 
+  /// Returns cached comments for a post, or an empty list if not yet loaded.
+  List<PostCommentModel> getCommentsForPost(String postId) {
+    return state.postCommentsCache[postId] ?? const [];
+  }
+
   /// Adds a new comment: prepends to the comments cache and increments commentsCount on the post.
   Future<void> addComment(String postId, String text) async {
     final newComment = await _communityService.addComment(postId, text);
