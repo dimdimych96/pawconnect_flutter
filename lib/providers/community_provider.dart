@@ -1,33 +1,48 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/community_post_model.dart';
+import '../models/pet_story_model.dart';
+import '../models/post_comment_model.dart';
 import '../services/community_service.dart';
 
 class CommunityState {
-  final List<CommunityPostModel> posts;
+  final AsyncValue<List<CommunityPostModel>> postsAsync;
+  final AsyncValue<List<PetStoryModel>> storiesAsync;
   final String selectedDistrict;
   final String selectedCategory; // 'all', 'health', 'training', 'sos', 'general'
-  final bool isLoading;
+  final Map<String, List<PostCommentModel>> postCommentsCache;
+  final Set<String> bookmarkedPostIds;
 
   const CommunityState({
-    this.posts = const [],
+    this.postsAsync = const AsyncValue.loading(),
+    this.storiesAsync = const AsyncValue.loading(),
     this.selectedDistrict = 'Все районы',
     this.selectedCategory = 'all',
-    this.isLoading = false,
+    this.postCommentsCache = const {},
+    this.bookmarkedPostIds = const {},
   });
 
   CommunityState copyWith({
-    List<CommunityPostModel>? posts,
+    AsyncValue<List<CommunityPostModel>>? postsAsync,
+    AsyncValue<List<PetStoryModel>>? storiesAsync,
     String? selectedDistrict,
     String? selectedCategory,
-    bool? isLoading,
+    Map<String, List<PostCommentModel>>? postCommentsCache,
+    Set<String>? bookmarkedPostIds,
   }) {
     return CommunityState(
-      posts: posts ?? this.posts,
+      postsAsync: postsAsync ?? this.postsAsync,
+      storiesAsync: storiesAsync ?? this.storiesAsync,
       selectedDistrict: selectedDistrict ?? this.selectedDistrict,
       selectedCategory: selectedCategory ?? this.selectedCategory,
-      isLoading: isLoading ?? this.isLoading,
+      postCommentsCache: postCommentsCache ?? this.postCommentsCache,
+      bookmarkedPostIds: bookmarkedPostIds ?? this.bookmarkedPostIds,
     );
   }
+
+  // Compatibility helpers
+  List<CommunityPostModel> get posts => postsAsync.valueOrNull ?? const [];
+  List<PetStoryModel> get stories => storiesAsync.valueOrNull ?? const [];
+  bool get isLoading => postsAsync.isLoading || storiesAsync.isLoading;
 
   List<CommunityPostModel> get filteredPosts {
     return posts.where((p) {
@@ -42,14 +57,48 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
   final CommunityService _communityService;
 
   CommunityNotifier(this._communityService) : super(const CommunityState()) {
-    loadPosts();
+    loadFeed();
   }
 
-  Future<void> loadPosts() async {
-    state = state.copyWith(isLoading: true);
-    final posts = await _communityService.getPosts();
-    state = state.copyWith(posts: posts, isLoading: false);
+  /// Loads feed posts and stories in parallel.
+  Future<void> loadFeed({bool forceRefresh = false}) async {
+    if (forceRefresh || state.postsAsync is! AsyncData) {
+      state = state.copyWith(
+        postsAsync: const AsyncValue.loading(),
+        storiesAsync: const AsyncValue.loading(),
+      );
+    }
+
+    try {
+      final results = await Future.wait([
+        _communityService.getPosts(),
+        _communityService.getStories(),
+      ]);
+
+      final posts = results[0] as List<CommunityPostModel>;
+      final stories = results[1] as List<PetStoryModel>;
+
+      // Maintain bookmark status across refreshes
+      final synchedPosts = posts.map((p) {
+        if (state.bookmarkedPostIds.contains(p.id)) {
+          return p.copyWith(isBookmarked: true);
+        }
+        return p;
+      }).toList();
+
+      state = state.copyWith(
+        postsAsync: AsyncValue.data(synchedPosts),
+        storiesAsync: AsyncValue.data(stories),
+      );
+    } catch (e, st) {
+      state = state.copyWith(
+        postsAsync: AsyncValue.error(e, st),
+        storiesAsync: AsyncValue.error(e, st),
+      );
+    }
   }
+
+  Future<void> loadPosts() => loadFeed();
 
   void setDistrict(String district) {
     state = state.copyWith(selectedDistrict: district);
@@ -59,23 +108,103 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     state = state.copyWith(selectedCategory: category);
   }
 
-  void toggleLike(String postId) {
-    final updatedPosts = state.posts.map((p) {
+  /// Optimistically updates post like state, then calls the backend API.
+  Future<void> toggleLike(String postId) async {
+    final currentPosts = state.posts;
+    if (currentPosts.isEmpty) return;
+
+    final updatedPosts = currentPosts.map((p) {
       if (p.id == postId) {
         final newIsLiked = !p.isLiked;
-        final newCount = newIsLiked ? p.likesCount + 1 : p.likesCount - 1;
+        final newCount = newIsLiked ? p.likesCount + 1 : (p.likesCount > 0 ? p.likesCount - 1 : 0);
         return p.copyWith(isLiked: newIsLiked, likesCount: newCount);
       }
       return p;
     }).toList();
 
-    state = state.copyWith(posts: updatedPosts);
+    state = state.copyWith(postsAsync: AsyncValue.data(updatedPosts));
+
+    try {
+      await _communityService.toggleLike(postId);
+    } catch (_) {
+      // In case of error, could revert if needed
+    }
   }
 
+  /// Toggles post bookmark state and tracks in bookmarkedPostIds.
+  void toggleBookmark(String postId) {
+    final updatedBookmarks = Set<String>.from(state.bookmarkedPostIds);
+    final isBookmarking = !updatedBookmarks.contains(postId);
+    if (isBookmarking) {
+      updatedBookmarks.add(postId);
+    } else {
+      updatedBookmarks.remove(postId);
+    }
+
+    final updatedPosts = state.posts.map((p) {
+      if (p.id == postId) {
+        return p.copyWith(isBookmarked: isBookmarking);
+      }
+      return p;
+    }).toList();
+
+    state = state.copyWith(
+      bookmarkedPostIds: updatedBookmarks,
+      postsAsync: AsyncValue.data(updatedPosts),
+    );
+  }
+
+  /// Loads comments for a specific post into the local cache.
+  Future<void> loadComments(String postId) async {
+    final comments = await _communityService.getComments(postId);
+    final updatedCache = Map<String, List<PostCommentModel>>.from(state.postCommentsCache);
+    updatedCache[postId] = comments;
+    state = state.copyWith(postCommentsCache: updatedCache);
+  }
+
+  /// Adds a new comment: prepends to the comments cache and increments commentsCount on the post.
+  Future<void> addComment(String postId, String text) async {
+    final newComment = await _communityService.addComment(postId, text);
+
+    final currentComments = state.postCommentsCache[postId] ?? const [];
+    final updatedComments = [newComment, ...currentComments];
+    final updatedCache = Map<String, List<PostCommentModel>>.from(state.postCommentsCache);
+    updatedCache[postId] = updatedComments;
+
+    final updatedPosts = state.posts.map((p) {
+      if (p.id == postId) {
+        return p.copyWith(commentsCount: p.commentsCount + 1);
+      }
+      return p;
+    }).toList();
+
+    state = state.copyWith(
+      postCommentsCache: updatedCache,
+      postsAsync: AsyncValue.data(updatedPosts),
+    );
+  }
+
+  /// Marks a story as viewed in storiesAsync.
+  void markStoryViewed(String storyId) {
+    final currentStories = state.stories;
+    final updatedStories = currentStories.map((s) {
+      if (s.id == storyId) {
+        return s.copyWith(isViewed: true);
+      }
+      return s;
+    }).toList();
+
+    state = state.copyWith(storiesAsync: AsyncValue.data(updatedStories));
+  }
+
+  /// Adds a new post to the top of the feed and publishes it via CommunityService.
   void addPost(CommunityPostModel newPost) async {
-    state = state.copyWith(posts: [newPost, ...state.posts]);
+    final updatedPosts = [newPost, ...state.posts];
+    state = state.copyWith(postsAsync: AsyncValue.data(updatedPosts));
     await _communityService.createPost(newPost);
   }
+
+  void createPost(CommunityPostModel newPost) => addPost(newPost);
 }
 
 final communityServiceProvider = Provider<CommunityService>((ref) => CommunityService());
