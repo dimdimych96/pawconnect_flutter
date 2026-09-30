@@ -75,7 +75,19 @@ SHOWCASE_STORIES: List[dict] = [
 ]
 
 
+_showcase_seeded: bool = False
+
+
 async def ensure_showcase_data(db: AsyncSession) -> None:
+    global _showcase_seeded
+    if _showcase_seeded:
+        try:
+            post_check = await db.execute(select(CommunityPost.id).where(CommunityPost.id == OFFICIAL_POST_ID))
+            if post_check.scalar_one_or_none():
+                return
+        except Exception:
+            _showcase_seeded = False
+
     # 1. Ensure official PawConnect user
     user_res = await db.execute(select(User).where(User.email == "team@pawconnect.app"))
     official_user = user_res.scalar_one_or_none()
@@ -127,6 +139,8 @@ async def ensure_showcase_data(db: AsyncSession) -> None:
         db.add_all([comment1, comment2])
         await db.commit()
 
+    _showcase_seeded = True
+
 
 @stories_router.get("", response_model=List[StoryResponse])
 @router.get("/stories", response_model=List[StoryResponse])
@@ -169,6 +183,7 @@ async def get_posts(
         resp_obj.is_official = bool(p.is_official)
         resp_obj.pet_name = p.pet_name
         resp_obj.title = p.title
+        resp_obj.sync()
         response.append(resp_obj)
     return response
 
@@ -199,6 +214,7 @@ async def create_post(
     resp_obj.author_avatar = current_user.avatar_url
     resp_obj.is_official = is_official
     resp_obj.comments_count = 0
+    resp_obj.sync()
     return resp_obj
 
 
@@ -230,6 +246,7 @@ async def like_post(
     resp_obj.pet_name = post.pet_name
     resp_obj.title = post.title
     resp_obj.is_liked = True
+    resp_obj.sync()
     return resp_obj
 
 

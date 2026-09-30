@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class CommunityPostBase(BaseModel):
@@ -44,30 +44,33 @@ class CommunityPostResponse(CommunityPostBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+    def sync(self) -> "CommunityPostResponse":
+        self.authorName = self.author_name
+        self.authorAvatar = self.author_avatar
+        self.petName = self.pet_name
+        self.isOfficial = self.is_official
+        self.likesCount = self.likes_count
+        self.commentsCount = self.comments_count
+        self.content = self.text
+        self.imageUrl = self.photo_url
+        self.isLiked = self.is_liked
+        self.isBookmarked = self.is_bookmarked
+        self.createdAt = self.created_at
+        return self
+
     @model_validator(mode="after")
     def sync_camel_case(self) -> "CommunityPostResponse":
-        if self.authorName is None:
-            self.authorName = self.author_name
-        if self.authorAvatar is None:
-            self.authorAvatar = self.author_avatar
-        if self.petName is None:
-            self.petName = self.pet_name
-        if self.isOfficial is None:
-            self.isOfficial = self.is_official
-        if self.likesCount is None:
-            self.likesCount = self.likes_count
-        if self.commentsCount is None:
-            self.commentsCount = self.comments_count
-        if self.content is None:
-            self.content = self.text
-        if self.imageUrl is None:
-            self.imageUrl = self.photo_url
-        if self.isLiked is None:
-            self.isLiked = self.is_liked
-        if self.isBookmarked is None:
-            self.isBookmarked = self.is_bookmarked
-        if self.createdAt is None:
-            self.createdAt = self.created_at
+        self.authorName = self.author_name if self.authorName is None else self.authorName
+        self.authorAvatar = self.author_avatar if self.authorAvatar is None else self.authorAvatar
+        self.petName = self.pet_name if self.petName is None else self.petName
+        self.isOfficial = self.is_official
+        self.likesCount = self.likes_count
+        self.commentsCount = self.comments_count
+        self.content = self.text if self.content is None else self.content
+        self.imageUrl = self.photo_url if self.imageUrl is None else self.imageUrl
+        self.isLiked = self.is_liked
+        self.isBookmarked = self.is_bookmarked
+        self.createdAt = self.created_at if self.createdAt is None else self.createdAt
         return self
 
 
@@ -117,7 +120,15 @@ class StoryResponse(BaseModel):
 
 
 class CommentCreate(BaseModel):
-    text: str
+    text: str = Field(..., min_length=1)
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, v: str) -> str:
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError("Comment text cannot be empty or whitespace only")
+        return stripped
 
 
 class CommentResponse(BaseModel):
