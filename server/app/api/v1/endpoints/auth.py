@@ -1,5 +1,5 @@
 from typing import Any
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -50,12 +50,36 @@ async def register(
 
 @router.post("/login", response_model=Token)
 async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> Any:
-    result = await db.execute(select(User).where(User.email == form_data.username))
+    content_type = request.headers.get("content-type", "")
+    username = ""
+    password = ""
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            username = body.get("email") or body.get("username", "")
+            password = body.get("password", "")
+        except Exception:
+            pass
+    else:
+        try:
+            form = await request.form()
+            username = form.get("username") or form.get("email", "")
+            password = form.get("password", "")
+        except Exception:
+            pass
+
+    if not username or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Неверный email или пароль",
+        )
+
+    result = await db.execute(select(User).where(User.email == username))
     user = result.scalar_one_or_none()
-    if not user or not user.hashed_password or not verify_password(form_data.password, user.hashed_password):
+    if not user or not user.hashed_password or not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Неверный email или пароль",

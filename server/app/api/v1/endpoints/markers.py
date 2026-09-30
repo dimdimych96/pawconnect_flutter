@@ -30,10 +30,15 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
 async def get_markers(
     latitude: Optional[float] = Query(None, description="Широта центра поиска"),
     longitude: Optional[float] = Query(None, description="Долгота центра поиска"),
+    lat: Optional[float] = Query(None, description="Широта (алиас)"),
+    lng: Optional[float] = Query(None, description="Долгота (алиас)"),
     radius: Optional[float] = Query(10000, description="Радиус поиска в метрах"),
     category: Optional[str] = Query(None, description="Фильтр по категории"),
     db: AsyncSession = Depends(get_db),
 ) -> Any:
+    eff_lat = latitude if latitude is not None else lat
+    eff_lng = longitude if longitude is not None else lng
+
     stmt = select(MapMarker).where(MapMarker.status == "approved")
     if category:
         stmt = stmt.where(MapMarker.category == category)
@@ -41,10 +46,10 @@ async def get_markers(
     result = await db.execute(stmt)
     markers = result.scalars().all()
 
-    if latitude is not None and longitude is not None and radius is not None:
+    if eff_lat is not None and eff_lng is not None and radius is not None:
         filtered = []
         for m in markers:
-            dist = haversine_distance(latitude, longitude, m.latitude, m.longitude)
+            dist = haversine_distance(eff_lat, eff_lng, m.latitude, m.longitude)
             if dist <= radius:
                 filtered.append(m)
         return [MapMarkerResponse.model_validate(m) for m in filtered]

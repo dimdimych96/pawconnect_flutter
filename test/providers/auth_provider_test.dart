@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pawconnect/models/auth_model.dart';
 import 'package:pawconnect/providers/auth_provider.dart';
 import 'package:pawconnect/services/auth_service.dart';
 
@@ -11,7 +10,7 @@ void main() {
 
     setUp(() {
       fakeStorage = FakeAuthStorage();
-      authService = AuthService(storage: fakeStorage);
+      authService = AuthService(storage: fakeStorage, allowMockFallback: true);
       authNotifier = AuthNotifier(authService);
     });
 

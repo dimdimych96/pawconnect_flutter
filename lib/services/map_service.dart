@@ -7,15 +7,17 @@ import '../models/route_model.dart';
 
 class MapService {
   final Dio _dio;
+  final bool _allowMockFallback;
 
-  MapService({Dio? dio})
+  MapService({Dio? dio, bool? allowMockFallback})
       : _dio = dio ??
             Dio(
               BaseOptions(
                 baseUrl: AppConfig.apiBaseUrl,
                 connectTimeout: const Duration(seconds: 3),
               ),
-            );
+            ),
+        _allowMockFallback = allowMockFallback ?? AppConfig.enableOfflineMocks;
 
   // Initial Mock Collar Gps Device
   static final GpsDeviceModel mockGpsDevice = GpsDeviceModel(
@@ -105,28 +107,32 @@ class MapService {
   Future<List<MapMarkerModel>> getMapMarkers({double? lat, double? lng, double? radius}) async {
     try {
       final response = await _dio.get('/map/markers', queryParameters: {
-        if (lat != null) 'lat': lat,
-        if (lng != null) 'lng': lng,
+        if (lat != null) 'latitude': lat,
+        if (lng != null) 'longitude': lng,
         if (radius != null) 'radius': radius,
-      }).timeout(const Duration(milliseconds: 300));
+      }).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List).map((e) => MapMarkerModel.fromJson(e)).toList();
       }
-    } catch (_) {
-      // Instant offline MockData fallback
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
     }
     return mockMarkers;
   }
 
-  /// Fetch GPS Collar Device with Dio fallback to MockData
+  /// Fetch GPS Collar Device with fallback only if enabled
   Future<GpsDeviceModel> getActiveGpsDevice() async {
     try {
-      final response = await _dio.get('/gps/active').timeout(const Duration(milliseconds: 300));
+      final response = await _dio.get('/pets/active-tracker').timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data != null) {
         return GpsDeviceModel.fromJson(response.data);
       }
-    } catch (_) {
-      // Instant offline MockData fallback
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
     }
     return mockGpsDevice;
   }

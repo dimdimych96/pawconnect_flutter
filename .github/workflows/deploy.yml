@@ -31,6 +31,12 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Analyze code (Quality Gate)
+        run: flutter analyze
+
+      - name: Run automated tests (Quality Gate)
+        run: flutter test
+
       - name: Build Flutter Web
         run: flutter build web --release --base-href "/pawconnect_flutter/" --no-tree-shake-icons
 

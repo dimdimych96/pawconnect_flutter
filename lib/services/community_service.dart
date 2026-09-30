@@ -96,24 +96,32 @@ class CommunityService {
 
   Future<List<CommunityPostModel>> getPosts({String? district, String? category}) async {
     try {
-      final response = await _dio.get('/posts', queryParameters: {
+      final response = await _dio.get('/community/posts', queryParameters: {
         if (district != null && district != 'Все районы') 'district': district,
         if (category != null && category != 'all') 'category': category,
-      });
+      }).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List).map((e) => CommunityPostModel.fromJson(e)).toList();
       }
-    } catch (_) {}
+    } catch (e) {
+      if (!AppConfig.enableOfflineMocks) {
+        rethrow;
+      }
+    }
     return mockPosts;
   }
 
   Future<CommunityPostModel> createPost(CommunityPostModel post) async {
     try {
-      final response = await _dio.post('/posts', data: post.toJson());
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _dio.post('/community/posts', data: post.toJson()).timeout(const Duration(seconds: 5));
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
         return CommunityPostModel.fromJson(response.data);
       }
-    } catch (_) {}
+    } catch (e) {
+      if (!AppConfig.enableOfflineMocks) {
+        rethrow;
+      }
+    }
     return post;
   }
 }

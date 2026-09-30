@@ -97,13 +97,25 @@ class FakeAuthStorage implements AuthStorage {
   Future<void> clearUser() async => _user = null;
 }
 
+class AuthException implements Exception {
+  final String message;
+  final int? statusCode;
+
+  AuthException(this.message, {this.statusCode});
+
+  @override
+  String toString() => message;
+}
+
 class AuthService {
   final Dio _dio;
   final AuthStorage _storage;
+  final bool _allowMockFallback;
 
   AuthService({
     Dio? dio,
     AuthStorage? storage,
+    bool? allowMockFallback,
   })  : _dio = dio ??
             Dio(
               BaseOptions(
@@ -111,7 +123,8 @@ class AuthService {
                 connectTimeout: const Duration(seconds: 3),
               ),
             ),
-        _storage = storage ?? SecureAuthStorage();
+        _storage = storage ?? SecureAuthStorage(),
+        _allowMockFallback = allowMockFallback ?? AppConfig.enableOfflineMocks;
 
   AuthStorage get storage => _storage;
 
@@ -139,7 +152,7 @@ class AuthService {
       final response = await _dio.post(
         '/auth/login',
         data: {'email': email, 'password': password},
-      ).timeout(const Duration(milliseconds: 500));
+      ).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200 && response.data != null) {
         final authResponse = AuthResponse.fromJson(response.data as Map<String, dynamic>);
@@ -147,23 +160,40 @@ class AuthService {
         await _storage.saveUser(authResponse.user);
         return authResponse;
       }
-    } catch (_) {
-      // Offline fallback login
+    } on DioException catch (dioErr) {
+      if (!_allowMockFallback) {
+        String msg = 'Неверный email или пароль';
+        if (dioErr.response?.data != null && dioErr.response?.data is Map) {
+          msg = dioErr.response?.data['detail']?.toString() ?? msg;
+        } else if (dioErr.type == DioExceptionType.connectionTimeout ||
+            dioErr.type == DioExceptionType.connectionError) {
+          msg = 'Сервер недоступен. Проверьте подключение к бэкенду (${AppConfig.apiBaseUrl}).';
+        }
+        throw AuthException(msg, statusCode: dioErr.response?.statusCode);
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        throw AuthException(e is AuthException ? e.message : 'Ошибка авторизации: $e');
+      }
     }
 
-    final fallbackUser = UserAuthModel(
-      id: 'usr-${email.hashCode.abs()}',
-      email: email,
-      name: email.split('@').first,
-      avatarUrl: defaultUser.avatarUrl,
-      createdAt: DateTime.now(),
-    );
-    final fallbackTokens = defaultTokens;
+    if (_allowMockFallback) {
+      final fallbackUser = UserAuthModel(
+        id: 'usr-${email.hashCode.abs()}',
+        email: email,
+        name: email.split('@').first,
+        avatarUrl: defaultUser.avatarUrl,
+        createdAt: DateTime.now(),
+      );
+      final fallbackTokens = defaultTokens;
 
-    await _storage.saveTokens(fallbackTokens);
-    await _storage.saveUser(fallbackUser);
+      await _storage.saveTokens(fallbackTokens);
+      await _storage.saveUser(fallbackUser);
 
-    return AuthResponse(user: fallbackUser, tokens: fallbackTokens);
+      return AuthResponse(user: fallbackUser, tokens: fallbackTokens);
+    }
+
+    throw AuthException('Не удалось выполнить вход');
   }
 
   Future<AuthResponse> register({
@@ -179,7 +209,7 @@ class AuthService {
           'email': email,
           'password': password,
         },
-      ).timeout(const Duration(milliseconds: 500));
+      ).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 201 && response.data != null) {
         final authResponse = AuthResponse.fromJson(response.data as Map<String, dynamic>);
@@ -187,23 +217,40 @@ class AuthService {
         await _storage.saveUser(authResponse.user);
         return authResponse;
       }
-    } catch (_) {
-      // Offline fallback register
+    } on DioException catch (dioErr) {
+      if (!_allowMockFallback) {
+        String msg = 'Ошибка регистрации';
+        if (dioErr.response?.data != null && dioErr.response?.data is Map) {
+          msg = dioErr.response?.data['detail']?.toString() ?? msg;
+        } else if (dioErr.type == DioExceptionType.connectionTimeout ||
+            dioErr.type == DioExceptionType.connectionError) {
+          msg = 'Сервер недоступен. Проверьте подключение к бэкенду (${AppConfig.apiBaseUrl}).';
+        }
+        throw AuthException(msg, statusCode: dioErr.response?.statusCode);
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        throw AuthException(e is AuthException ? e.message : 'Ошибка регистрации: $e');
+      }
     }
 
-    final newUser = UserAuthModel(
-      id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
-      name: name,
-      email: email,
-      avatarUrl: defaultUser.avatarUrl,
-      createdAt: DateTime.now(),
-    );
-    final newTokens = defaultTokens;
+    if (_allowMockFallback) {
+      final newUser = UserAuthModel(
+        id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        email: email,
+        avatarUrl: defaultUser.avatarUrl,
+        createdAt: DateTime.now(),
+      );
+      final newTokens = defaultTokens;
 
-    await _storage.saveTokens(newTokens);
-    await _storage.saveUser(newUser);
+      await _storage.saveTokens(newTokens);
+      await _storage.saveUser(newUser);
 
-    return AuthResponse(user: newUser, tokens: newTokens);
+      return AuthResponse(user: newUser, tokens: newTokens);
+    }
+
+    throw AuthException('Не удалось зарегистрировать аккаунт');
   }
 
   Future<AuthTokens?> refreshToken(String refreshToken) async {

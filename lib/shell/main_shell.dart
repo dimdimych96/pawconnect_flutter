@@ -88,36 +88,36 @@ class MainShell extends ConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 _NavItem(
+                                  icon: Icons.view_agenda_outlined,
+                                  activeIcon: Icons.view_agenda_rounded,
+                                  label: 'Лента',
+                                  isSelected: navigationShell.currentIndex == 0,
+                                  activeColor: const Color(0xFF34D399),
+                                  onTap: () => _onTap(0),
+                                ),
+                                const SizedBox(width: 6),
+                                _NavItem(
                                   icon: Icons.map_outlined,
                                   activeIcon: Icons.map_rounded,
                                   label: 'Карта',
-                                  isSelected: navigationShell.currentIndex == 0,
-                                  activeColor: isBreached ? AppColors.accentRed : const Color(0xFF34D399),
-                                  onTap: () => _onTap(0),
+                                  isSelected: navigationShell.currentIndex == 1,
+                                  activeColor: isBreached ? AppColors.accentRed : AppColors.accentBlue,
+                                  onTap: () => _onTap(1),
                                 ),
                                 const SizedBox(width: 6),
                                 _NavItem(
                                   icon: Icons.search_outlined,
                                   activeIcon: Icons.search_rounded,
                                   label: 'Поиск',
-                                  isSelected: navigationShell.currentIndex == 1,
+                                  isSelected: navigationShell.currentIndex == 2,
                                   activeColor: AppColors.accentGreen,
-                                  onTap: () => _onTap(1),
+                                  onTap: () => _onTap(2),
                                 ),
                                 const SizedBox(width: 6),
                                 _NavItem(
                                   icon: Icons.pets_outlined,
                                   activeIcon: Icons.pets_rounded,
                                   label: 'Паспорт',
-                                  isSelected: navigationShell.currentIndex == 2,
-                                  activeColor: AppColors.accentBlue,
-                                  onTap: () => _onTap(2),
-                                ),
-                                const SizedBox(width: 6),
-                                _NavItem(
-                                  icon: Icons.forum_outlined,
-                                  activeIcon: Icons.forum_rounded,
-                                  label: 'Лента',
                                   isSelected: navigationShell.currentIndex == 3,
                                   activeColor: AppColors.accentYellow,
                                   onTap: () => _onTap(3),
@@ -152,7 +152,7 @@ class MainShell extends ConsumerWidget {
               child: BreachAlertBanner(
                 petName: gpsDevice?.petName ?? 'Макс',
                 onNavigateToMap: () {
-                  navigationShell.goBranch(0);
+                  navigationShell.goBranch(1);
                   ref.read(mapNotifierProvider.notifier).selectMarker(null);
                 },
               ),

@@ -37,9 +37,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._authService)
       : super(
-          AuthState(
-            isAuthenticated: true,
-            currentUser: AuthService.defaultUser,
+          const AuthState(
+            isAuthenticated: false,
+            isLoading: true,
+            currentUser: null,
           ),
         ) {
     checkSession();
@@ -54,23 +55,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     if (!mounted) return;
 
-    if (savedTokens != null && !savedTokens.isExpired) {
+    if (savedTokens != null && !savedTokens.isExpired && savedUser != null) {
       state = state.copyWith(
         isAuthenticated: true,
-        currentUser: savedUser ?? AuthService.defaultUser,
-        isLoading: false,
-      );
-    } else if (savedTokens != null && savedTokens.isExpired) {
-      state = state.copyWith(
-        isAuthenticated: false,
-        clearCurrentUser: true,
+        currentUser: savedUser,
         isLoading: false,
       );
     } else {
-      // If no stored tokens yet, keep active for initial launch but allow logout
       state = state.copyWith(
-        isAuthenticated: state.isAuthenticated,
-        currentUser: savedUser ?? AuthService.defaultUser,
+        isAuthenticated: false,
+        clearCurrentUser: true,
         isLoading: false,
       );
     }
@@ -89,11 +83,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
       return true;
+    } on AuthException catch (e) {
+      if (!mounted) return false;
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.message,
+      );
+      return false;
     } catch (e) {
       if (!mounted) return false;
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Ошибка входа. Проверьте email и пароль.',
+        errorMessage: 'Ошибка входа. Проверьте подключение к серверу.',
       );
       return false;
     }
@@ -120,11 +121,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
       return true;
+    } on AuthException catch (e) {
+      if (!mounted) return false;
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.message,
+      );
+      return false;
     } catch (e) {
       if (!mounted) return false;
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Ошибка регистрации. Попробуйте снова.',
+        errorMessage: 'Ошибка регистрации. Проверьте данные и подключение.',
       );
       return false;
     }

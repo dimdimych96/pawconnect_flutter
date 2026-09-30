@@ -504,7 +504,7 @@ class PetProfileScreen extends ConsumerWidget {
 
                           Switch.adaptive(
                             value: reminder.isCompleted,
-                            activeColor: AppColors.accentGreen,
+                            activeTrackColor: AppColors.accentGreen,
                             onChanged: (val) {
                               remindersNotifier.toggleReminder(reminder.id, val);
                             },

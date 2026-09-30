@@ -55,31 +55,43 @@ class ReminderService {
 
   Future<List<PetReminderModel>> getReminders() async {
     try {
-      final response = await _dio.get('/reminders');
+      final response = await _dio.get('/reminders').timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List).map((e) => PetReminderModel.fromJson(e)).toList();
       }
-    } catch (_) {}
+    } catch (e) {
+      if (!AppConfig.enableOfflineMocks) {
+        rethrow;
+      }
+    }
     return mockReminders;
   }
 
   Future<PetReminderModel> addReminder(PetReminderModel reminder) async {
     try {
-      final response = await _dio.post('/reminders', data: reminder.toJson());
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _dio.post('/reminders', data: reminder.toJson()).timeout(const Duration(seconds: 5));
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
         return PetReminderModel.fromJson(response.data);
       }
-    } catch (_) {}
+    } catch (e) {
+      if (!AppConfig.enableOfflineMocks) {
+        rethrow;
+      }
+    }
     return reminder;
   }
 
   Future<PetReminderModel> toggleReminder(String id, bool isCompleted) async {
     try {
-      final response = await _dio.patch('/reminders/$id', data: {'isCompleted': isCompleted});
+      final response = await _dio.patch('/reminders/$id', data: {'isCompleted': isCompleted}).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data != null) {
         return PetReminderModel.fromJson(response.data);
       }
-    } catch (_) {}
+    } catch (e) {
+      if (!AppConfig.enableOfflineMocks) {
+        rethrow;
+      }
+    }
     final match = mockReminders.firstWhere((r) => r.id == id, orElse: () => mockReminders.first);
     return match.copyWith(isCompleted: isCompleted);
   }

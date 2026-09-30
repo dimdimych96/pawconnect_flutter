@@ -105,6 +105,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
     final updatedState = ref.read(mapNotifierProvider);
     _mapController.move(LatLng(updatedState.userLatitude, updatedState.userLongitude), 16.0);
+    if (!mounted) return;
     PawToast.show(
       context,
       title: 'Камера сфокусирована на вашей геопозиции',
@@ -175,9 +176,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             children: [
               TileLayer(
                 urlTemplate:
-                    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+                    'https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=ru_RU',
                 userAgentPackageName: 'com.pawconnect.app',
-                maxNativeZoom: 16,
+                maxNativeZoom: 18,
                 maxZoom: 19,
                 tileBuilder: (context, tileWidget, tile) {
                   return ColorFiltered(
@@ -185,13 +186,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     child: tileWidget,
                   );
                 },
-              ),
-              TileLayer(
-                urlTemplate:
-                    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-                userAgentPackageName: 'com.pawconnect.app',
-                maxNativeZoom: 16,
-                maxZoom: 19,
               ),
 
               if (gpsDevice != null && gpsDevice.safeZoneLatitude != null)
@@ -346,6 +340,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                             final st = ref.read(mapNotifierProvider);
                             if (st.isLocationTrackingActive) {
                               _mapController.move(LatLng(st.userLatitude, st.userLongitude), 16.0);
+                              if (!context.mounted) return;
                               PawToast.show(
                                 context,
                                 title: 'Геопозиция определена!',

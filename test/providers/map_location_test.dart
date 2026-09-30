@@ -17,7 +17,7 @@ void main() {
           accuracy: 4.2,
         ),
       );
-      mapService = MapService();
+      mapService = MapService(allowMockFallback: true);
       mapNotifier = MapNotifier(mapService, locationService: fakeLocationService);
     });
 

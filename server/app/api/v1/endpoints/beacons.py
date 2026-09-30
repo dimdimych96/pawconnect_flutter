@@ -33,8 +33,9 @@ async def report_found_beacon(
 
     # 2. Anti-Spoofing / Velocity Check
     if pet.latitude is not None and pet.longitude is not None and pet.last_seen_at is not None:
-        time_diff_sec = (datetime.now(timezone.utc) - pet.last_seen_at).total_seconds()
-        if time_diff_sec > 0:
+        last_seen = pet.last_seen_at if pet.last_seen_at.tzinfo is not None else pet.last_seen_at.replace(tzinfo=timezone.utc)
+        time_diff_sec = (datetime.now(timezone.utc) - last_seen).total_seconds()
+        if time_diff_sec > 5:
             dist_meters = haversine_distance(pet.latitude, pet.longitude, report.latitude, report.longitude)
             speed_kmh = (dist_meters / time_diff_sec) * 3.6
             if speed_kmh > 150:  # Physically impossible animal speed (> 150 km/h)

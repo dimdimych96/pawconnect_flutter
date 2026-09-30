@@ -25,6 +25,7 @@ class MapState {
   final bool isNavigating;
   final int currentStepIndex;
   final String selectedTransportMode; // 'walk', 'park_safe', 'drive'
+  final String? errorMessage;
 
   const MapState({
     this.markers = const [],
@@ -44,6 +45,7 @@ class MapState {
     this.isNavigating = false,
     this.currentStepIndex = 0,
     this.selectedTransportMode = 'walk',
+    this.errorMessage,
   });
 
   MapState copyWith({
@@ -66,6 +68,8 @@ class MapState {
     bool? isNavigating,
     int? currentStepIndex,
     String? selectedTransportMode,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return MapState(
       markers: markers ?? this.markers,
@@ -85,6 +89,7 @@ class MapState {
       isNavigating: isNavigating ?? this.isNavigating,
       currentStepIndex: currentStepIndex ?? this.currentStepIndex,
       selectedTransportMode: selectedTransportMode ?? this.selectedTransportMode,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 
@@ -135,15 +140,23 @@ class MapNotifier extends StateNotifier<MapState> {
 
   Future<void> loadMapData() async {
     if (!mounted) return;
-    state = state.copyWith(isLoading: true);
-    final markers = await _mapService.getMapMarkers();
-    final gpsDevice = await _mapService.getActiveGpsDevice();
-    if (!mounted) return;
-    state = state.copyWith(
-      markers: markers,
-      gpsDevice: gpsDevice,
-      isLoading: false,
-    );
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final markers = await _mapService.getMapMarkers();
+      final gpsDevice = await _mapService.getActiveGpsDevice();
+      if (!mounted) return;
+      state = state.copyWith(
+        markers: markers,
+        gpsDevice: gpsDevice,
+        isLoading: false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
   }
 
   Future<void> initLocationTracking() async {

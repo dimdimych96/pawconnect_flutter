@@ -17,14 +17,14 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/map',
+    initialLocation: '/feed',
     redirect: (context, state) {
       final isAuthRoute = state.matchedLocation == '/auth';
       if (!authState.isAuthenticated) {
         return isAuthRoute ? null : '/auth';
       }
       if (isAuthRoute && authState.isAuthenticated) {
-        return '/map';
+        return '/feed';
       }
       return null;
     },
@@ -39,7 +39,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           return MainShell(navigationShell: navigationShell);
         },
         branches: [
-          // Tab 1: Map
+          // Tab 0: Feed (Instagram 2026 Style Community Feed)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/feed',
+                name: 'feed',
+                builder: (context, state) => const CommunityScreen(),
+              ),
+              GoRoute(
+                path: '/community',
+                redirect: (context, state) => '/feed',
+              ),
+            ],
+          ),
+          // Tab 1: Interactive Yandex Map
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -69,17 +83,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // Tab 4: Community Feed
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/community',
-                name: 'community',
-                builder: (context, state) => const CommunityScreen(),
-              ),
-            ],
-          ),
-          // Tab 5: Settings
+          // Tab 4: Settings
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -98,7 +102,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 // Backward compatibility static router
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/map',
+  initialLocation: '/feed',
   routes: [
     GoRoute(
       path: '/auth',
@@ -110,6 +114,19 @@ final GoRouter appRouter = GoRouter(
         return MainShell(navigationShell: navigationShell);
       },
       branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/feed',
+              name: 'feed',
+              builder: (context, state) => const CommunityScreen(),
+            ),
+            GoRoute(
+              path: '/community',
+              redirect: (context, state) => '/feed',
+            ),
+          ],
+        ),
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -134,15 +151,6 @@ final GoRouter appRouter = GoRouter(
               path: '/profile',
               name: 'profile',
               builder: (context, state) => const PetProfileScreen(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/community',
-              name: 'community',
-              builder: (context, state) => const CommunityScreen(),
             ),
           ],
         ),

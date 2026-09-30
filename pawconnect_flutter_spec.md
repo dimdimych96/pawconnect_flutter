@@ -17,16 +17,16 @@
 
 ---
 
-## 🛠 2. Оптимизированный Вайб-Стек
+## 🛠 2. Оптимизированный Продакшн-Стек
 
 ```
  📱 UI Framework     : Flutter 3.x (Dart 3.x)
- 🧠 State            : flutter_riverpod (без кодогенераторов, через StateNotifier / Notifier)
- 🗺 Maps             : flutter_map + latlong2 (CartoDB Dark Matter Tiles)
- 🌐 Network          : dio (Интерцепторы токенов + Retry)
+ 🧠 State            : flutter_riverpod (Notifier / StateNotifier)
+ 🗺 Maps             : flutter_map + latlong2 (Yandex Maps Tiles + GPU matrix)
+ 🌐 Network          : dio (Интерцепторы токенов + Retry, Zero-Stub)
  🧭 Routing          : go_router (StatefulShellRoute для сохранения вкладок)
  💾 Storage          : shared_preferences + flutter_secure_storage
- 🎨 UI & Icons       : lucide_icons / feather_icons + BackdropFilter (Glassmorphism)
+ 🎨 UI & Icons       : vector Icons / cupertino_icons + Liquid Glass
 ```
 
 ---
@@ -227,11 +227,11 @@ class GpsDeviceModel {
 
 ---
 
-## 🚀 7. Прямые указания для ИИ-Агента (Vibe-Rules)
+## 🚀 7. Прямые указания для ИИ-Агента (Production Architecture Rules)
 
-1. **Пиши код без генераторов**: Никаких `.g.dart` или `.freezed.dart` файлов.
-2. **Используй `flutter_map`**: Все маркеры на карте возвращай как чистые виджеты Flutter (`Marker(child: ...)`).
+1. **Реальный API и отсутствие скрытых заглушек (Zero-Stub Policy)**: Никаких `catch (_) => mockData`. Ошибки сети, 401/403/500 должны явно обрабатываться и отображаться пользователю.
+2. **Используй `flutter_map` с Яндекс Картами**: Картографический движок `flutter_map` с тайлами Яндекс Карт (`https://core-renderer-tiles.maps.yandex.net/tiles...`). Все маркеры на карте возвращай как чистые виджеты Flutter (`Marker(child: ...)`).
 3. **Не используй прозрачные/белые фоны**: Используй `#0A0A0C` для `Scaffold` и `#1C1C1E` для карточек.
-4. **Стеклянные оверлеи**: Применяй `BackdropFilter` с `ImageFilter.blur(sigmaX: 10, sigmaY: 10)` только для верхних панелей поиска и плашек меню.
-5. **Оффлайн демо-режим**: При ошибке от `dio` всегда отлавливай исключение и возвращай локальный `MockData` список, чтобы интерфейс всегда можно было протестировать на лету.
-6. **Гибкость API Контракта**: Указанный REST API контракт является базовым ориентиром под существующий Next.js бэкенд. При необходимости реализации дополнительных элементов интерфейса ты имеешь право добавлять новые поля в JSON-ответы (например, `batteryLevel`, `isConnected`, `photoUrl`), сохраняя базовые наименования ключевых сущностей и полей (`latitude`, `longitude`, `isBreached`, `imei`).
+4. **Бюджет производительности стеклянных оверлеев**: Применяй `BackdropFilter` с `ImageFilter.blur` только для верхних панелей поиска, нижнего таббара и модальных шторок. Внутри скроллящихся списков размытие запрещено (используй `obsidianCardTranslucent`).
+5. **Иконки**: Используй стандартные `Icons` и `cupertino_icons`. Пакет `lucide_icons` запрещен из-за несовместимости с Flutter Web.
+6. **Бэкенд стек**: Бэкенд реализован на **FastAPI (Python 3.12+) + PostgreSQL 16 (PostGIS) + Redis + Docker** в каталоге `server/`. Никаких Next.js бэкендов в проекте нет. Взаимодействие через чистый REST API и Bearer JWT токены.

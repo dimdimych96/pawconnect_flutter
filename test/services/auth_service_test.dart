@@ -9,7 +9,7 @@ void main() {
 
     setUp(() {
       fakeStorage = FakeAuthStorage();
-      authService = AuthService(storage: fakeStorage);
+      authService = AuthService(storage: fakeStorage, allowMockFallback: true);
     });
 
     test('UserAuthModel serialization and deserialization', () {

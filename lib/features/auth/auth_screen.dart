@@ -18,8 +18,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController(text: 'alex@pawconnect.app');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
 
@@ -61,7 +61,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           subtitle: 'Добро пожаловать в PawConnect',
           type: ToastType.success,
         );
-        context.go('/map');
+        context.go('/feed');
       } else {
         final error = ref.read(authNotifierProvider).errorMessage ?? 'Ошибка авторизации';
         PawToast.show(
@@ -308,24 +308,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
                               const SizedBox(height: 16),
 
-                              // Demo Quick Access Button
-                              TextButton(
-                                onPressed: () {
-                                  ref.read(authNotifierProvider.notifier).login(
-                                        email: 'alex@pawconnect.app',
-                                        password: 'password123',
-                                      );
-                                  context.go('/map');
-                                },
-                                child: const Text(
-                                  'Продолжить в Демо-режиме ➔',
-                                  style: TextStyle(
-                                    color: AppColors.accentGreen,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
