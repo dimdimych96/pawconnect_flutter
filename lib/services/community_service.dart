@@ -210,6 +210,9 @@ class CommunityService {
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List).map((e) => CommunityPostModel.fromJson(e as Map<String, dynamic>)).toList();
       }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
     } catch (e) {
       if (!_allowMockFallback) {
         rethrow;
@@ -230,6 +233,9 @@ class CommunityService {
       if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
         return CommunityPostModel.fromJson(response.data as Map<String, dynamic>);
       }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
     } catch (e) {
       if (!_allowMockFallback) {
         rethrow;
@@ -245,6 +251,9 @@ class CommunityService {
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List).map((e) => PetStoryModel.fromJson(e as Map<String, dynamic>)).toList();
       }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
     } catch (e) {
       if (!_allowMockFallback) {
         rethrow;
@@ -259,6 +268,9 @@ class CommunityService {
       final response = await _dio.get('/community/posts/$postId/comments').timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List).map((e) => PostCommentModel.fromJson(e as Map<String, dynamic>)).toList();
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
       }
     } catch (e) {
       if (!_allowMockFallback) {
@@ -277,6 +289,9 @@ class CommunityService {
       ).timeout(const Duration(seconds: 5));
       if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
         return PostCommentModel.fromJson(response.data as Map<String, dynamic>);
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
       }
     } catch (e) {
       if (!_allowMockFallback) {
@@ -298,6 +313,9 @@ class CommunityService {
       final response = await _dio.post('/community/posts/$postId/like').timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data != null) {
         return CommunityPostModel.fromJson(response.data as Map<String, dynamic>);
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
       }
     } catch (e) {
       if (!_allowMockFallback) {

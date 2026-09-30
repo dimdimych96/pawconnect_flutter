@@ -83,6 +83,20 @@ class FakeCommunityService extends CommunityService {
       likesCount: post.isLiked ? post.likesCount - 1 : post.likesCount + 1,
     );
   }
+
+  @override
+  Future<CommunityPostModel> createPost(CommunityPostModel post) async {
+    if (shouldThrow) {
+      throw DioException(
+        requestOptions: RequestOptions(path: '/community/posts'),
+        error: 'Network connection failed',
+      );
+    }
+    return post.copyWith(
+      id: post.id,
+      authorName: 'Server Confirmed Author',
+    );
+  }
 }
 
 void main() {
@@ -210,6 +224,20 @@ void main() {
       expect(fakeService.toggleLikeCallCount, 2);
     });
 
+    test('3b. toggleLike rolls back optimistic state on server error', () async {
+      await notifier.loadFeed();
+
+      expect(notifier.state.posts.first.isLiked, isFalse);
+      expect(notifier.state.posts.first.likesCount, 10);
+
+      fakeService.shouldThrow = true;
+      await notifier.toggleLike('post-1');
+
+      // Rolled back because server failed
+      expect(notifier.state.posts.first.isLiked, isFalse);
+      expect(notifier.state.posts.first.likesCount, 10);
+    });
+
     test('4. toggleBookmark(postId) adds/removes from bookmarkedPostIds', () async {
       await notifier.loadFeed();
 
@@ -268,6 +296,50 @@ void main() {
       notifier.setCategory('training');
       expect(notifier.state.filteredPosts.length, 1);
       expect(notifier.state.filteredPosts.first.id, 'post-1');
+    });
+
+    test('8. addPost Future contract replaces optimistic post with server confirmation', () async {
+      await notifier.loadFeed();
+
+      final newPost = CommunityPostModel(
+        id: 'post-new-1',
+        authorName: 'Локальный автор',
+        district: 'Центральный',
+        category: 'general',
+        title: 'Новый пост',
+        content: 'Содержимое нового поста',
+        likesCount: 0,
+        isLiked: false,
+        createdAt: DateTime.now(),
+      );
+
+      await notifier.addPost(newPost);
+
+      expect(notifier.state.posts.first.id, 'post-new-1');
+      expect(notifier.state.posts.first.authorName, 'Server Confirmed Author');
+    });
+
+    test('9. addPost rolls back optimistic post when createPost throws', () async {
+      await notifier.loadFeed();
+
+      final initialCount = notifier.state.posts.length;
+      final failingPost = CommunityPostModel(
+        id: 'post-fail-1',
+        authorName: 'Автор',
+        district: 'Центральный',
+        category: 'general',
+        title: 'Ошибочный пост',
+        content: 'Не будет создан',
+        likesCount: 0,
+        isLiked: false,
+        createdAt: DateTime.now(),
+      );
+
+      fakeService.shouldThrow = true;
+
+      await expectLater(notifier.addPost(failingPost), throwsA(isA<DioException>()));
+      expect(notifier.state.posts.length, initialCount);
+      expect(notifier.state.posts.any((p) => p.id == 'post-fail-1'), isFalse);
     });
   });
 }

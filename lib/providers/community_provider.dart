@@ -109,6 +109,7 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
   }
 
   /// Optimistically updates post like state, then calls the backend API.
+  /// If the API call throws, rolls back the optimistic update to preserve backend sync.
   Future<void> toggleLike(String postId) async {
     final currentPosts = state.posts;
     if (currentPosts.isEmpty) return;
@@ -127,7 +128,14 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     try {
       await _communityService.toggleLike(postId);
     } catch (_) {
-      // In case of error, could revert if needed
+      // Rollback to original pre-toggle state on server error
+      final rolledBackPosts = state.posts.map((p) {
+        if (p.id == postId) {
+          return currentPosts.firstWhere((cp) => cp.id == postId, orElse: () => p);
+        }
+        return p;
+      }).toList();
+      state = state.copyWith(postsAsync: AsyncValue.data(rolledBackPosts));
     }
   }
 
@@ -198,13 +206,24 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
   }
 
   /// Adds a new post to the top of the feed and publishes it via CommunityService.
-  void addPost(CommunityPostModel newPost) async {
-    final updatedPosts = [newPost, ...state.posts];
-    state = state.copyWith(postsAsync: AsyncValue.data(updatedPosts));
-    await _communityService.createPost(newPost);
+  /// Replaces the optimistic post with the server-returned instance or rolls back on error.
+  Future<void> addPost(CommunityPostModel newPost) async {
+    final optimisticPosts = [newPost, ...state.posts];
+    state = state.copyWith(postsAsync: AsyncValue.data(optimisticPosts));
+
+    try {
+      final confirmedPost = await _communityService.createPost(newPost);
+      final confirmedPosts = state.posts.map((p) => p.id == newPost.id ? confirmedPost : p).toList();
+      state = state.copyWith(postsAsync: AsyncValue.data(confirmedPosts));
+    } catch (e) {
+      // Roll back optimistic post from feed on failure
+      final revertedPosts = state.posts.where((p) => p.id != newPost.id).toList();
+      state = state.copyWith(postsAsync: AsyncValue.data(revertedPosts));
+      rethrow;
+    }
   }
 
-  void createPost(CommunityPostModel newPost) => addPost(newPost);
+  Future<void> createPost(CommunityPostModel newPost) => addPost(newPost);
 }
 
 final communityServiceProvider = Provider<CommunityService>((ref) => CommunityService());

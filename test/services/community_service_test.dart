@@ -19,6 +19,29 @@ void main() {
       expect(() => service.toggleLike('post-1'), throwsA(isA<DioException>()));
     });
 
+    test('Zero-Stub Policy: Throws FormatException when response payload is not a List and allowMockFallback is false', () async {
+      final dio = Dio();
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            return handler.resolve(
+              Response(
+                requestOptions: options,
+                statusCode: 200,
+                data: {'error': 'not a list'},
+              ),
+            );
+          },
+        ),
+      );
+
+      final service = CommunityService(dio: dio, allowMockFallback: false);
+
+      expect(() => service.getPosts(), throwsA(isA<FormatException>()));
+      expect(() => service.getStories(), throwsA(isA<FormatException>()));
+      expect(() => service.getComments('post-1'), throwsA(isA<FormatException>()));
+    });
+
     test('Offline Mock Fallback: Returns curated mocks when allowMockFallback is true', () async {
       final dio = Dio();
       dio.options.baseUrl = 'http://invalid-unreachable-host:9999/api/v1';
