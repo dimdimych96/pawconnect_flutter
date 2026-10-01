@@ -25,6 +25,10 @@ class UserUpdate(BaseModel):
     telegram_id: Optional[int] = None
 
 
+class UserRoleUpdate(BaseModel):
+    role: str
+
+
 class UserResponse(UserBase):
     id: uuid.UUID
     role: str

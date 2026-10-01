@@ -117,13 +117,47 @@ class SettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          ownerName,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                ownerName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            if (authState.currentUser?.canPublishAsTeam ?? false) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentGreen.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.verified, size: 12, color: AppColors.accentGreen),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Админ',
+                                      style: TextStyle(
+                                        color: AppColors.accentGreen,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -213,6 +247,17 @@ class SettingsScreen extends ConsumerWidget {
                     value: 'v1.0.4-liquid-glass',
                     icon: Icons.info_outline_rounded,
                     color: AppColors.accentYellow,
+                  ),
+                  Divider(height: 16, color: AppColors.glassBorderSubtle),
+                  _DiagnosticRow(
+                    label: 'Роль профиля',
+                    value: authState.currentUser?.role.toUpperCase() ?? 'USER',
+                    icon: (authState.currentUser?.canPublishAsTeam ?? false)
+                        ? Icons.admin_panel_settings_rounded
+                        : Icons.person_rounded,
+                    color: (authState.currentUser?.canPublishAsTeam ?? false)
+                        ? AppColors.accentGreen
+                        : AppColors.accentBlue,
                   ),
                 ],
               ),

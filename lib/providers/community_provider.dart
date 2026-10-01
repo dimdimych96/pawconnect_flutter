@@ -1,8 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/config/app_config.dart';
 import '../models/community_post_model.dart';
 import '../models/pet_story_model.dart';
 import '../models/post_comment_model.dart';
+import '../services/auth_service.dart';
 import '../services/community_service.dart';
+import 'auth_provider.dart';
 
 class CommunityState {
   final AsyncValue<List<CommunityPostModel>> postsAsync;
@@ -210,6 +214,36 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     state = state.copyWith(storiesAsync: AsyncValue.data(updatedStories));
   }
 
+  /// Adds a new story to the stories rail and publishes it via CommunityService.
+  Future<void> addStory(PetStoryModel newStory) async {
+    final previousStories = state.stories;
+    final optimisticStories = [newStory, ...previousStories];
+    state = state.copyWith(storiesAsync: AsyncValue.data(optimisticStories));
+
+    try {
+      final confirmedStory = await _communityService.createStory(newStory);
+      final confirmedStories = state.stories.map((s) => s.id == newStory.id ? confirmedStory : s).toList();
+      state = state.copyWith(storiesAsync: AsyncValue.data(confirmedStories));
+    } catch (e) {
+      state = state.copyWith(storiesAsync: AsyncValue.data(previousStories));
+      rethrow;
+    }
+  }
+
+  /// Deletes a story and updates local state.
+  Future<void> deleteStory(String storyId) async {
+    final previousStories = state.stories;
+    final optimisticStories = previousStories.where((s) => s.id != storyId).toList();
+    state = state.copyWith(storiesAsync: AsyncValue.data(optimisticStories));
+
+    try {
+      await _communityService.deleteStory(storyId);
+    } catch (e) {
+      state = state.copyWith(storiesAsync: AsyncValue.data(previousStories));
+      rethrow;
+    }
+  }
+
   /// Adds a new post to the top of the feed and publishes it via CommunityService.
   /// Replaces the optimistic post with the server-returned instance or rolls back on error.
   Future<void> addPost(CommunityPostModel newPost) async {
@@ -229,9 +263,51 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
   }
 
   Future<void> createPost(CommunityPostModel newPost) => addPost(newPost);
+
+  /// Updates an existing post in the feed and sends PUT request.
+  /// If the request fails, rolls back to previous state and rethrows.
+  Future<void> updatePost(CommunityPostModel updatedPost) async {
+    final previousPosts = state.posts;
+    final optimisticPosts = previousPosts.map((p) => p.id == updatedPost.id ? updatedPost : p).toList();
+    state = state.copyWith(postsAsync: AsyncValue.data(optimisticPosts));
+
+    try {
+      final confirmedPost = await _communityService.updatePost(updatedPost);
+      final confirmedPosts = state.posts.map((p) => p.id == updatedPost.id ? confirmedPost : p).toList();
+      state = state.copyWith(postsAsync: AsyncValue.data(confirmedPosts));
+    } catch (e) {
+      state = state.copyWith(postsAsync: AsyncValue.data(previousPosts));
+      rethrow;
+    }
+  }
+
+  /// Deletes a post from the feed and sends DELETE request.
+  /// If the request fails, rolls back to previous state and rethrows.
+  Future<void> deletePost(String postId) async {
+    final previousPosts = state.posts;
+    final optimisticPosts = previousPosts.where((p) => p.id != postId).toList();
+    state = state.copyWith(postsAsync: AsyncValue.data(optimisticPosts));
+
+    try {
+      await _communityService.deletePost(postId);
+    } catch (e) {
+      state = state.copyWith(postsAsync: AsyncValue.data(previousPosts));
+      rethrow;
+    }
+  }
 }
 
-final communityServiceProvider = Provider<CommunityService>((ref) => CommunityService());
+final communityServiceProvider = Provider<CommunityService>((ref) {
+  final authService = ref.watch(authServiceProvider);
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.apiBaseUrl,
+      connectTimeout: const Duration(seconds: 4),
+    ),
+  );
+  dio.interceptors.add(AuthInterceptor(authService.storage, authService));
+  return CommunityService(dio: dio);
+});
 
 final communityNotifierProvider = StateNotifierProvider<CommunityNotifier, CommunityState>((ref) {
   final service = ref.watch(communityServiceProvider);

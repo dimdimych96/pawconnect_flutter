@@ -8,11 +8,15 @@ import '../../../models/pet_story_model.dart';
 class CommunityStoriesBar extends StatelessWidget {
   final List<PetStoryModel> stories;
   final void Function(PetStoryModel story, int index)? onTapStory;
+  final VoidCallback? onTapAddStory;
+  final String? currentUserAvatar;
 
   const CommunityStoriesBar({
     super.key,
     required this.stories,
     this.onTapStory,
+    this.onTapAddStory,
+    this.currentUserAvatar,
   });
 
   // Official PawConnect story gradient (Azure/Emerald)
@@ -52,19 +56,104 @@ class CommunityStoriesBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (stories.isEmpty) {
+    final showAddTile = onTapAddStory != null;
+    if (stories.isEmpty && !showAddTile) {
       return const SizedBox.shrink();
     }
+
+    final totalCount = stories.length + (showAddTile ? 1 : 0);
 
     return SizedBox(
       height: 104,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: stories.length,
+        itemCount: totalCount,
         separatorBuilder: (_, __) => const SizedBox(width: 14),
         itemBuilder: (context, index) {
-          final story = stories[index];
+          if (showAddTile && index == 0) {
+            return GestureDetector(
+              key: const ValueKey('add_story_button'),
+              onTap: onTapAddStory,
+              child: SizedBox(
+                width: 72,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          width: 66,
+                          height: 66,
+                          padding: const EdgeInsets.all(2.5),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.glassBorderSubtle,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(2.0),
+                            decoration: const BoxDecoration(
+                              color: AppColors.obsidianBackground,
+                              shape: BoxShape.circle,
+                            ),
+                            child: PawAvatar(
+                              url: currentUserAvatar,
+                              radius: 26,
+                              fallbackIcon: Icons.person_rounded,
+                              fallbackColor: AppColors.accentBlue,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 22,
+                            height: 22,
+                            decoration: const BoxDecoration(
+                              color: AppColors.accentBlue,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x663B82F6),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.add_rounded,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Ваша история',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          final storyIndex = showAddTile ? index - 1 : index;
+          final story = stories[storyIndex];
           final label = _getStoryLabel(story);
 
           return GestureDetector(

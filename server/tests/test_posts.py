@@ -185,3 +185,190 @@ async def test_comments_nonexistent_post_returns_404(client: AsyncClient):
         json={"text": "Hello"},
     )
     assert post_res.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_update_and_delete_post(client: AsyncClient):
+    """Author can edit and delete their post; other users receive 403."""
+    # 1. Register Author
+    reg_author = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "author_crud@pawconnect.app", "password": "pass", "name": "Ольга"},
+    )
+    author_token = reg_author.json()["access_token"]
+    author_headers = {"Authorization": f"Bearer {author_token}"}
+
+    # 2. Register Another user
+    reg_stranger = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "stranger@pawconnect.app", "password": "pass", "name": "Незнакомец"},
+    )
+    stranger_token = reg_stranger.json()["access_token"]
+    stranger_headers = {"Authorization": f"Bearer {stranger_token}"}
+
+    # 3. Author creates post
+    create_res = await client.post(
+        "/api/v1/community/posts",
+        headers=author_headers,
+        json={
+            "district": "Октябрьский",
+            "category": "walk",
+            "title": "Исходный заголовок",
+            "text": "Исходный текст публикации",
+        },
+    )
+    assert create_res.status_code == 201
+    post_id = create_res.json()["id"]
+
+    # 4. Stranger tries to update -> 403
+    forbidden_update = await client.put(
+        f"/api/v1/community/posts/{post_id}",
+        headers=stranger_headers,
+        json={"title": "Взлом"},
+    )
+    assert forbidden_update.status_code == 403
+
+    # 5. Stranger tries to delete -> 403
+    forbidden_delete = await client.delete(
+        f"/api/v1/community/posts/{post_id}",
+        headers=stranger_headers,
+    )
+    assert forbidden_delete.status_code == 403
+
+    # 6. Author updates post -> 200
+    update_res = await client.put(
+        f"/api/v1/community/posts/{post_id}",
+        headers=author_headers,
+        json={
+            "title": "Обновленный заголовок",
+            "text": "Обновленный текст",
+            "category": "training",
+        },
+    )
+    assert update_res.status_code == 200
+    updated = update_res.json()
+    assert updated["title"] == "Обновленный заголовок"
+    assert updated["text"] == "Обновленный текст"
+    assert updated["content"] == "Обновленный текст"
+    assert updated["category"] == "training"
+
+    # 7. Author deletes post -> 200
+    delete_res = await client.delete(
+        f"/api/v1/community/posts/{post_id}",
+        headers=author_headers,
+    )
+    assert delete_res.status_code == 200
+    assert delete_res.json()["status"] == "deleted"
+
+    # 8. Post is gone -> like returns 404
+    like_res = await client.post(f"/api/v1/community/posts/{post_id}/like")
+    assert like_res.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_create_story_and_admin_permissions(client: AsyncClient):
+    """User can create story, only admin can create official story, author/admin can delete story."""
+    # 1. Register regular user
+    reg_user = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "story_user@pawconnect.app", "password": "pass", "name": "Максим"},
+    )
+    user_token = reg_user.json()["access_token"]
+    user_headers = {"Authorization": f"Bearer {user_token}"}
+
+    # 2. Regular user creates story
+    create_story_res = await client.post(
+        "/api/v1/community/stories",
+        headers=user_headers,
+        json={
+            "district": "Центральный",
+            "media_url": "https://example.com/pet.jpg",
+            "status_text": "Прогулка в сквере",
+            "pet_name": "Тоби",
+        },
+    )
+    assert create_story_res.status_code == 201
+    story = create_story_res.json()
+    assert story["author_name"] == "Максим"
+    assert story["is_official"] is False
+    assert story["district"] == "Центральный"
+    story_id = story["id"]
+
+    # 3. Regular user tries to publish as official team -> 403
+    forbidden_res = await client.post(
+        "/api/v1/community/stories",
+        headers=user_headers,
+        json={
+            "district": "Центральный",
+            "media_url": "https://example.com/pet.jpg",
+            "status_text": "Фейковый совет",
+            "is_official": True,
+        },
+    )
+    assert forbidden_res.status_code == 403
+
+    # 4. Another user tries to delete -> 403
+    reg_other = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "other_story@pawconnect.app", "password": "pass", "name": "Другой"},
+    )
+    other_token = reg_other.json()["access_token"]
+    other_headers = {"Authorization": f"Bearer {other_token}"}
+
+    del_forbidden = await client.delete(
+        f"/api/v1/community/stories/{story_id}",
+        headers=other_headers,
+    )
+    assert del_forbidden.status_code == 403
+
+    # 5. Author deletes story -> 200
+    del_ok = await client.delete(
+        f"/api/v1/community/stories/{story_id}",
+        headers=user_headers,
+    )
+    assert del_ok.status_code == 200
+    assert del_ok.json()["status"] == "deleted"
+
+
+@pytest.mark.asyncio
+async def test_create_post_official_permissions(client: AsyncClient):
+    """Regular user cannot create official post; admin/moderator can."""
+    # 1. Register regular user
+    reg_user = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "post_user@pawconnect.app", "password": "pass", "name": "Денис"},
+    )
+    user_token = reg_user.json()["access_token"]
+    user_headers = {"Authorization": f"Bearer {user_token}"}
+
+    # 2. Try official post -> 403
+    forbidden = await client.post(
+        "/api/v1/community/posts",
+        headers=user_headers,
+        json={
+            "district": "Ленинский",
+            "category": "training",
+            "title": "Официальный совет",
+            "text": "Текст от лица команды",
+            "is_official": True,
+        },
+    )
+    assert forbidden.status_code == 403
+
+    # 3. Create regular post -> 201 with personal author
+    regular = await client.post(
+        "/api/v1/community/posts",
+        headers=user_headers,
+        json={
+            "district": "Ленинский",
+            "category": "training",
+            "title": "Личный пост",
+            "text": "Текст личного поста",
+            "is_official": False,
+        },
+    )
+    assert regular.status_code == 201
+    assert regular.json()["author_name"] == "Денис"
+    assert regular.json()["is_official"] is False
+
+

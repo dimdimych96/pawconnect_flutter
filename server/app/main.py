@@ -8,7 +8,7 @@ from .core.config import settings
 from .api.v1.api import api_router
 from .db.session import engine, Base
 # Import all models to register with Base
-from .models import user, pet, marker, post, reminder
+from .models import user, pet, marker, post, reminder, story
 
 
 @asynccontextmanager

@@ -3,6 +3,7 @@ class UserAuthModel {
   final String email;
   final String name;
   final String? avatarUrl;
+  final String role;
   final DateTime? createdAt;
 
   const UserAuthModel({
@@ -10,8 +11,12 @@ class UserAuthModel {
     required this.email,
     required this.name,
     this.avatarUrl,
+    this.role = 'user',
     this.createdAt,
   });
+
+  bool get isAdmin => role == 'admin';
+  bool get canPublishAsTeam => role == 'admin' || role == 'moderator';
 
   factory UserAuthModel.fromJson(Map<String, dynamic> json) {
     return UserAuthModel(
@@ -21,6 +26,7 @@ class UserAuthModel {
       avatarUrl: json['avatarUrl'] as String? ??
           json['avatar'] as String? ??
           'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+      role: json['role'] as String? ?? 'user',
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
     );
   }
@@ -31,6 +37,7 @@ class UserAuthModel {
       'email': email,
       'name': name,
       'avatarUrl': avatarUrl,
+      'role': role,
       'createdAt': createdAt?.toIso8601String(),
     };
   }
@@ -40,6 +47,7 @@ class UserAuthModel {
     String? email,
     String? name,
     String? avatarUrl,
+    String? role,
     DateTime? createdAt,
   }) {
     return UserAuthModel(
@@ -47,6 +55,7 @@ class UserAuthModel {
       email: email ?? this.email,
       name: name ?? this.name,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
     );
   }

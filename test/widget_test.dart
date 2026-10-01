@@ -61,7 +61,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('PawConnect'), findsWidgets);
-    expect(find.text('Лента'), findsWidgets);
-    expect(find.byKey(const ValueKey('feed_refresh_button')), findsOneWidget);
+    expect(find.byKey(const ValueKey('feed_add_post_button')), findsOneWidget);
+    expect(find.byKey(const ValueKey('feed_tab_for_you')), findsOneWidget);
   });
 }

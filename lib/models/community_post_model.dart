@@ -1,5 +1,6 @@
 class CommunityPostModel {
   final String id;
+  final String? authorId;
   final String authorName;
   final bool isOfficial;
   final String? authorAvatar;
@@ -17,6 +18,7 @@ class CommunityPostModel {
 
   CommunityPostModel({
     required this.id,
+    this.authorId,
     required this.authorName,
     this.isOfficial = false,
     this.authorAvatar,
@@ -36,6 +38,7 @@ class CommunityPostModel {
   factory CommunityPostModel.fromJson(Map<String, dynamic> json) {
     return CommunityPostModel(
       id: json['id'] ?? '',
+      authorId: json['authorId'] ?? json['author_id']?.toString(),
       authorName: json['authorName'] ?? 'Аноним',
       isOfficial: json['isOfficial'] ?? false,
       authorAvatar: json['authorAvatar'],
@@ -43,36 +46,50 @@ class CommunityPostModel {
       district: json['district'] ?? 'Центральный',
       category: json['category'] ?? 'general',
       title: json['title'] ?? '',
-      content: json['content'] ?? '',
-      likesCount: json['likesCount'] ?? 0,
-      isLiked: json['isLiked'] ?? false,
-      commentsCount: json['commentsCount'] ?? 0,
-      isBookmarked: json['isBookmarked'] ?? false,
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      imageUrl: json['imageUrl'],
+      content: json['content'] ?? json['text'] ?? '',
+      likesCount: json['likesCount'] ?? json['likes_count'] ?? 0,
+      isLiked: json['isLiked'] ?? json['is_liked'] ?? false,
+      commentsCount: json['commentsCount'] ?? json['comments_count'] ?? 0,
+      isBookmarked: json['isBookmarked'] ?? json['is_bookmarked'] ?? false,
+      createdAt: DateTime.tryParse(json['createdAt'] ?? json['created_at'] ?? '') ?? DateTime.now(),
+      imageUrl: json['imageUrl'] ?? json['photo_url'],
     );
   }
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'authorId': authorId,
+        'author_id': authorId,
         'authorName': authorName,
+        'author_name': authorName,
         'isOfficial': isOfficial,
+        'is_official': isOfficial,
         'authorAvatar': authorAvatar,
+        'author_avatar': authorAvatar,
         'petName': petName,
+        'pet_name': petName,
         'district': district,
         'category': category,
         'title': title,
+        'text': content,
         'content': content,
         'likesCount': likesCount,
+        'likes_count': likesCount,
         'isLiked': isLiked,
+        'is_liked': isLiked,
         'commentsCount': commentsCount,
+        'comments_count': commentsCount,
         'isBookmarked': isBookmarked,
+        'is_bookmarked': isBookmarked,
         'createdAt': createdAt.toIso8601String(),
+        'created_at': createdAt.toIso8601String(),
         'imageUrl': imageUrl,
+        'photo_url': imageUrl,
       };
 
   CommunityPostModel copyWith({
     String? id,
+    String? authorId,
     String? authorName,
     bool? isOfficial,
     String? authorAvatar,
@@ -90,6 +107,7 @@ class CommunityPostModel {
   }) {
     return CommunityPostModel(
       id: id ?? this.id,
+      authorId: authorId ?? this.authorId,
       authorName: authorName ?? this.authorName,
       isOfficial: isOfficial ?? this.isOfficial,
       authorAvatar: authorAvatar ?? this.authorAvatar,

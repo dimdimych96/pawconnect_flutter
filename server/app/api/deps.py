@@ -40,6 +40,29 @@ async def get_current_user(
     return user
 
 
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+
+
+async def get_current_user_optional(
+    db: AsyncSession = Depends(get_db),
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+) -> Optional[User]:
+    if not token:
+        return None
+    payload = decode_token(token)
+    if payload is None:
+        return None
+    user_id_str = payload.get("sub")
+    if not user_id_str:
+        return None
+    try:
+        user_uuid = uuid.UUID(user_id_str)
+    except ValueError:
+        return None
+    result = await db.execute(select(User).where(User.id == user_uuid))
+    return result.scalar_one_or_none()
+
+
 async def get_current_moderator(
     current_user: User = Depends(get_current_user),
 ) -> User:

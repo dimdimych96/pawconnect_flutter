@@ -14,6 +14,9 @@ class CommunityPostCard extends StatefulWidget {
   final VoidCallback onComment;
   final VoidCallback onBookmark;
   final VoidCallback onShare;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final bool isAuthor;
 
   const CommunityPostCard({
     super.key,
@@ -22,6 +25,9 @@ class CommunityPostCard extends StatefulWidget {
     required this.onComment,
     required this.onBookmark,
     required this.onShare,
+    this.onEdit,
+    this.onDelete,
+    this.isAuthor = false,
   });
 
   @override
@@ -173,7 +179,183 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
             ],
           ),
         ),
+        IconButton(
+          key: ValueKey('post_actions_button_${widget.post.id}'),
+          icon: const Icon(
+            Icons.more_horiz_rounded,
+            color: AppColors.textSecondary,
+            size: 20,
+          ),
+          splashRadius: 20,
+          onPressed: () => _showActionsSheet(context),
+        ),
       ],
+    );
+  }
+
+  void _showActionsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.65),
+      isScrollControlled: true,
+      builder: (bottomSheetContext) => Container(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        decoration: BoxDecoration(
+          color: AppColors.obsidianCard,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: AppColors.glassBorderSubtle),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 18),
+              if (widget.isAuthor || widget.onEdit != null) ...[
+                _buildActionItem(
+                  icon: Icons.edit_outlined,
+                  title: 'Редактировать запись',
+                  color: AppColors.textPrimary,
+                  onTap: () {
+                    Navigator.of(bottomSheetContext).pop();
+                    widget.onEdit?.call();
+                  },
+                ),
+                const SizedBox(height: 6),
+                _buildActionItem(
+                  icon: Icons.delete_outline_rounded,
+                  title: 'Удалить запись',
+                  color: AppColors.accentRed,
+                  onTap: () {
+                    Navigator.of(bottomSheetContext).pop();
+                    _showDeleteConfirmationDialog(context);
+                  },
+                ),
+                const SizedBox(height: 6),
+              ],
+              _buildActionItem(
+                icon: Icons.link_rounded,
+                title: 'Скопировать ссылку',
+                color: AppColors.textPrimary,
+                onTap: () {
+                  Navigator.of(bottomSheetContext).pop();
+                  widget.onShare();
+                },
+              ),
+              if (!widget.isAuthor && widget.onEdit == null) ...[
+                const SizedBox(height: 6),
+                _buildActionItem(
+                  icon: Icons.flag_outlined,
+                  title: 'Пожаловаться на запись',
+                  color: AppColors.accentRed,
+                  onTap: () {
+                    Navigator.of(bottomSheetContext).pop();
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      barrierColor: Colors.black.withValues(alpha: 0.65),
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.obsidianCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.glassBorderSubtle),
+        ),
+        title: const Text(
+          'Удалить публикацию?',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'Это действие нельзя отменить. Публикация и все комментарии будут удалены навсегда.',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text(
+              'Отмена',
+              style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton(
+            key: const ValueKey('confirm_delete_post_button'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentRed,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              widget.onDelete?.call();
+            },
+            child: const Text(
+              'Удалить',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionItem({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: 14),
+              Text(
+                title,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

@@ -244,6 +244,41 @@ class CommunityService {
     return post;
   }
 
+  /// Updates an existing community post.
+  Future<CommunityPostModel> updatePost(CommunityPostModel post) async {
+    try {
+      final response = await _dio.put('/community/posts/${post.id}', data: post.toJson()).timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200 && response.data != null) {
+        return CommunityPostModel.fromJson(response.data as Map<String, dynamic>);
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+    return post;
+  }
+
+  /// Deletes a community post.
+  Future<void> deletePost(String postId) async {
+    try {
+      final response = await _dio.delete('/community/posts/$postId').timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+  }
+
   /// Fetches active pet stories for the Stories rail.
   Future<List<PetStoryModel>> getStories() async {
     try {
@@ -260,6 +295,44 @@ class CommunityService {
       }
     }
     return mockStories;
+  }
+
+  /// Creates a new pet story.
+  Future<PetStoryModel> createStory(PetStoryModel story) async {
+    try {
+      final response = await _dio.post(
+        '/community/stories',
+        data: story.toJson(),
+      ).timeout(const Duration(seconds: 5));
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
+        return PetStoryModel.fromJson(response.data as Map<String, dynamic>);
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+    return story;
+  }
+
+  /// Deletes a pet story.
+  Future<void> deleteStory(String storyId) async {
+    try {
+      final response = await _dio.delete('/community/stories/$storyId').timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
   }
 
   /// Fetches comments for a specific post.

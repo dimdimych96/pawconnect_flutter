@@ -1,4 +1,5 @@
-from typing import Any
+import uuid
+from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +7,7 @@ from sqlalchemy import select
 from ....db.session import get_db
 from ....core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_token
 from ....models.user import User
-from ....schemas.user import UserCreate, UserResponse, Token
+from ....schemas.user import UserCreate, UserResponse, Token, UserRoleUpdate
 from ...deps import get_current_user
 
 router = APIRouter()
@@ -140,3 +141,63 @@ async def logout(
     current_user: User = Depends(get_current_user),
 ) -> Any:
     return {"message": "Успешный выход из системы"}
+
+
+@router.get("/users", response_model=List[UserResponse])
+async def get_users(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Any:
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Недостаточно прав. Только администраторы могут просматривать список пользователей.",
+        )
+    result = await db.execute(select(User).order_by(User.created_at))
+    users = result.scalars().all()
+    return [UserResponse.model_validate(u) for u in users]
+
+
+@router.patch("/users/{user_identifier}/role", response_model=UserResponse)
+async def update_user_role(
+    user_identifier: str,
+    role_in: UserRoleUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Any:
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Недостаточно прав. Только администраторы могут изменять роли пользователей.",
+        )
+
+    target_role = role_in.role.lower().strip()
+    if target_role not in ["user", "moderator", "admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Недопустимая роль. Допустимые значения: user, moderator, admin",
+        )
+
+    # Search by email first
+    result = await db.execute(select(User).where(User.email == user_identifier))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        try:
+            u_id = uuid.UUID(user_identifier)
+            result = await db.execute(select(User).where(User.id == u_id))
+            user = result.scalar_one_or_none()
+        except ValueError:
+            pass
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+
+    user.role = target_role
+    await db.commit()
+    await db.refresh(user)
+    return UserResponse.model_validate(user)
+

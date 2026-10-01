@@ -1,29 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/colors.dart';
-import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/pill_toast.dart';
+import '../../models/auth_model.dart';
+import '../../models/community_post_model.dart';
 import '../../models/pet_story_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/community_provider.dart';
-import '../../services/community_service.dart';
 import 'widgets/comments_bottom_sheet.dart';
 import 'widgets/community_post_card.dart';
 import 'widgets/community_stories_bar.dart';
+import 'widgets/district_picker_bottom_sheet.dart';
+import 'widgets/feed_segmented_control.dart';
 import 'widgets/new_post_modal.dart';
+import 'widgets/new_story_modal.dart';
 import 'widgets/story_player_screen.dart';
 
 /// Tab 0 (/feed): Instagram 2026 Liquid Glass Community Feed.
 ///
 /// Features:
-/// - Sticky Top Glass Header with PawConnect branding and quick action buttons.
-/// - Novosibirsk 10 Districts filter bar and Category Pills.
-/// - Stories Rail with full-screen StoryPlayerScreen navigation.
-/// - Main Feed Stream with pull-to-refresh, skeleton loaders, and zero-stub error state.
-/// - Apple Liquid Glass performance rules (NO BackdropFilter inside scrolling post cards).
-class CommunityScreen extends ConsumerWidget {
+/// - Clean Branding Header with PawConnect logo & create post button.
+/// - Apple Liquid Glass Segmented Control (Для вас | Мой район | SOS 🚨).
+/// - Natural scroll: stories scroll with posts, freeing 100% of vertical height for media.
+/// - Contextual District Selector (DistrictPickerBottomSheet) within the «Мой район» stream.
+/// - Dedicated SOS urgent search stream.
+/// - Apple Liquid Glass performance rules (strictly ZERO BackdropFilter in scrolling post cards).
+class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});
 
-  void _openNewPostModal(BuildContext context, WidgetRef ref) {
+  @override
+  ConsumerState<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends ConsumerState<CommunityScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _openNewPostModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -31,27 +56,93 @@ class CommunityScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => NewPostModal(
         onPublish: (newPost) async {
-          try {
-            await ref.read(communityNotifierProvider.notifier).addPost(newPost);
-            if (context.mounted) {
-              PawToast.show(
-                context,
-                title: 'Пост опубликован в сообществе',
-                type: ToastType.success,
-              );
-            }
-          } catch (_) {
-            if (context.mounted) {
-              PawToast.show(
-                context,
-                title: 'Не удалось опубликовать пост',
-                type: ToastType.alert,
-              );
-            }
+          await ref.read(communityNotifierProvider.notifier).addPost(newPost);
+          if (context.mounted) {
+            PawToast.show(
+              context,
+              title: 'Пост опубликован в сообществе',
+              type: ToastType.success,
+            );
           }
         },
       ),
     );
+  }
+
+  void _openEditPostModal(BuildContext context, CommunityPostModel post) {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => NewPostModal(
+        initialPost: post,
+        onPublish: (updatedPost) async {
+          await ref.read(communityNotifierProvider.notifier).updatePost(updatedPost);
+          if (context.mounted) {
+            PawToast.show(
+              context,
+              title: 'Публикация обновлена',
+              type: ToastType.success,
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleDeletePost(BuildContext context, CommunityPostModel post) async {
+    try {
+      await ref.read(communityNotifierProvider.notifier).deletePost(post.id);
+      if (context.mounted) {
+        PawToast.show(
+          context,
+          title: 'Публикация удалена',
+          type: ToastType.success,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        PawToast.show(
+          context,
+          title: 'Не удалось удалить публикацию',
+          type: ToastType.alert,
+        );
+      }
+    }
+  }
+
+  void _openNewStoryModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => NewStoryModal(
+        onPublish: (newStory) async {
+          await ref.read(communityNotifierProvider.notifier).addStory(newStory);
+          if (context.mounted) {
+            PawToast.show(
+              context,
+              title: 'История опубликована',
+              type: ToastType.success,
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  bool _isPostAuthor(CommunityPostModel post, UserAuthModel? currentUser) {
+    if (currentUser == null) {
+      return post.authorName == 'Дмитрий Борона' ||
+          post.authorName == 'Владелец' ||
+          post.authorName == 'PawConnect Team';
+    }
+    if (currentUser.canPublishAsTeam && post.isOfficial) return true;
+    if (post.authorId != null && post.authorId == currentUser.id) return true;
+    if (post.authorName == currentUser.name) return true;
+    return false;
   }
 
   void _openStoryPlayer(
@@ -93,87 +184,65 @@ class CommunityScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _openDistrictPicker(
+    BuildContext context,
+    CommunityNotifier notifier,
+    String currentDistrict,
+  ) async {
+    final selected = await DistrictPickerBottomSheet.show(
+      context,
+      currentDistrict: currentDistrict,
+    );
+    if (selected != null) {
+      notifier.setDistrict(selected);
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final communityState = ref.watch(communityNotifierProvider);
     final communityNotifier = ref.read(communityNotifierProvider.notifier);
+
+    final allPosts = communityState.postsAsync.maybeWhen(
+      data: (posts) => posts,
+      orElse: () => <CommunityPostModel>[],
+    );
+
+    final sosPosts = allPosts.where((p) => p.category.toLowerCase() == 'sos').toList();
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
       body: SafeArea(
         child: Column(
           children: [
-            // 1. Top Glass Header
-            _buildTopHeader(context, ref, communityNotifier),
+            // 1. Clean Top Branding Header
+            _buildTopHeader(context),
 
-            // 2. Novosibirsk 10 Districts Horizontal Filter Bar
-            _buildDistrictsFilter(communityState, communityNotifier),
+            // 2. Liquid Glass Segmented Control
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: FeedSegmentedControl(
+                controller: _tabController,
+                sosCount: sosPosts.length,
+              ),
+            ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-            // 3. Category Filter Pills
-            _buildCategoriesFilter(communityState, communityNotifier),
-
-            const SizedBox(height: 8),
-
-            // 4. Stories Rail
-            _buildStoriesRail(context, communityState, communityNotifier),
-
-            // 5. Main Post Feed Stream
+            // 3. Tab Streams with horizontal swipe support
             Expanded(
-              child: RefreshIndicator(
-                key: const ValueKey('feed_refresh_indicator'),
-                color: AppColors.accentBlue,
-                backgroundColor: AppColors.obsidianCard,
-                onRefresh: () => communityNotifier.loadFeed(forceRefresh: true),
-                child: communityState.postsAsync.when(
-                  data: (_) {
-                    final filteredPosts = communityState.filteredPosts;
-                    if (filteredPosts.isEmpty) {
-                      return _FeedEmptyView(
-                        key: const ValueKey('feed_empty_view'),
-                        onResetFilters: () {
-                          communityNotifier.setDistrict('Все районы');
-                          communityNotifier.setCategory('all');
-                        },
-                      );
-                    }
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Tab 0: «Для вас» (All community posts + stories)
+                  _buildForYouTab(context, communityState, communityNotifier),
 
-                    return ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
-                      itemCount: filteredPosts.length,
-                      itemBuilder: (context, index) {
-                        final post = filteredPosts[index];
-                        return CommunityPostCard(
-                          key: ValueKey('post_${post.id}'),
-                          post: post,
-                          onLike: () => communityNotifier.toggleLike(post.id),
-                          onBookmark: () => communityNotifier.toggleBookmark(post.id),
-                          onComment: () => _openComments(
-                            context,
-                            communityNotifier,
-                            communityState,
-                            post.id,
-                          ),
-                          onShare: () {
-                            PawToast.show(
-                              context,
-                              title: 'Ссылка на публикацию скопирована',
-                              type: ToastType.success,
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                  loading: () => const _FeedSkeleton(key: ValueKey('feed_skeleton')),
-                  error: (error, _) => _FeedErrorView(
-                    key: const ValueKey('feed_error_view'),
-                    error: error,
-                    onRetry: () => communityNotifier.loadFeed(forceRefresh: true),
-                  ),
-                ),
+                  // Tab 1: «Мой район» (District filtered posts + contextual picker)
+                  _buildDistrictTab(context, communityState, communityNotifier),
+
+                  // Tab 2: «SOS 🚨» (Emergency lost & found posts)
+                  _buildSosTab(context, communityState, communityNotifier, sosPosts),
+                ],
               ),
             ),
           ],
@@ -182,104 +251,56 @@ class CommunityScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopHeader(
-    BuildContext context,
-    WidgetRef ref,
-    CommunityNotifier notifier,
-  ) {
+  // MARK: - Header
+  Widget _buildTopHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Paw Logo with Vivid Emerald/Azure Gradient
-          Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF34D399), Color(0xFF3B82F6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x3334D399),
-                  blurRadius: 10,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.pets_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 10),
-
-          // Title & Location Tag
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'PawConnect',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      'Лента',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.accentBlue,
-                      ),
+          // Logo & Branding
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF34D399), Color(0xFF3B82F6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF34D399).withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                Text(
-                  'Новосибирск • Сообщество',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textTertiary,
+                child: const Center(
+                  child: Icon(
+                    Icons.pets_rounded,
+                    color: Color(0xFF0A0A0C),
+                    size: 18,
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'PawConnect',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
           ),
 
-          // Refresh Button
-          IconButton(
-            key: const ValueKey('feed_refresh_button'),
-            tooltip: 'Обновить ленту',
-            icon: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.obsidianGlassSurface,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.glassBorderSubtle),
-              ),
-              child: const Icon(
-                Icons.refresh_rounded,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
-            ),
-            onPressed: () => notifier.loadFeed(forceRefresh: true),
-          ),
-          const SizedBox(width: 6),
-
-          // Add Post Button
+          // Create Post Button
           IconButton(
             key: const ValueKey('feed_add_post_button'),
             tooltip: 'Создать запись',
@@ -307,145 +328,482 @@ class CommunityScreen extends ConsumerWidget {
                 size: 22,
               ),
             ),
-            onPressed: () => _openNewPostModal(context, ref),
+            onPressed: () => _openNewPostModal(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDistrictsFilter(
-    CommunityState state,
-    CommunityNotifier notifier,
-  ) {
-    return SizedBox(
-      height: 38,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: CommunityService.novosibirskDistricts.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final district = CommunityService.novosibirskDistricts[index];
-          final isSelected = state.selectedDistrict == district;
-
-          return GlassCapsule(
-            key: ValueKey('district_filter_$district'),
-            isActive: isSelected,
-            activeColor: AppColors.accentBlue,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            onTap: () => notifier.setDistrict(district),
-            child: Text(
-              district,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.textSecondary,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCategoriesFilter(
-    CommunityState state,
-    CommunityNotifier notifier,
-  ) {
-    final categories = [
-      ('all', 'Все темы', AppColors.accentBlue),
-      ('sos', '🚨 SOS', AppColors.accentRed),
-      ('health', '🏥 Здоровье', AppColors.accentGreen),
-      ('training', '🦮 Дрессировка', AppColors.accentBlue),
-    ];
-
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final (id, label, color) = categories[index];
-          final isSelected = state.selectedCategory == id;
-
-          return GlassCapsule(
-            key: ValueKey('category_filter_$id'),
-            isActive: isSelected,
-            activeColor: color,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            onTap: () => notifier.setCategory(id),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : AppColors.textSecondary,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildStoriesRail(
+  // MARK: - Tab 0: «Для вас»
+  Widget _buildForYouTab(
     BuildContext context,
     CommunityState state,
     CommunityNotifier notifier,
   ) {
-    return state.storiesAsync.when(
-      data: (stories) {
-        if (stories.isEmpty) return const SizedBox.shrink();
-        return Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 4),
-          child: CommunityStoriesBar(
-            stories: stories,
-            onTapStory: (story, index) {
-              _openStoryPlayer(context, stories, index, notifier);
+    return RefreshIndicator(
+      key: const ValueKey('feed_refresh_indicator'),
+      color: AppColors.accentBlue,
+      backgroundColor: AppColors.obsidianCard,
+      onRefresh: () => notifier.loadFeed(forceRefresh: true),
+      child: state.postsAsync.when(
+        data: (posts) {
+          if (posts.isEmpty) {
+            return _FeedEmptyView(
+              key: const ValueKey('feed_empty_view'),
+              message: 'Пока нет публикаций в сообществе',
+              onResetFilters: () => notifier.loadFeed(forceRefresh: true),
+            );
+          }
+
+          final stories = state.storiesAsync.maybeWhen(
+            data: (items) => items,
+            orElse: () => <PetStoryModel>[],
+          );
+
+          final currentUser = ref.watch(authNotifierProvider).currentUser;
+          final itemCount = posts.length + 1;
+
+          return ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 100),
+            itemCount: itemCount,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: CommunityStoriesBar(
+                    stories: stories,
+                    currentUserAvatar: currentUser?.avatarUrl,
+                    onTapAddStory: () => _openNewStoryModal(context),
+                    onTapStory: (story, sIndex) {
+                      _openStoryPlayer(context, stories, sIndex, notifier);
+                    },
+                  ),
+                );
+              }
+
+              final post = posts[index - 1];
+              final isAuthor = _isPostAuthor(post, currentUser);
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: CommunityPostCard(
+                  key: ValueKey('post_${post.id}'),
+                  post: post,
+                  isAuthor: isAuthor,
+                  onLike: () => notifier.toggleLike(post.id),
+                  onBookmark: () => notifier.toggleBookmark(post.id),
+                  onComment: () => _openComments(context, notifier, state, post.id),
+                  onEdit: isAuthor ? () => _openEditPostModal(context, post) : null,
+                  onDelete: isAuthor ? () => _handleDeletePost(context, post) : null,
+                  onShare: () {
+                    PawToast.show(
+                      context,
+                      title: 'Ссылка на публикацию скопирована',
+                      type: ToastType.success,
+                    );
+                  },
+                ),
+              );
             },
-          ),
-        );
-      },
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        child: _StoriesSkeleton(),
+          );
+        },
+        loading: () => const _FeedLoadingSkeleton(),
+        error: (err, _) => _FeedErrorView(
+          key: const ValueKey('feed_error_view'),
+          error: err,
+          onRetry: () => notifier.loadFeed(forceRefresh: true),
+        ),
       ),
-      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  // MARK: - Tab 1: «Мой район»
+  Widget _buildDistrictTab(
+    BuildContext context,
+    CommunityState state,
+    CommunityNotifier notifier,
+  ) {
+    final currentDistrict = state.selectedDistrict;
+    final isAllDistricts = currentDistrict == 'Все районы';
+
+    return Column(
+      children: [
+        // Contextual Sticky District Selector Bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.obsidianGlassSurface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.10),
+                width: 0.8,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentGreen.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.location_on_rounded,
+                        color: AppColors.accentGreen,
+                        size: 15,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isAllDistricts ? 'Все районы Новосибирска' : '$currentDistrict район',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                InkWell(
+                  key: const ValueKey('feed_change_district_button'),
+                  onTap: () => _openDistrictPicker(context, notifier, currentDistrict),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentGreen.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.accentGreen.withValues(alpha: 0.35),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Сменить',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.accentGreen,
+                          ),
+                        ),
+                        SizedBox(width: 2),
+                        Icon(
+                          Icons.arrow_drop_down_rounded,
+                          color: AppColors.accentGreen,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // District Filtered Feed
+        Expanded(
+          child: RefreshIndicator(
+            color: AppColors.accentGreen,
+            backgroundColor: AppColors.obsidianCard,
+            onRefresh: () => notifier.loadFeed(forceRefresh: true),
+            child: state.postsAsync.when(
+              data: (posts) {
+                final districtPosts = posts.where((p) {
+                  return isAllDistricts || p.district == currentDistrict;
+                }).toList();
+
+                if (districtPosts.isEmpty) {
+                  return _FeedEmptyView(
+                    key: const ValueKey('feed_district_empty_view'),
+                    message: 'В районе $currentDistrict пока нет публикаций',
+                    actionLabel: 'Выбрать другой район',
+                    onResetFilters: () => _openDistrictPicker(context, notifier, currentDistrict),
+                  );
+                }
+
+                // Filter stories by district (plus official team tips)
+                final districtStories = state.storiesAsync.maybeWhen(
+                  data: (items) => items.where((s) {
+                    return s.isOfficial || isAllDistricts || s.district == currentDistrict;
+                  }).toList(),
+                  orElse: () => <PetStoryModel>[],
+                );
+
+                final currentUser = ref.watch(authNotifierProvider).currentUser;
+                final itemCount = districtPosts.length + 1;
+
+                return ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 100),
+                  itemCount: itemCount,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: CommunityStoriesBar(
+                          stories: districtStories,
+                          currentUserAvatar: currentUser?.avatarUrl,
+                          onTapAddStory: () => _openNewStoryModal(context),
+                          onTapStory: (story, sIndex) {
+                            _openStoryPlayer(context, districtStories, sIndex, notifier);
+                          },
+                        ),
+                      );
+                    }
+
+                    final post = districtPosts[index - 1];
+                    final isAuthor = _isPostAuthor(post, currentUser);
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: CommunityPostCard(
+                        key: ValueKey('post_${post.id}'),
+                        post: post,
+                        isAuthor: isAuthor,
+                        onLike: () => notifier.toggleLike(post.id),
+                        onBookmark: () => notifier.toggleBookmark(post.id),
+                        onComment: () => _openComments(context, notifier, state, post.id),
+                        onEdit: isAuthor ? () => _openEditPostModal(context, post) : null,
+                        onDelete: isAuthor ? () => _handleDeletePost(context, post) : null,
+                        onShare: () {
+                          PawToast.show(
+                            context,
+                            title: 'Ссылка на публикацию скопирована',
+                            type: ToastType.success,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+              loading: () => const _FeedLoadingSkeleton(),
+              error: (err, _) => _FeedErrorView(
+                error: err,
+                onRetry: () => notifier.loadFeed(forceRefresh: true),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // MARK: - Tab 2: «SOS 🚨»
+  Widget _buildSosTab(
+    BuildContext context,
+    CommunityState state,
+    CommunityNotifier notifier,
+    List<CommunityPostModel> sosPosts,
+  ) {
+    return Column(
+      children: [
+        // SOS Alert Header Banner
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.accentRed.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.accentRed.withValues(alpha: 0.35),
+                width: 0.8,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppColors.accentRed,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Экстренные поиски и помощь',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentRed.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${sosPosts.length} активных',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.accentRed,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // SOS Posts Feed
+        Expanded(
+          child: RefreshIndicator(
+            color: AppColors.accentRed,
+            backgroundColor: AppColors.obsidianCard,
+            onRefresh: () => notifier.loadFeed(forceRefresh: true),
+            child: state.postsAsync.when(
+              data: (_) {
+                if (sosPosts.isEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(left: 24, right: 24, top: 48, bottom: 100),
+                    children: [
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(28),
+                          decoration: BoxDecoration(
+                            color: AppColors.obsidianCardTranslucent,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: AppColors.glassBorder),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentGreen.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check_circle_outline_rounded,
+                                  color: AppColors.accentGreen,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Все питомцы дома!',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'В настоящий момент нет активных сигналов SOS в Новосибирске.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textSecondary,
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 100),
+                  itemCount: sosPosts.length,
+                  itemBuilder: (context, index) {
+                    final post = sosPosts[index];
+                    final currentUser = ref.watch(authNotifierProvider).currentUser;
+                    final isAuthor = _isPostAuthor(post, currentUser);
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: CommunityPostCard(
+                        key: ValueKey('post_${post.id}'),
+                        post: post,
+                        isAuthor: isAuthor,
+                        onLike: () => notifier.toggleLike(post.id),
+                        onBookmark: () => notifier.toggleBookmark(post.id),
+                        onComment: () => _openComments(context, notifier, state, post.id),
+                        onEdit: isAuthor ? () => _openEditPostModal(context, post) : null,
+                        onDelete: isAuthor ? () => _handleDeletePost(context, post) : null,
+                        onShare: () {
+                          PawToast.show(
+                            context,
+                            title: 'Ссылка на публикацию скопирована',
+                            type: ToastType.success,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+              loading: () => const _FeedLoadingSkeleton(),
+              error: (err, _) => _FeedErrorView(
+                error: err,
+                onRetry: () => notifier.loadFeed(forceRefresh: true),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Shimmering skeleton placeholder cards for feed posts loading state.
-class _FeedSkeleton extends StatefulWidget {
-  const _FeedSkeleton({super.key});
+// MARK: - Loading Skeleton
+class _FeedLoadingSkeleton extends StatefulWidget {
+  const _FeedLoadingSkeleton();
 
   @override
-  State<_FeedSkeleton> createState() => _FeedSkeletonState();
+  State<_FeedLoadingSkeleton> createState() => _FeedLoadingSkeletonState();
 }
 
-class _FeedSkeletonState extends State<_FeedSkeleton>
+class _FeedLoadingSkeletonState extends State<_FeedLoadingSkeleton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late AnimationController _animController;
   late Animation<double> _opacityAnim;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
-    _opacityAnim = Tween<double>(begin: 0.35, end: 0.8).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+
+    _opacityAnim = Tween<double>(begin: 0.35, end: 0.75).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
@@ -460,6 +818,7 @@ class _FeedSkeletonState extends State<_FeedSkeleton>
         );
       },
       child: ListView.builder(
+        key: const ValueKey('feed_skeleton'),
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
         itemCount: 3,
@@ -479,40 +838,40 @@ class _FeedSkeletonCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.obsidianCardTranslucent,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white12, width: 0.8),
+        border: Border.all(color: Colors.white10),
       ),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 decoration: const BoxDecoration(
-                  color: AppColors.obsidianGlassSurface,
+                  color: Colors.white12,
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: 120,
-                    height: 12,
+                    height: 14,
                     decoration: BoxDecoration(
-                      color: AppColors.obsidianGlassSurface,
-                      borderRadius: BorderRadius.circular(6),
+                      color: Colors.white12,
+                      borderRadius: BorderRadius.circular(7),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    width: 70,
+                    width: 80,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: AppColors.obsidianGlassSurface,
+                      color: Colors.white10,
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
@@ -522,60 +881,19 @@ class _FeedSkeletonCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Container(
-            height: 200,
-            width: double.infinity,
+            height: 180,
             decoration: BoxDecoration(
-              color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(14),
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.obsidianGlassSurface,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 48,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.obsidianGlassSurface,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: 180,
-            height: 14,
-            decoration: BoxDecoration(
-              color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(7),
-            ),
-          ),
-          const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            height: 10,
+            height: 12,
             decoration: BoxDecoration(
-              color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            width: 220,
-            height: 10,
-            decoration: BoxDecoration(
-              color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(5),
+              color: Colors.white12,
+              borderRadius: BorderRadius.circular(6),
             ),
           ),
         ],
@@ -584,49 +902,7 @@ class _FeedSkeletonCard extends StatelessWidget {
   }
 }
 
-/// Shimmer placeholder circles for stories loading state.
-class _StoriesSkeleton extends StatelessWidget {
-  const _StoriesSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 96,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: 5,
-        separatorBuilder: (_, __) => const SizedBox(width: 14),
-        itemBuilder: (context, index) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 66,
-                height: 66,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.obsidianCardTranslucent,
-                  border: Border.all(color: AppColors.glassBorder),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                width: 48,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: AppColors.obsidianGlassSurface,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// Zero-Stub genuine Liquid Glass error view.
+// MARK: - Error View
 class _FeedErrorView extends StatelessWidget {
   final Object error;
   final VoidCallback onRetry;
@@ -725,12 +1001,16 @@ class _FeedErrorView extends StatelessWidget {
   }
 }
 
-/// Friendly empty state with reset filters action.
+// MARK: - Empty View
 class _FeedEmptyView extends StatelessWidget {
+  final String message;
+  final String actionLabel;
   final VoidCallback onResetFilters;
 
   const _FeedEmptyView({
     super.key,
+    required this.message,
+    this.actionLabel = 'Сбросить фильтры',
     required this.onResetFilters,
   });
 
@@ -766,35 +1046,41 @@ class _FeedEmptyView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'В этом районе пока нет публикаций',
+                  'Пока пусто',
                   style: TextStyle(
-                    fontSize: 17,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
-                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Попробуйте выбрать другой район или сбросить фильтры тем',
-                  style: TextStyle(
+                Text(
+                  message,
+                  style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,
                     height: 1.4,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 18),
-                TextButton.icon(
+                const SizedBox(height: 20),
+                ElevatedButton(
                   key: const ValueKey('feed_reset_filters_button'),
                   onPressed: onResetFilters,
-                  icon: const Icon(Icons.refresh_rounded, size: 16, color: AppColors.accentBlue),
-                  label: const Text(
-                    'Сбросить фильтры',
-                    style: TextStyle(
-                      color: AppColors.accentBlue,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accentBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    actionLabel,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
