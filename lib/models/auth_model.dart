@@ -17,6 +17,7 @@ class UserAuthModel {
 
   bool get isAdmin => role == 'admin';
   bool get canPublishAsTeam => role == 'admin' || role == 'moderator';
+  bool get canModerate => role == 'admin' || role == 'moderator';
 
   factory UserAuthModel.fromJson(Map<String, dynamic> json) {
     return UserAuthModel(

@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.mark.asyncio
@@ -370,5 +371,94 @@ async def test_create_post_official_permissions(client: AsyncClient):
     assert regular.status_code == 201
     assert regular.json()["author_name"] == "Денис"
     assert regular.json()["is_official"] is False
+
+
+@pytest.mark.asyncio
+async def test_admin_can_delete_other_user_post_and_story(client: AsyncClient, db_session: AsyncSession):
+    """Admin can delete any post and story created by any other user."""
+    # 1. Register regular user A
+    reg_a = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "author_user@pawconnect.app", "password": "pass", "name": "Автор Поста"},
+    )
+    token_a = reg_a.json()["access_token"]
+    headers_a = {"Authorization": f"Bearer {token_a}"}
+
+    # 2. User A creates a post and a story
+    post_res = await client.post(
+        "/api/v1/community/posts",
+        headers=headers_a,
+        json={
+            "district": "Центральный",
+            "category": "general",
+            "title": "Пост обычного пользователя",
+            "text": "Текст обычного пользователя",
+        },
+    )
+    assert post_res.status_code == 201
+    post_id = post_res.json()["id"]
+
+    story_res = await client.post(
+        "/api/v1/community/stories",
+        headers=headers_a,
+        json={
+            "district": "Центральный",
+            "status_text": "История обычного пользователя",
+        },
+    )
+    assert story_res.status_code == 201
+    story_id = story_res.json()["id"]
+
+    # 3. Register regular user B (non-author, non-admin)
+    reg_b = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "bystander@pawconnect.app", "password": "pass", "name": "Прохожий"},
+    )
+    token_b = reg_b.json()["access_token"]
+    headers_b = {"Authorization": f"Bearer {token_b}"}
+
+    # User B cannot delete post or story (403)
+    del_post_b = await client.delete(f"/api/v1/community/posts/{post_id}", headers=headers_b)
+    assert del_post_b.status_code == 403
+
+    del_story_b = await client.delete(f"/api/v1/community/stories/{story_id}", headers=headers_b)
+    assert del_story_b.status_code == 403
+
+    # 4. Register admin user
+    reg_admin = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "admin_moderator@pawconnect.app", "password": "pass", "name": "Главный Админ"},
+    )
+    admin_id = reg_admin.json()["user"]["id"]
+    admin_token = reg_admin.json()["access_token"]
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+
+    # Elevate to admin role on test db_session
+    from app.models.user import User
+    from sqlalchemy import update
+    import uuid
+    await db_session.execute(
+        update(User).where(User.id == uuid.UUID(admin_id)).values(role="admin")
+    )
+    await db_session.commit()
+
+    # 5. Admin can delete User A's post -> 200
+    del_post_admin = await client.delete(f"/api/v1/community/posts/{post_id}", headers=admin_headers)
+    assert del_post_admin.status_code == 200
+    assert del_post_admin.json()["status"] == "deleted"
+
+    # Verify post is gone from DB
+    get_posts = await client.get("/api/v1/community/posts")
+    assert not any(p["id"] == post_id for p in get_posts.json())
+
+    # 6. Admin can delete User A's story -> 200
+    del_story_admin = await client.delete(f"/api/v1/community/stories/{story_id}", headers=admin_headers)
+    assert del_story_admin.status_code == 200
+    assert del_story_admin.json()["status"] == "deleted"
+
+    # Verify story is gone
+    get_stories = await client.get("/api/v1/community/stories")
+    assert not any(s["id"] == story_id for s in get_stories.json())
+
 
 

@@ -693,5 +693,69 @@ void main() {
 
       await tester.pump(const Duration(seconds: 3));
     });
+
+    testWidgets('19. admin user can delete any other user post with admin confirmation dialog', (tester) async {
+      final adminUser = UserAuthModel(
+        id: 'admin-1',
+        email: 'admin@pawconnect.app',
+        name: 'Администратор Елена',
+        role: 'admin',
+      );
+
+      await tester.pumpWidget(createCommunityScreen(currentUser: adminUser));
+      await tester.pumpAndSettle();
+
+      // Find actions button for post-2 (created by 'Ольга П.', not admin)
+      final post2Actions = find.byKey(const ValueKey('post_actions_button_post-2'));
+      await tester.ensureVisible(post2Actions);
+      await tester.tap(post2Actions);
+      await tester.pumpAndSettle();
+
+      // Action sheet should show Admin Delete action
+      expect(find.text('Удалить запись (Администратор 🛡️)'), findsOneWidget);
+
+      // Tap Admin Delete action
+      await tester.tap(find.text('Удалить запись (Администратор 🛡️)'));
+      await tester.pumpAndSettle();
+
+      // AlertDialog should show admin-specific confirmation title and content
+      expect(find.text('Удалить запись (Администратор)?'), findsOneWidget);
+      expect(find.textContaining('Вы удаляете публикацию пользователя Ольга П.'), findsOneWidget);
+
+      // Confirm deletion
+      await tester.tap(find.byKey(const ValueKey('confirm_delete_post_button')));
+      await tester.pumpAndSettle();
+
+      expect(fakeService.deletePostCallCount, equals(1));
+      expect(find.text('Публикация удалена администратором'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('20. regular user cannot delete another user post', (tester) async {
+      final regularUser = UserAuthModel(
+        id: 'user-regular',
+        email: 'regular@pawconnect.app',
+        name: 'Иван Петров',
+        role: 'user',
+      );
+
+      await tester.pumpWidget(createCommunityScreen(currentUser: regularUser));
+      await tester.pumpAndSettle();
+
+      // Find actions button for post-2 (created by 'Ольга П.')
+      final post2Actions = find.byKey(const ValueKey('post_actions_button_post-2'));
+      await tester.ensureVisible(post2Actions);
+      await tester.tap(post2Actions);
+      await tester.pumpAndSettle();
+
+      // Should only see Copy Link and Report, NOT Delete
+      expect(find.text('Скопировать ссылку'), findsOneWidget);
+      expect(find.text('Пожаловаться на запись'), findsOneWidget);
+      expect(find.text('Удалить запись'), findsNothing);
+      expect(find.text('Удалить запись (Администратор 🛡️)'), findsNothing);
+
+      await tester.pump(const Duration(seconds: 3));
+    });
   });
 }

@@ -15,12 +15,16 @@ class StoryPlayerScreen extends StatefulWidget {
   final List<PetStoryModel> stories;
   final int initialIndex;
   final ValueChanged<String>? onStoryViewed;
+  final bool Function(PetStoryModel)? canDeleteStory;
+  final Future<void> Function(String storyId)? onDeleteStory;
 
   const StoryPlayerScreen({
     super.key,
     required this.stories,
     this.initialIndex = 0,
     this.onStoryViewed,
+    this.canDeleteStory,
+    this.onDeleteStory,
   });
 
   @override
@@ -30,6 +34,7 @@ class StoryPlayerScreen extends StatefulWidget {
 class _StoryPlayerScreenState extends State<StoryPlayerScreen>
     with SingleTickerProviderStateMixin {
   late int _currentIndex;
+  late List<PetStoryModel> _activeStories;
   late AnimationController _animController;
   double _accumulatedDrag = 0.0;
   bool _isDismissed = false;
@@ -38,8 +43,9 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
   void initState() {
     super.initState();
 
-    if (widget.stories.isNotEmpty) {
-      _currentIndex = widget.initialIndex.clamp(0, widget.stories.length - 1);
+    _activeStories = widget.stories.toList();
+    if (_activeStories.isNotEmpty) {
+      _currentIndex = widget.initialIndex.clamp(0, _activeStories.length - 1);
     } else {
       _currentIndex = 0;
     }
@@ -55,11 +61,11 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
       }
     });
 
-    if (widget.stories.isNotEmpty) {
+    if (_activeStories.isNotEmpty) {
       _animController.forward();
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && widget.stories.isNotEmpty) {
-          widget.onStoryViewed?.call(widget.stories[_currentIndex].id);
+        if (mounted && _activeStories.isNotEmpty) {
+          widget.onStoryViewed?.call(_activeStories[_currentIndex].id);
         }
       });
     }
@@ -74,7 +80,7 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
   void _onStoryTimeCompleted() {
     if (!mounted || _isDismissed) return;
 
-    if (_currentIndex < widget.stories.length - 1) {
+    if (_currentIndex < _activeStories.length - 1) {
       _goToNextStory();
     } else {
       _dismiss();
@@ -82,11 +88,11 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
   }
 
   void _goToNextStory() {
-    if (_currentIndex < widget.stories.length - 1) {
+    if (_currentIndex < _activeStories.length - 1) {
       setState(() {
         _currentIndex++;
       });
-      widget.onStoryViewed?.call(widget.stories[_currentIndex].id);
+      widget.onStoryViewed?.call(_activeStories[_currentIndex].id);
       _animController.reset();
       _animController.forward();
     } else {
@@ -99,7 +105,7 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
       setState(() {
         _currentIndex--;
       });
-      widget.onStoryViewed?.call(widget.stories[_currentIndex].id);
+      widget.onStoryViewed?.call(_activeStories[_currentIndex].id);
       _animController.reset();
       _animController.forward();
     } else {
@@ -117,6 +123,76 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
     }
   }
 
+  void _showDeleteStoryDialog(PetStoryModel story) {
+    _animController.stop();
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      barrierColor: Colors.black.withValues(alpha: 0.65),
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.obsidianCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.glassBorderSubtle),
+        ),
+        title: const Text(
+          'Удалить историю?',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Вы уверены, что хотите удалить историю автора ${story.authorName}? Это действие нельзя отменить.',
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              _animController.forward();
+            },
+            child: const Text(
+              'Отмена',
+              style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton(
+            key: const ValueKey('confirm_delete_story_button'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentRed,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await widget.onDeleteStory?.call(story.id);
+              if (!mounted) return;
+              setState(() {
+                _activeStories.removeWhere((s) => s.id == story.id);
+                if (_currentIndex >= _activeStories.length) {
+                  _currentIndex = _activeStories.length - 1;
+                }
+              });
+              if (_activeStories.isEmpty) {
+                _dismiss();
+              } else {
+                _animController.reset();
+                _animController.forward();
+              }
+            },
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleTapUp(TapUpDetails details) {
     final width = MediaQuery.of(context).size.width;
     if (details.globalPosition.dx < width / 3) {
@@ -128,7 +204,7 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.stories.isEmpty) {
+    if (_activeStories.isEmpty) {
       return const Scaffold(
         backgroundColor: AppColors.obsidianBackground,
         body: Center(
@@ -140,7 +216,7 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
       );
     }
 
-    final currentStory = widget.stories[_currentIndex];
+    final currentStory = _activeStories[_currentIndex];
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -302,7 +378,7 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
-        children: List.generate(widget.stories.length, (index) {
+        children: List.generate(_activeStories.length, (index) {
           return Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -408,6 +484,21 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
               ],
             ),
           ),
+
+          // Delete Story Button (if author or admin)
+          if (widget.canDeleteStory?.call(story) ?? false) ...[
+            IconButton(
+              key: ValueKey('story_delete_button_${story.id}'),
+              tooltip: 'Удалить историю',
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+              splashRadius: 20,
+              onPressed: () => _showDeleteStoryDialog(story),
+            ),
+          ],
 
           // Close button
           IconButton(

@@ -17,6 +17,7 @@ class CommunityPostCard extends StatefulWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool isAuthor;
+  final bool isAdmin;
 
   const CommunityPostCard({
     super.key,
@@ -28,6 +29,7 @@ class CommunityPostCard extends StatefulWidget {
     this.onEdit,
     this.onDelete,
     this.isAuthor = false,
+    this.isAdmin = false,
   });
 
   @override
@@ -222,7 +224,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                 ),
               ),
               const SizedBox(height: 18),
-              if (widget.isAuthor || widget.onEdit != null) ...[
+              if (widget.onEdit != null) ...[
                 _buildActionItem(
                   icon: Icons.edit_outlined,
                   title: 'Редактировать запись',
@@ -233,9 +235,13 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                   },
                 ),
                 const SizedBox(height: 6),
+              ],
+              if (widget.onDelete != null) ...[
                 _buildActionItem(
                   icon: Icons.delete_outline_rounded,
-                  title: 'Удалить запись',
+                  title: widget.isAuthor
+                      ? 'Удалить запись'
+                      : 'Удалить запись (Администратор 🛡️)',
                   color: AppColors.accentRed,
                   onTap: () {
                     Navigator.of(bottomSheetContext).pop();
@@ -253,7 +259,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                   widget.onShare();
                 },
               ),
-              if (!widget.isAuthor && widget.onEdit == null) ...[
+              if (!widget.isAuthor) ...[
                 const SizedBox(height: 6),
                 _buildActionItem(
                   icon: Icons.flag_outlined,
@@ -272,6 +278,8 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
   }
 
   void _showDeleteConfirmationDialog(BuildContext context) {
+    final isModeratorAction = !widget.isAuthor && (widget.isAdmin || widget.onDelete != null);
+
     showDialog(
       context: context,
       useRootNavigator: true,
@@ -282,17 +290,19 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
           borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: AppColors.glassBorderSubtle),
         ),
-        title: const Text(
-          'Удалить публикацию?',
-          style: TextStyle(
+        title: Text(
+          isModeratorAction ? 'Удалить запись (Администратор)?' : 'Удалить публикацию?',
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
-          'Это действие нельзя отменить. Публикация и все комментарии будут удалены навсегда.',
-          style: TextStyle(
+        content: Text(
+          isModeratorAction
+              ? 'Вы удаляете публикацию пользователя ${widget.post.authorName} с правами администратора. Это действие нельзя отменить.'
+              : 'Это действие нельзя отменить. Публикация и все комментарии будут удалены навсегда.',
+          style: const TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
             height: 1.4,

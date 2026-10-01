@@ -47,6 +47,8 @@ void main() {
     List<PetStoryModel>? stories,
     int initialIndex = 0,
     ValueChanged<String>? onStoryViewed,
+    bool Function(PetStoryModel)? canDeleteStory,
+    Future<void> Function(String)? onDeleteStory,
   }) {
     return MaterialApp(
       home: Builder(
@@ -60,6 +62,8 @@ void main() {
                       stories: stories ?? testStories,
                       initialIndex: initialIndex,
                       onStoryViewed: onStoryViewed,
+                      canDeleteStory: canDeleteStory,
+                      onDeleteStory: onDeleteStory,
                     ),
                   ),
                 );
@@ -247,6 +251,36 @@ void main() {
 
       // Advanced to second story
       expect(find.text('Екатерина'), findsOneWidget);
+    });
+
+    testWidgets('delete story button is visible when canDeleteStory is true and confirming triggers onDeleteStory', (tester) async {
+      String? deletedId;
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          canDeleteStory: (story) => true,
+          onDeleteStory: (id) async {
+            deletedId = id;
+          },
+        ),
+      );
+      await openStoryPlayer(tester);
+
+      expect(find.text('PawConnect Team'), findsOneWidget);
+
+      final deleteBtn = find.byKey(const ValueKey('story_delete_button_story-1'));
+      expect(deleteBtn, findsOneWidget);
+
+      await tester.tap(deleteBtn);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Удалить историю?'), findsOneWidget);
+      expect(find.textContaining('Вы уверены, что хотите удалить историю автора PawConnect Team?'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('confirm_delete_story_button')));
+      await tester.pumpAndSettle();
+
+      expect(deletedId, equals('story-1'));
     });
   });
 }

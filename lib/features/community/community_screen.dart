@@ -95,9 +95,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
     try {
       await ref.read(communityNotifierProvider.notifier).deletePost(post.id);
       if (context.mounted) {
+        final currentUser = ref.read(authNotifierProvider).currentUser;
+        final isOtherUser = !_isPostAuthor(post, currentUser);
         PawToast.show(
           context,
-          title: 'Публикация удалена',
+          title: isOtherUser ? 'Публикация удалена администратором' : 'Публикация удалена',
           type: ToastType.success,
         );
       }
@@ -149,8 +151,10 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
     BuildContext context,
     List<PetStoryModel> stories,
     int initialIndex,
-    CommunityNotifier notifier,
-  ) {
+    CommunityNotifier notifier, {
+    UserAuthModel? currentUser,
+  }) {
+    final isAdmin = currentUser?.canModerate ?? false;
     Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         fullscreenDialog: true,
@@ -158,6 +162,15 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
           stories: stories,
           initialIndex: initialIndex,
           onStoryViewed: (id) => notifier.markStoryViewed(id),
+          canDeleteStory: (story) {
+            if (isAdmin) return true;
+            if (story.authorId != null && story.authorId == currentUser?.id) return true;
+            if (story.authorName == currentUser?.name) return true;
+            return false;
+          },
+          onDeleteStory: (id) async {
+            await notifier.deleteStory(id);
+          },
         ),
       ),
     );
@@ -377,7 +390,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                     currentUserAvatar: currentUser?.avatarUrl,
                     onTapAddStory: () => _openNewStoryModal(context),
                     onTapStory: (story, sIndex) {
-                      _openStoryPlayer(context, stories, sIndex, notifier);
+                      _openStoryPlayer(context, stories, sIndex, notifier, currentUser: currentUser);
                     },
                   ),
                 );
@@ -385,6 +398,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
 
               final post = posts[index - 1];
               final isAuthor = _isPostAuthor(post, currentUser);
+              final isAdmin = currentUser?.canModerate ?? false;
+              final canDelete = isAuthor || isAdmin;
+              final canEdit = isAuthor || (isAdmin && post.isOfficial);
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -392,11 +408,12 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                   key: ValueKey('post_${post.id}'),
                   post: post,
                   isAuthor: isAuthor,
+                  isAdmin: isAdmin,
                   onLike: () => notifier.toggleLike(post.id),
                   onBookmark: () => notifier.toggleBookmark(post.id),
                   onComment: () => _openComments(context, notifier, state, post.id),
-                  onEdit: isAuthor ? () => _openEditPostModal(context, post) : null,
-                  onDelete: isAuthor ? () => _handleDeletePost(context, post) : null,
+                  onEdit: canEdit ? () => _openEditPostModal(context, post) : null,
+                  onDelete: canDelete ? () => _handleDeletePost(context, post) : null,
                   onShare: () {
                     PawToast.show(
                       context,
@@ -556,7 +573,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                           currentUserAvatar: currentUser?.avatarUrl,
                           onTapAddStory: () => _openNewStoryModal(context),
                           onTapStory: (story, sIndex) {
-                            _openStoryPlayer(context, districtStories, sIndex, notifier);
+                            _openStoryPlayer(context, districtStories, sIndex, notifier, currentUser: currentUser);
                           },
                         ),
                       );
@@ -564,6 +581,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
 
                     final post = districtPosts[index - 1];
                     final isAuthor = _isPostAuthor(post, currentUser);
+                    final isAdmin = currentUser?.canModerate ?? false;
+                    final canDelete = isAuthor || isAdmin;
+                    final canEdit = isAuthor || (isAdmin && post.isOfficial);
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -571,11 +591,12 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                         key: ValueKey('post_${post.id}'),
                         post: post,
                         isAuthor: isAuthor,
+                        isAdmin: isAdmin,
                         onLike: () => notifier.toggleLike(post.id),
                         onBookmark: () => notifier.toggleBookmark(post.id),
                         onComment: () => _openComments(context, notifier, state, post.id),
-                        onEdit: isAuthor ? () => _openEditPostModal(context, post) : null,
-                        onDelete: isAuthor ? () => _handleDeletePost(context, post) : null,
+                        onEdit: canEdit ? () => _openEditPostModal(context, post) : null,
+                        onDelete: canDelete ? () => _handleDeletePost(context, post) : null,
                         onShare: () {
                           PawToast.show(
                             context,
@@ -738,6 +759,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                     final post = sosPosts[index];
                     final currentUser = ref.watch(authNotifierProvider).currentUser;
                     final isAuthor = _isPostAuthor(post, currentUser);
+                    final isAdmin = currentUser?.canModerate ?? false;
+                    final canDelete = isAuthor || isAdmin;
+                    final canEdit = isAuthor || (isAdmin && post.isOfficial);
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -745,11 +769,12 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                         key: ValueKey('post_${post.id}'),
                         post: post,
                         isAuthor: isAuthor,
+                        isAdmin: isAdmin,
                         onLike: () => notifier.toggleLike(post.id),
                         onBookmark: () => notifier.toggleBookmark(post.id),
                         onComment: () => _openComments(context, notifier, state, post.id),
-                        onEdit: isAuthor ? () => _openEditPostModal(context, post) : null,
-                        onDelete: isAuthor ? () => _handleDeletePost(context, post) : null,
+                        onEdit: canEdit ? () => _openEditPostModal(context, post) : null,
+                        onDelete: canDelete ? () => _handleDeletePost(context, post) : null,
                         onShare: () {
                           PawToast.show(
                             context,
