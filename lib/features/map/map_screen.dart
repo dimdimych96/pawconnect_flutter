@@ -17,6 +17,7 @@ import 'widgets/liquid_glass_bottom_sheet.dart';
 import 'widgets/turn_by_turn_hud.dart';
 import 'widgets/right_control_rail.dart';
 import 'widgets/map_theme_sandbox_sheet.dart';
+import 'widgets/walk_session_hud.dart';
 import '../../models/route_model.dart';
 import '../../providers/map_theme_provider.dart';
 import '../../providers/walk_provider.dart';
@@ -520,7 +521,35 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               },
             ),
 
-          // 6. Map Theme Sandbox Tuner Sheet (Live designer playground)
+          // 6. Active Walk Session HUD Capsule (When user is walking with their pet)
+          Builder(
+            builder: (context) {
+              final walkState = ref.watch(walkNotifierProvider);
+              if (walkState.isWalking && walkState.activeWalk != null && !mapState.isNavigating) {
+                return Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: WalkSessionHud(
+                    session: walkState.activeWalk!,
+                    temperament: walkState.userPetTemperament,
+                    onStopWalk: () async {
+                      await ref.read(walkNotifierProvider.notifier).stopWalk();
+                      PawToast.show(
+                        context,
+                        title: 'Прогулка завершена!',
+                        subtitle: 'Маршрут и активность сохранены 🐾',
+                        type: ToastType.success,
+                      );
+                    },
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+
+          // 7. Map Theme Sandbox Tuner Sheet (Live designer playground)
           if (_isThemeSandboxOpen)
             Positioned(
               left: 0,
