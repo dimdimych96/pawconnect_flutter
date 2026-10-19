@@ -145,7 +145,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StartWalkModal(
+      builder: (sheetCtx) => StartWalkModal(
         currentLat: lat,
         currentLng: lng,
         petName: walkState.activePetName,
@@ -179,6 +179,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           return ok;
         },
       ),
+    );
+  }
+
+  void _handleStopWalk() async {
+    await ref.read(walkNotifierProvider.notifier).stopWalk();
+    if (!mounted) return;
+    PawToast.show(
+      context,
+      title: 'Прогулка завершена!',
+      subtitle: 'Маршрут и активность сохранены 🐾',
+      type: ToastType.success,
     );
   }
 
@@ -573,32 +584,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
 
           // 6. Active Walk Session HUD Capsule (When user is walking with their pet)
-          Builder(
-            builder: (context) {
-              final walkState = ref.watch(walkNotifierProvider);
-              if (walkState.isWalking && walkState.activeWalk != null && !mapState.isNavigating) {
-                return Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: WalkSessionHud(
-                    session: walkState.activeWalk!,
-                    temperament: walkState.userPetTemperament,
-                    onStopWalk: () async {
-                      await ref.read(walkNotifierProvider.notifier).stopWalk();
-                      PawToast.show(
-                        context,
-                        title: 'Прогулка завершена!',
-                        subtitle: 'Маршрут и активность сохранены 🐾',
-                        type: ToastType.success,
-                      );
-                    },
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
+          if (ref.watch(walkNotifierProvider).isWalking &&
+              ref.watch(walkNotifierProvider).activeWalk != null &&
+              !mapState.isNavigating)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: WalkSessionHud(
+                session: ref.watch(walkNotifierProvider).activeWalk!,
+                temperament: ref.watch(walkNotifierProvider).userPetTemperament,
+                onStopWalk: _handleStopWalk,
+              ),
+            ),
 
           // 7. Map Theme Sandbox Tuner Sheet (Live designer playground)
           if (_isThemeSandboxOpen)

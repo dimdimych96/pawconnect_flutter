@@ -131,7 +131,7 @@ class WalkService {
       if (response.statusCode == 200 && response.data != null) {
         return WalkSessionModel.fromJson(response.data as Map<String, dynamic>);
       }
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       if (!_allowMockFallback) {
         rethrow;
       }
@@ -164,7 +164,7 @@ class WalkService {
       if (response.statusCode == 200 && response.data != null) {
         return WalkSessionModel.fromJson(response.data as Map<String, dynamic>);
       }
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       if (!_allowMockFallback) {
         rethrow;
       }
@@ -193,7 +193,7 @@ class WalkService {
         return WalkSessionModel.fromJson(response.data as Map<String, dynamic>);
       }
       return null;
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       if (!_allowMockFallback) {
         rethrow;
       }
@@ -221,7 +221,7 @@ class WalkService {
         final list = response.data as List<dynamic>;
         return list.map((item) => WalkingCompanionModel.fromJson(item as Map<String, dynamic>)).toList();
       }
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       if (!_allowMockFallback) {
         rethrow;
       }
@@ -245,7 +245,7 @@ class WalkService {
       if (response.statusCode == 200 && response.data != null) {
         return WalkInvitationModel.fromJson(response.data as Map<String, dynamic>);
       }
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       if (!_allowMockFallback) {
         rethrow;
       }
@@ -270,7 +270,7 @@ class WalkService {
         '/walks/pets/$petId/temperament',
         data: {'temperament': temperament.key},
       );
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       if (!_allowMockFallback) {
         rethrow;
       }
