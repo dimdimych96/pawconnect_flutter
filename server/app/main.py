@@ -8,8 +8,9 @@ from .core.config import settings
 from .api.v1.api import api_router
 from .db.session import engine, Base
 # Import all models to register with Base
-from .models import user, pet, marker, post, reminder, story, sos, walk, breed
+from .models import user, pet, marker, post, reminder, story, sos, walk, breed, specialist
 from .models.breed import Breed, CURATED_BREEDS
+from .models.specialist import Specialist, CURATED_SPECIALISTS
 from .db.session import engine, Base, AsyncSessionLocal
 from sqlalchemy import select
 
@@ -32,6 +33,17 @@ async def lifespan(app: FastAPI):
             if not result.scalar_one_or_none():
                 for b_data in CURATED_BREEDS:
                     session.add(Breed(**b_data))
+                await session.commit()
+        except Exception:
+            await session.rollback()
+
+    # Seed curated specialists if empty
+    async with AsyncSessionLocal() as session:
+        try:
+            result = await session.execute(select(Specialist).limit(1))
+            if not result.scalar_one_or_none():
+                for s_data in CURATED_SPECIALISTS:
+                    session.add(Specialist(**s_data))
                 await session.commit()
         except Exception:
             await session.rollback()
