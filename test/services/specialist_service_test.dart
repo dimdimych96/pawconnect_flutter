@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pawconnect/models/specialist_model.dart';
 import 'package:pawconnect/services/specialist_service.dart';
 
 void main() {
