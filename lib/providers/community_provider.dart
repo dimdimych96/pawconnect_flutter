@@ -4,6 +4,7 @@ import '../core/config/app_config.dart';
 import '../models/community_post_model.dart';
 import '../models/pet_story_model.dart';
 import '../models/post_comment_model.dart';
+import '../models/sos_sighting_model.dart';
 import '../services/auth_service.dart';
 import '../services/community_service.dart';
 import 'auth_provider.dart';
@@ -14,6 +15,7 @@ class CommunityState {
   final String selectedDistrict;
   final String selectedCategory; // 'all', 'health', 'training', 'sos', 'general'
   final Map<String, List<PostCommentModel>> postCommentsCache;
+  final Map<String, List<SosSightingModel>> postSightingsCache;
   final Set<String> bookmarkedPostIds;
 
   const CommunityState({
@@ -22,6 +24,7 @@ class CommunityState {
     this.selectedDistrict = 'Все районы',
     this.selectedCategory = 'all',
     this.postCommentsCache = const {},
+    this.postSightingsCache = const {},
     this.bookmarkedPostIds = const {},
   });
 
@@ -31,6 +34,7 @@ class CommunityState {
     String? selectedDistrict,
     String? selectedCategory,
     Map<String, List<PostCommentModel>>? postCommentsCache,
+    Map<String, List<SosSightingModel>>? postSightingsCache,
     Set<String>? bookmarkedPostIds,
   }) {
     return CommunityState(
@@ -39,6 +43,7 @@ class CommunityState {
       selectedDistrict: selectedDistrict ?? this.selectedDistrict,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       postCommentsCache: postCommentsCache ?? this.postCommentsCache,
+      postSightingsCache: postSightingsCache ?? this.postSightingsCache,
       bookmarkedPostIds: bookmarkedPostIds ?? this.bookmarkedPostIds,
     );
   }
@@ -294,6 +299,71 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
       state = state.copyWith(postsAsync: AsyncValue.data(previousPosts));
       rethrow;
     }
+  }
+
+  /// Toggles volunteer participation in SOS search crew
+  Future<void> toggleVolunteer(String postId) async {
+    final previousPosts = state.posts;
+    final post = previousPosts.firstWhere((p) => p.id == postId, orElse: () => previousPosts.first);
+    final newIsVolunteering = !post.isVolunteering;
+    final newCount = newIsVolunteering ? post.volunteersCount + 1 : (post.volunteersCount > 0 ? post.volunteersCount - 1 : 0);
+    final optimisticPosts = previousPosts.map((p) => p.id == postId ? p.copyWith(isVolunteering: newIsVolunteering, volunteersCount: newCount) : p).toList();
+    state = state.copyWith(postsAsync: AsyncValue.data(optimisticPosts));
+
+    try {
+      final confirmedStatus = await _communityService.toggleVolunteer(postId);
+      if (confirmedStatus != newIsVolunteering) {
+        final correctedCount = confirmedStatus ? post.volunteersCount + 1 : (post.volunteersCount > 0 ? post.volunteersCount - 1 : 0);
+        final syncedPosts = state.posts.map((p) => p.id == postId ? p.copyWith(isVolunteering: confirmedStatus, volunteersCount: correctedCount) : p).toList();
+        state = state.copyWith(postsAsync: AsyncValue.data(syncedPosts));
+      }
+    } catch (e) {
+      state = state.copyWith(postsAsync: AsyncValue.data(previousPosts));
+      rethrow;
+    }
+  }
+
+  /// Loads sightings for an SOS post
+  Future<List<SosSightingModel>> loadSightings(String postId) async {
+    try {
+      final sightings = await _communityService.getSightings(postId);
+      final updatedCache = Map<String, List<SosSightingModel>>.from(state.postSightingsCache);
+      updatedCache[postId] = sightings;
+      state = state.copyWith(postSightingsCache: updatedCache);
+      return sightings;
+    } catch (_) {
+      return state.postSightingsCache[postId] ?? [];
+    }
+  }
+
+  /// Reports a new sighting for an SOS post
+  Future<SosSightingModel> reportSighting({
+    required String postId,
+    required double latitude,
+    required double longitude,
+    required String note,
+    required String timeAgoStr,
+    String? photoUrl,
+  }) async {
+    final sighting = await _communityService.reportSighting(
+      postId: postId,
+      latitude: latitude,
+      longitude: longitude,
+      note: note,
+      timeAgoStr: timeAgoStr,
+      photoUrl: photoUrl,
+    );
+    final updatedCache = Map<String, List<SosSightingModel>>.from(state.postSightingsCache);
+    final currentList = updatedCache[postId] ?? [];
+    updatedCache[postId] = [sighting, ...currentList];
+
+    // Increment sightingsCount on the post
+    final updatedPosts = state.posts.map((p) => p.id == postId ? p.copyWith(sightingsCount: p.sightingsCount + 1) : p).toList();
+    state = state.copyWith(
+      postsAsync: AsyncValue.data(updatedPosts),
+      postSightingsCache: updatedCache,
+    );
+    return sighting;
   }
 }
 

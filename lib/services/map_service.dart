@@ -348,4 +348,67 @@ class MapService {
       steps: fallbackSteps,
     );
   }
+
+  /// Verifies a hazard marker with community consensus ('confirm' or 'cleared')
+  Future<MapMarkerModel> verifyHazardMarker(String markerId, String action) async {
+    try {
+      final response = await _dio.post(
+        '/map/markers/$markerId/verify',
+        data: {'action': action},
+      ).timeout(const Duration(seconds: 4));
+      if (response.statusCode == 200 && response.data != null) {
+        return MapMarkerModel.fromJson(response.data as Map<String, dynamic>);
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+    // Fallback for mock mode
+    final idx = mockMarkers.indexWhere((m) => m.id == markerId);
+    if (idx != -1) {
+      final m = mockMarkers[idx];
+      final updated = action == 'confirm'
+          ? m.copyWith(confirmationsCount: m.confirmationsCount + 1)
+          : m.copyWith(clearedCount: m.clearedCount + 1);
+      mockMarkers[idx] = updated;
+      return updated;
+    }
+    return MapMarkerModel(
+      id: markerId,
+      type: 'danger',
+      title: 'Зона риска',
+      latitude: 55.0340,
+      longitude: 82.9180,
+      dangerType: 'poison',
+      confirmationsCount: action == 'confirm' ? 2 : 1,
+      clearedCount: action == 'cleared' ? 1 : 0,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  /// Adds a new map marker to the backend
+  Future<MapMarkerModel> addMapMarker(MapMarkerModel marker) async {
+    try {
+      final response = await _dio.post(
+        '/map/markers',
+        data: marker.toJson(),
+      ).timeout(const Duration(seconds: 5));
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
+        return MapMarkerModel.fromJson(response.data as Map<String, dynamic>);
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+    mockMarkers.insert(0, marker);
+    return marker;
+  }
 }

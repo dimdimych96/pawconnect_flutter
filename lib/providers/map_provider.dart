@@ -122,6 +122,21 @@ class MapState {
     }
     return activeRoute!.steps.first;
   }
+
+  /// Returns nearest confirmed danger hazard within 300 meters, if any
+  MapMarkerModel? get activeHazardNearby {
+    const distanceCalc = Distance();
+    final userPos = LatLng(userLatitude, userLongitude);
+    for (final marker in markers) {
+      if (marker.type == 'danger' && marker.confirmationsCount >= 1) {
+        final dist = distanceCalc.as(LengthUnit.Meter, userPos, LatLng(marker.latitude, marker.longitude));
+        if (dist <= 300) {
+          return marker;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 class MapNotifier extends StateNotifier<MapState> {
@@ -249,6 +264,18 @@ class MapNotifier extends StateNotifier<MapState> {
       markers: [newMarker, ...state.markers],
       selectedMarker: newMarker,
     );
+  }
+
+  Future<void> verifyHazard(String markerId, String action) async {
+    try {
+      final updated = await _mapService.verifyHazardMarker(markerId, action);
+      if (!mounted) return;
+      final updatedList = state.markers.map((m) => m.id == markerId ? updated : m).toList();
+      state = state.copyWith(
+        markers: updatedList,
+        selectedMarker: state.selectedMarker?.id == markerId ? updated : state.selectedMarker,
+      );
+    } catch (_) {}
   }
 
   void updateSafeZoneRadius(double newRadius) async {

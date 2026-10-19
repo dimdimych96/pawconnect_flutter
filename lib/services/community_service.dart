@@ -3,6 +3,7 @@ import '../core/config/app_config.dart';
 import '../models/community_post_model.dart';
 import '../models/pet_story_model.dart';
 import '../models/post_comment_model.dart';
+import '../models/sos_sighting_model.dart';
 
 class CommunityService {
   final Dio _dio;
@@ -399,5 +400,98 @@ class CommunityService {
     final newIsLiked = !post.isLiked;
     final newLikes = newIsLiked ? post.likesCount + 1 : (post.likesCount > 0 ? post.likesCount - 1 : 0);
     return post.copyWith(isLiked: newIsLiked, likesCount: newLikes);
+  }
+
+  /// Fetches sightings trail for an SOS post
+  Future<List<SosSightingModel>> getSightings(String postId) async {
+    try {
+      final response = await _dio.get('/community/posts/$postId/sightings').timeout(const Duration(seconds: 4));
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List).map((e) => SosSightingModel.fromJson(e as Map<String, dynamic>)).toList();
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+    return [
+      SosSightingModel(
+        id: 'mock-sighting-1',
+        postId: postId,
+        authorName: 'Алексей (Сосед)',
+        latitude: 55.0315,
+        longitude: 82.9215,
+        note: 'Замечен возле сквера, бежал на восток',
+        timeAgoStr: '25 мин назад',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 25)),
+      ),
+    ];
+  }
+
+  /// Reports a new sighting for an SOS post
+  Future<SosSightingModel> reportSighting({
+    required String postId,
+    required double latitude,
+    required double longitude,
+    required String note,
+    required String timeAgoStr,
+    String? photoUrl,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/community/posts/$postId/sightings',
+        data: {
+          'latitude': latitude,
+          'longitude': longitude,
+          'note': note,
+          'time_ago_str': timeAgoStr,
+          'timeAgoStr': timeAgoStr,
+          'photo_url': photoUrl,
+        },
+      ).timeout(const Duration(seconds: 5));
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
+        return SosSightingModel.fromJson(response.data as Map<String, dynamic>);
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+    return SosSightingModel(
+      id: 'sighting-${DateTime.now().millisecondsSinceEpoch}',
+      postId: postId,
+      authorName: 'Вы',
+      latitude: latitude,
+      longitude: longitude,
+      note: note,
+      timeAgoStr: timeAgoStr,
+      photoUrl: photoUrl,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  /// Toggles volunteer participation in an SOS search crew
+  Future<bool> toggleVolunteer(String postId) async {
+    try {
+      final response = await _dio.post('/community/posts/$postId/volunteer').timeout(const Duration(seconds: 4));
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data as Map<String, dynamic>;
+        return (data['is_volunteering'] ?? data['isVolunteering'] ?? false) as bool;
+      }
+      if (!_allowMockFallback) {
+        throw const FormatException('Unexpected server payload');
+      }
+    } catch (e) {
+      if (!_allowMockFallback) {
+        rethrow;
+      }
+    }
+    return true;
   }
 }
