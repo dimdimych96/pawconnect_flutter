@@ -38,6 +38,7 @@ class CommunityScreen extends ConsumerStatefulWidget {
 class _CommunityScreenState extends ConsumerState<CommunityScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String _selectedBreedClub = 'Все породы';
 
   @override
   void initState() {
@@ -538,6 +539,42 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
     );
   }
 
+  Widget _buildBreedChip(String breedId, String label) {
+    final isSelected = _selectedBreedClub == breedId;
+    return InkWell(
+      key: ValueKey('breed_chip_$breedId'),
+      onTap: () {
+        setState(() {
+          _selectedBreedClub = breedId;
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.accentGreen.withValues(alpha: 0.2)
+              : AppColors.obsidianGlassSurface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.accentGreen
+                : Colors.white.withValues(alpha: 0.10),
+            width: isSelected ? 1.2 : 0.8,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? AppColors.accentGreen : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
   // MARK: - Tab 1: «Мой район»
   Widget _buildDistrictTab(
     BuildContext context,
@@ -630,6 +667,29 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
           ),
         ),
 
+        // Breed Club Filter Rail
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 6),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildBreedChip('Все породы', '🐾 Все породы'),
+                const SizedBox(width: 6),
+                _buildBreedChip('Корги', '🐕 Клуб: Корги'),
+                const SizedBox(width: 6),
+                _buildBreedChip('Ретривер', '🦮 Ретриверы'),
+                const SizedBox(width: 6),
+                _buildBreedChip('Хаски', '🐺 Хаски'),
+                const SizedBox(width: 6),
+                _buildBreedChip('Бульдог', '🐶 Бульдоги'),
+                const SizedBox(width: 6),
+                _buildBreedChip('Овчарка', '🐕‍🦺 Овчарки'),
+              ],
+            ),
+          ),
+        ),
+
         // District Filtered Feed
         Expanded(
           child: RefreshIndicator(
@@ -639,15 +699,33 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
             child: state.postsAsync.when(
               data: (posts) {
                 final districtPosts = posts.where((p) {
-                  return isAllDistricts || p.district == currentDistrict;
+                  final matchesDistrict = isAllDistricts || p.district == currentDistrict;
+                  if (!matchesDistrict) return false;
+                  if (_selectedBreedClub == 'Все породы') return true;
+                  final query = _selectedBreedClub.toLowerCase();
+                  final content = p.content.toLowerCase();
+                  final title = p.title.toLowerCase();
+                  final petName = (p.petName ?? '').toLowerCase();
+                  return content.contains(query) || title.contains(query) || petName.contains(query);
                 }).toList();
 
                 if (districtPosts.isEmpty) {
+                  final emptyMsg = _selectedBreedClub == 'Все породы'
+                      ? 'В районе $currentDistrict пока нет публикаций'
+                      : 'В районе $currentDistrict нет постов клуба "$_selectedBreedClub"';
                   return _FeedEmptyView(
                     key: const ValueKey('feed_district_empty_view'),
-                    message: 'В районе $currentDistrict пока нет публикаций',
-                    actionLabel: 'Выбрать другой район',
-                    onResetFilters: () => _openDistrictPicker(context, notifier, currentDistrict),
+                    message: emptyMsg,
+                    actionLabel: _selectedBreedClub != 'Все породы'
+                        ? 'Сбросить фильтр породы'
+                        : 'Выбрать другой район',
+                    onResetFilters: () {
+                      if (_selectedBreedClub != 'Все породы') {
+                        setState(() => _selectedBreedClub = 'Все породы');
+                      } else {
+                        _openDistrictPicker(context, notifier, currentDistrict);
+                      }
+                    },
                   );
                 }
 

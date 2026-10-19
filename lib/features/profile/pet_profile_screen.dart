@@ -7,9 +7,13 @@ import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
 import '../../core/widgets/pill_toast.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/health_provider.dart';
 import '../../providers/map_provider.dart';
 import '../../providers/reminders_provider.dart';
+import 'widgets/body_condition_weight_card.dart';
+import 'widgets/breed_intelligence_card.dart';
 import 'widgets/new_reminder_modal.dart';
+import 'widgets/smart_health_milestones_card.dart';
 
 class PetProfileScreen extends ConsumerWidget {
   const PetProfileScreen({super.key});
@@ -76,6 +80,7 @@ class PetProfileScreen extends ConsumerWidget {
     final gpsDevice = mapState.gpsDevice;
     final remindersState = ref.watch(remindersNotifierProvider);
     final remindersNotifier = ref.read(remindersNotifierProvider.notifier);
+    final healthState = ref.watch(healthNotifierProvider);
 
     final isBreached = gpsDevice?.isBreached ?? false;
     final currentRadius = gpsDevice?.safeZoneRadius ?? 350.0;
@@ -271,9 +276,22 @@ class PetProfileScreen extends ConsumerWidget {
                 ),
               ),
 
+              // 2. Health Profile & Breed Intelligence
+              if (healthState.profile != null) ...[
+                const SizedBox(height: 16),
+                BodyConditionWeightCard(profile: healthState.profile!),
+                const SizedBox(height: 16),
+                SmartHealthMilestonesCard(profile: healthState.profile!),
+                const SizedBox(height: 16),
+                BreedIntelligenceCard(
+                  breed: healthState.currentBreed,
+                  profile: healthState.profile,
+                ),
+              ],
+
               const SizedBox(height: 16),
 
-              // 2. GPS Collar Controls Block
+              // 3. GPS Collar Controls Block
               GlassCard(
                 borderRadius: 24,
                 padding: const EdgeInsets.all(20),
@@ -469,7 +487,7 @@ class PetProfileScreen extends ConsumerWidget {
 
               const SizedBox(height: 20),
 
-              // 3. Vet Calendar Reminders Section
+              // 4. Vet Calendar Reminders Section
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

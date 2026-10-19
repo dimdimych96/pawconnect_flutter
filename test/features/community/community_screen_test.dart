@@ -821,5 +821,27 @@ void main() {
       // Drain toast timer
       await tester.pump(const Duration(seconds: 3));
     });
+
+    testWidgets('24. renders breed club filter chips in Tab 1 and filters posts by breed club', (tester) async {
+      await tester.pumpWidget(createCommunityScreen());
+      await tester.pumpAndSettle();
+
+      // Switch to District tab («Мой район»)
+      await tester.tap(find.byKey(const ValueKey('feed_tab_district')));
+      await tester.pumpAndSettle();
+
+      // Verify breed club chips exist
+      expect(find.byKey(const ValueKey('breed_chip_Все породы')), findsOneWidget);
+      expect(find.byKey(const ValueKey('breed_chip_Корги')), findsOneWidget);
+      expect(find.byKey(const ValueKey('breed_chip_Ретривер')), findsOneWidget);
+
+      // Tap on «Корги» breed club chip
+      await tester.tap(find.byKey(const ValueKey('breed_chip_Корги')));
+      await tester.pumpAndSettle();
+
+      // Reset filter via «Все породы» chip
+      await tester.tap(find.byKey(const ValueKey('breed_chip_Все породы')));
+      await tester.pumpAndSettle();
+    });
   });
 }
