@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pawconnect/core/widgets/auth_prompt_modal.dart';
 import 'package:pawconnect/features/community/community_screen.dart';
 import 'package:pawconnect/features/community/widgets/comments_bottom_sheet.dart';
 import 'package:pawconnect/features/community/widgets/community_post_card.dart';
@@ -251,12 +252,20 @@ void main() {
     ];
   });
 
-  Widget createCommunityScreen({UserAuthModel? currentUser}) {
+  final defaultTestUser = UserAuthModel(
+    id: 'usr-default-test',
+    email: 'team@pawconnect.app',
+    name: 'PawConnect Team',
+    role: 'user',
+  );
+
+  Widget createCommunityScreen({UserAuthModel? currentUser, bool asGuest = false}) {
+    final effectiveUser = asGuest ? null : (currentUser ?? defaultTestUser);
     return ProviderScope(
       overrides: [
         communityServiceProvider.overrideWithValue(fakeService),
-        if (currentUser != null)
-          authNotifierProvider.overrideWith((ref) => MockAuthNotifier(currentUser)),
+        if (effectiveUser != null)
+          authNotifierProvider.overrideWith((ref) => MockAuthNotifier(effectiveUser)),
       ],
       child: const MaterialApp(
         home: CommunityScreen(),
@@ -756,6 +765,21 @@ void main() {
       expect(find.text('Удалить запись (Администратор 🛡️)'), findsNothing);
 
       await tester.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('21. guest user tapping add post or add story sees AuthPromptModal', (tester) async {
+      await tester.pumpWidget(createCommunityScreen(asGuest: true));
+      await tester.pumpAndSettle();
+
+      // Guest login button in header
+      expect(find.byKey(const ValueKey('feed_guest_login_button')), findsOneWidget);
+
+      // Tap add post as guest
+      await tester.tap(find.byKey(const ValueKey('feed_add_post_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AuthPromptModal), findsOneWidget);
+      expect(find.text('Требуется авторизация'), findsOneWidget);
     });
   });
 }

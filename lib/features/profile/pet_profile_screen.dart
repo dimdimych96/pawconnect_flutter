@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/colors.dart';
+import '../../core/widgets/auth_prompt_modal.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
 import '../../core/widgets/pill_toast.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/map_provider.dart';
 import '../../providers/reminders_provider.dart';
 import 'widgets/new_reminder_modal.dart';
@@ -43,6 +45,11 @@ class PetProfileScreen extends ConsumerWidget {
   }
 
   void _openNewReminderModal(BuildContext context, WidgetRef ref) {
+    final authState = ref.read(authNotifierProvider);
+    if (!authState.isAuthenticated) {
+      AuthPromptModal.show(context, action: 'добавлять ветеринарные напоминания');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -63,6 +70,7 @@ class PetProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
     final mapState = ref.watch(mapNotifierProvider);
     final mapNotifier = ref.read(mapNotifierProvider.notifier);
     final gpsDevice = mapState.gpsDevice;
@@ -92,6 +100,69 @@ class PetProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Guest Mode Invitation Banner
+              if (!authState.isAuthenticated) ...[
+                GlassCard(
+                  borderRadius: 20,
+                  padding: const EdgeInsets.all(16),
+                  accentColor: AppColors.accentBlue,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.accentBlue.withValues(alpha: 0.15),
+                          border: Border.all(
+                            color: AppColors.accentBlue.withValues(alpha: 0.45),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: const Icon(Icons.pets_rounded, color: AppColors.accentBlue, size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Демо-просмотр паспорта',
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Войдите, чтобы подключить ошейник и настроить зоны безопасности',
+                              style: TextStyle(
+                                color: AppColors.textSecondary.withValues(alpha: 0.85),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () => context.push('/auth'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accentBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                        ),
+                        child: const Text('Войти', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
               // 1. Pet Passport Card
               GlassCard(

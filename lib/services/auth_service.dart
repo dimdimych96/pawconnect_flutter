@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/config/app_config.dart';
 import '../models/auth_model.dart';
 
@@ -25,8 +26,13 @@ class SecureAuthStorage implements AuthStorage {
 
   @override
   Future<void> saveTokens(AuthTokens tokens) async {
+    final encoded = jsonEncode(tokens.toJson());
     try {
-      await _storage.write(key: _tokensKey, value: jsonEncode(tokens.toJson()));
+      await _storage.write(key: _tokensKey, value: encoded);
+    } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokensKey, encoded);
     } catch (_) {}
   }
 
@@ -34,6 +40,13 @@ class SecureAuthStorage implements AuthStorage {
   Future<AuthTokens?> getTokens() async {
     try {
       final raw = await _storage.read(key: _tokensKey);
+      if (raw != null) {
+        return AuthTokens.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      }
+    } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_tokensKey);
       if (raw != null) {
         return AuthTokens.fromJson(jsonDecode(raw) as Map<String, dynamic>);
       }
@@ -46,12 +59,21 @@ class SecureAuthStorage implements AuthStorage {
     try {
       await _storage.delete(key: _tokensKey);
     } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokensKey);
+    } catch (_) {}
   }
 
   @override
   Future<void> saveUser(UserAuthModel user) async {
+    final encoded = jsonEncode(user.toJson());
     try {
-      await _storage.write(key: _userKey, value: jsonEncode(user.toJson()));
+      await _storage.write(key: _userKey, value: encoded);
+    } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userKey, encoded);
     } catch (_) {}
   }
 
@@ -63,6 +85,13 @@ class SecureAuthStorage implements AuthStorage {
         return UserAuthModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
       }
     } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_userKey);
+      if (raw != null) {
+        return UserAuthModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      }
+    } catch (_) {}
     return null;
   }
 
@@ -70,6 +99,10 @@ class SecureAuthStorage implements AuthStorage {
   Future<void> clearUser() async {
     try {
       await _storage.delete(key: _userKey);
+    } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_userKey);
     } catch (_) {}
   }
 }
@@ -178,11 +211,16 @@ class AuthService {
     }
 
     if (_allowMockFallback) {
+      final isAdmin = email.toLowerCase().contains('admin') ||
+          email.toLowerCase() == 'dmitryborona@gmail.com';
       final fallbackUser = UserAuthModel(
         id: 'usr-${email.hashCode.abs()}',
         email: email,
-        name: email.split('@').first,
-        avatarUrl: defaultUser.avatarUrl,
+        name: isAdmin ? 'Дмитрий Борона' : email.split('@').first,
+        role: isAdmin ? 'admin' : 'user',
+        avatarUrl: isAdmin
+            ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+            : defaultUser.avatarUrl,
         createdAt: DateTime.now(),
       );
       final fallbackTokens = defaultTokens;
@@ -235,11 +273,16 @@ class AuthService {
     }
 
     if (_allowMockFallback) {
+      final isAdmin = email.toLowerCase().contains('admin') ||
+          email.toLowerCase() == 'dmitryborona@gmail.com';
       final newUser = UserAuthModel(
         id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
-        name: name,
+        name: name.isNotEmpty ? name : (isAdmin ? 'Дмитрий Борона' : 'Владелец'),
         email: email,
-        avatarUrl: defaultUser.avatarUrl,
+        role: isAdmin ? 'admin' : 'user',
+        avatarUrl: isAdmin
+            ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+            : defaultUser.avatarUrl,
         createdAt: DateTime.now(),
       );
       final newTokens = defaultTokens;

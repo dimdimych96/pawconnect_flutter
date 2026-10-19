@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
@@ -99,82 +100,143 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
 
-            // 1. Owner Profile Card
-            GlassCard(
-              borderRadius: 24,
-              padding: const EdgeInsets.all(18),
-              onTap: () => _openEditProfileModal(context, ref, ownerName, ownerAvatar),
-              child: Row(
-                children: [
-                  PawAvatar(
-                    url: ownerAvatar,
-                    radius: 30,
-                    fallbackColor: AppColors.accentBlue,
-                    fallbackIcon: Icons.person_rounded,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                ownerName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ),
-                            if (authState.currentUser?.canPublishAsTeam ?? false) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppColors.accentGreen.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.verified, size: 12, color: AppColors.accentGreen),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Админ',
-                                      style: TextStyle(
-                                        color: AppColors.accentGreen,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '$ownerEmail • Редактировать',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.accentBlue,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+            // 1. Profile Card (Guest or Owner)
+            if (!authState.isAuthenticated) ...[
+              GlassCard(
+                borderRadius: 24,
+                padding: const EdgeInsets.all(20),
+                accentColor: AppColors.accentBlue,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.08),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                      ),
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        color: AppColors.textSecondary,
+                        size: 30,
+                      ),
                     ),
-                  ),
-                  const Icon(Icons.edit_rounded, color: AppColors.accentBlue, size: 20),
-                ],
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Гость PawConnect',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Вход не выполнен',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary.withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => context.push('/auth'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.accentBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Войти', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ] else ...[
+              GlassCard(
+                borderRadius: 24,
+                padding: const EdgeInsets.all(18),
+                onTap: () => _openEditProfileModal(context, ref, ownerName, ownerAvatar),
+                child: Row(
+                  children: [
+                    PawAvatar(
+                      url: ownerAvatar,
+                      radius: 30,
+                      fallbackColor: AppColors.accentBlue,
+                      fallbackIcon: Icons.person_rounded,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  ownerName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              if (authState.currentUser?.canPublishAsTeam ?? false) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accentGreen.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.verified, size: 12, color: AppColors.accentGreen),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Админ',
+                                        style: TextStyle(
+                                          color: AppColors.accentGreen,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$ownerEmail • Редактировать',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.accentBlue,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.edit_rounded, color: AppColors.accentBlue, size: 20),
+                  ],
+                ),
+              ),
+            ],
 
             const SizedBox(height: 16),
 
@@ -251,37 +313,41 @@ class SettingsScreen extends ConsumerWidget {
                   Divider(height: 16, color: AppColors.glassBorderSubtle),
                   _DiagnosticRow(
                     label: 'Роль профиля',
-                    value: authState.currentUser?.role.toUpperCase() ?? 'USER',
+                    value: authState.isAuthenticated
+                        ? (authState.currentUser?.role.toUpperCase() ?? 'USER')
+                        : 'ГОСТЬ',
                     icon: (authState.currentUser?.canPublishAsTeam ?? false)
                         ? Icons.admin_panel_settings_rounded
-                        : Icons.person_rounded,
+                        : (authState.isAuthenticated ? Icons.person_rounded : Icons.person_outline_rounded),
                     color: (authState.currentUser?.canPublishAsTeam ?? false)
                         ? AppColors.accentGreen
-                        : AppColors.accentBlue,
+                        : (authState.isAuthenticated ? AppColors.accentBlue : AppColors.textSecondary),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            if (authState.isAuthenticated) ...[
+              const SizedBox(height: 24),
 
-            // 4. Logout Button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _showLogoutDialog(context, ref),
-                icon: const Icon(Icons.logout_rounded, color: AppColors.accentRed),
-                label: const Text(
-                  'Выйти из аккаунта',
-                  style: TextStyle(color: AppColors.accentRed, fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.accentRed.withValues(alpha: 0.5)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              // 4. Logout Button
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _showLogoutDialog(context, ref),
+                  icon: const Icon(Icons.logout_rounded, color: AppColors.accentRed),
+                  label: const Text(
+                    'Выйти из аккаунта',
+                    style: TextStyle(color: AppColors.accentRed, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: AppColors.accentRed.withValues(alpha: 0.5)),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

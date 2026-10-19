@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/colors.dart';
+import '../../core/widgets/auth_prompt_modal.dart';
 import '../../core/widgets/pill_toast.dart';
 import '../../models/auth_model.dart';
 import '../../models/community_post_model.dart';
@@ -49,6 +51,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
   }
 
   void _openNewPostModal(BuildContext context) {
+    final authState = ref.read(authNotifierProvider);
+    if (!authState.isAuthenticated) {
+      AuthPromptModal.show(context, action: 'публиковать посты в сообществе');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -115,6 +122,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
   }
 
   void _openNewStoryModal(BuildContext context) {
+    final authState = ref.read(authNotifierProvider);
+    if (!authState.isAuthenticated) {
+      AuthPromptModal.show(context, action: 'добавлять истории');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -135,11 +147,27 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
     );
   }
 
+  void _handleLike(CommunityPostModel post, CommunityNotifier notifier) {
+    final authState = ref.read(authNotifierProvider);
+    if (!authState.isAuthenticated) {
+      AuthPromptModal.show(context, action: 'ставить отметки «Нравится»');
+      return;
+    }
+    notifier.toggleLike(post.id);
+  }
+
+  void _handleBookmark(CommunityPostModel post, CommunityNotifier notifier) {
+    final authState = ref.read(authNotifierProvider);
+    if (!authState.isAuthenticated) {
+      AuthPromptModal.show(context, action: 'сохранять публикации в закладки');
+      return;
+    }
+    notifier.toggleBookmark(post.id);
+  }
+
   bool _isPostAuthor(CommunityPostModel post, UserAuthModel? currentUser) {
     if (currentUser == null) {
-      return post.authorName == 'Дмитрий Борона' ||
-          post.authorName == 'Владелец' ||
-          post.authorName == 'PawConnect Team';
+      return false;
     }
     if (currentUser.canPublishAsTeam && post.isOfficial) return true;
     if (post.authorId != null && post.authorId == currentUser.id) return true;
@@ -193,7 +221,14 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
       comments: cachedComments.isNotEmpty
           ? cachedComments
           : (state.postCommentsCache[postId] ?? const []),
-      onAddComment: (text) => notifier.addComment(postId, text),
+      onAddComment: (text) async {
+        final authState = ref.read(authNotifierProvider);
+        if (!authState.isAuthenticated) {
+          AuthPromptModal.show(context, action: 'оставлять комментарии');
+          return;
+        }
+        await notifier.addComment(postId, text);
+      },
     );
   }
 
@@ -313,35 +348,77 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
             ],
           ),
 
-          // Create Post Button
-          IconButton(
-            key: const ValueKey('feed_add_post_button'),
-            tooltip: 'Создать запись',
-            icon: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+          // Action Buttons: Guest Login Pill & Create Post Button
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!ref.watch(authNotifierProvider).isAuthenticated) ...[
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    key: const ValueKey('feed_guest_login_button'),
+                    onTap: () => context.push('/auth'),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentBlue.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.accentBlue.withValues(alpha: 0.45),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.login_rounded, size: 14, color: AppColors.accentBlue),
+                          SizedBox(width: 5),
+                          Text(
+                            'Войти',
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
+                ),
+                const SizedBox(width: 8),
+              ],
+              IconButton(
+                key: const ValueKey('feed_add_post_button'),
+                tooltip: 'Создать запись',
+                icon: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+                onPressed: () => _openNewPostModal(context),
               ),
-              child: const Icon(
-                Icons.add_rounded,
-                color: Colors.white,
-                size: 22,
-              ),
-            ),
-            onPressed: () => _openNewPostModal(context),
+            ],
           ),
         ],
       ),
@@ -409,8 +486,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                   post: post,
                   isAuthor: isAuthor,
                   isAdmin: isAdmin,
-                  onLike: () => notifier.toggleLike(post.id),
-                  onBookmark: () => notifier.toggleBookmark(post.id),
+                  onLike: () => _handleLike(post, notifier),
+                  onBookmark: () => _handleBookmark(post, notifier),
                   onComment: () => _openComments(context, notifier, state, post.id),
                   onEdit: canEdit ? () => _openEditPostModal(context, post) : null,
                   onDelete: canDelete ? () => _handleDeletePost(context, post) : null,
@@ -592,8 +669,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                         post: post,
                         isAuthor: isAuthor,
                         isAdmin: isAdmin,
-                        onLike: () => notifier.toggleLike(post.id),
-                        onBookmark: () => notifier.toggleBookmark(post.id),
+                        onLike: () => _handleLike(post, notifier),
+                        onBookmark: () => _handleBookmark(post, notifier),
                         onComment: () => _openComments(context, notifier, state, post.id),
                         onEdit: canEdit ? () => _openEditPostModal(context, post) : null,
                         onDelete: canDelete ? () => _handleDeletePost(context, post) : null,
@@ -770,8 +847,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                         post: post,
                         isAuthor: isAuthor,
                         isAdmin: isAdmin,
-                        onLike: () => notifier.toggleLike(post.id),
-                        onBookmark: () => notifier.toggleBookmark(post.id),
+                        onLike: () => _handleLike(post, notifier),
+                        onBookmark: () => _handleBookmark(post, notifier),
                         onComment: () => _openComments(context, notifier, state, post.id),
                         onEdit: canEdit ? () => _openEditPostModal(context, post) : null,
                         onDelete: canDelete ? () => _handleDeletePost(context, post) : null,

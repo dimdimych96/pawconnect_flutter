@@ -20,12 +20,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/feed',
     redirect: (context, state) {
       final isAuthRoute = state.matchedLocation == '/auth';
-      if (!authState.isAuthenticated) {
-        return isAuthRoute ? null : '/auth';
-      }
+      // If the user is already authenticated and visits /auth, redirect to /feed
       if (isAuthRoute && authState.isAuthenticated) {
         return '/feed';
       }
+      // Unauthenticated visitors freely explore the app in guest mode
       return null;
     },
     routes: [

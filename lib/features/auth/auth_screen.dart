@@ -108,6 +108,59 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ),
           ),
 
+          // Top Back Navigation Button
+          Positioned(
+            top: 16,
+            left: 16,
+            child: SafeArea(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/feed');
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xC8141916),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: AppColors.textPrimary),
+                            SizedBox(width: 6),
+                            Text(
+                              'К ленте',
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           // Main Content
           SafeArea(
             child: Center(
@@ -305,9 +358,30 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                         ),
                                       ),
                               ),
+                              const SizedBox(height: 12),
 
-                              const SizedBox(height: 16),
-
+                              // Continue as Guest Action
+                              TextButton(
+                                onPressed: () {
+                                  if (context.canPop()) {
+                                    context.pop();
+                                  } else {
+                                    context.go('/feed');
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.textSecondary,
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                                child: const Text(
+                                  'Продолжить как гость',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
