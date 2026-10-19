@@ -143,17 +143,22 @@ class MainShell extends ConsumerWidget {
             ),
           ),
 
-          // Global Top Emergency Geofence Breach Banner
-          if (isBreached)
+          // Global Top Emergency Geofence Breach Banner or Hazard Proximity Warning
+          if (isBreached || mapState.activeHazardNearby != null)
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: BreachAlertBanner(
-                petName: gpsDevice?.petName ?? 'Макс',
+                petName: isBreached ? (gpsDevice?.petName ?? 'Макс') : null,
+                hazardTitle: !isBreached ? mapState.activeHazardNearby?.title : null,
                 onNavigateToMap: () {
                   navigationShell.goBranch(1);
-                  ref.read(mapNotifierProvider.notifier).selectMarker(null);
+                  if (!isBreached && mapState.activeHazardNearby != null) {
+                    ref.read(mapNotifierProvider.notifier).selectMarker(mapState.activeHazardNearby);
+                  } else {
+                    ref.read(mapNotifierProvider.notifier).selectMarker(null);
+                  }
                 },
               ),
             ),

@@ -21,6 +21,8 @@ class CategoryMarkerWidget extends StatelessWidget {
         return AppColors.accentGreen;
       case 'companion':
         return AppColors.accentBlue;
+      case 'danger':
+        return const Color(0xFFF59E0B);
       default:
         return AppColors.accentBlue;
     }
@@ -34,6 +36,17 @@ class CategoryMarkerWidget extends StatelessWidget {
         return Icons.park_rounded;
       case 'companion':
         return Icons.pets_rounded;
+      case 'danger':
+        switch (marker.dangerType) {
+          case 'poison':
+            return Icons.pest_control_rounded;
+          case 'aggressive_pack':
+            return Icons.groups_rounded;
+          case 'broken_glass':
+            return Icons.warning_amber_rounded;
+          default:
+            return Icons.report_problem_rounded;
+        }
       default:
         return Icons.location_on_rounded;
     }

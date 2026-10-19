@@ -441,6 +441,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               child: MarkerDetailSheet(
                 marker: mapState.selectedMarker!,
                 onClose: () => mapNotifier.selectMarker(null),
+                onVerifyHazard: (markerId, action) {
+                  mapNotifier.verifyHazard(markerId, action);
+                },
                 onBuildRoute: () async {
                   final dest = LatLng(mapState.selectedMarker!.latitude, mapState.selectedMarker!.longitude);
                   await mapNotifier.buildRouteTo(

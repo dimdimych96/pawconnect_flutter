@@ -10,12 +10,14 @@ class MarkerDetailSheet extends StatelessWidget {
   final MapMarkerModel marker;
   final VoidCallback onClose;
   final VoidCallback? onBuildRoute;
+  final void Function(String markerId, String action)? onVerifyHazard;
 
   const MarkerDetailSheet({
     super.key,
     required this.marker,
     required this.onClose,
     this.onBuildRoute,
+    this.onVerifyHazard,
   });
 
   Color _getBadgeColor() {
@@ -26,12 +28,30 @@ class MarkerDetailSheet extends StatelessWidget {
         return AppColors.accentGreen;
       case 'companion':
         return AppColors.accentBlue;
+      case 'danger':
+        return const Color(0xFFF59E0B);
       default:
         return AppColors.accentBlue;
     }
   }
 
+  String _getDangerTypeName(String type) {
+    switch (type) {
+      case 'poison':
+        return '☠️ Отрава / Догхантеры';
+      case 'aggressive_pack':
+        return '🐕‍🦺 Агрессивная стая';
+      case 'broken_glass':
+        return '⚠️ Битое стекло';
+      default:
+        return '⚠️ Опасный участок';
+    }
+  }
+
   List<String> _getMockGalleryImages() {
+    if (marker.type == 'danger') {
+      return [];
+    }
     if (marker.type == 'lost_pet' || marker.type == 'companion') {
       return [
         marker.image ?? 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80',
@@ -213,6 +233,106 @@ class MarkerDetailSheet extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
+
+              // Hazard Radar Verification Deck (for danger markers)
+              if (marker.type == 'danger') ...[
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.shield_outlined, size: 16, color: Color(0xFFF59E0B)),
+                          const SizedBox(width: 6),
+                          const Text(
+                            'РАДАР БЕЗОПАСНОСТИ',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFFF59E0B),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            marker.dangerType != null ? _getDangerTypeName(marker.dangerType!) : 'Опасная зона',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Подтверждений: ${marker.confirmationsCount}  •  Сообщений об очистке: ${marker.clearedCount}',
+                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                onVerifyHazard?.call(marker.id, 'confirm');
+                                PawToast.show(
+                                  context,
+                                  title: 'Актуальность опасности подтверждена (+1)',
+                                  type: ToastType.info,
+                                );
+                              },
+                              icon: const Icon(Icons.thumb_up_alt_rounded, size: 14, color: Color(0xFFF59E0B)),
+                              label: const Text(
+                                'Актуально',
+                                style: TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                onVerifyHazard?.call(marker.id, 'cleared');
+                                PawToast.show(
+                                  context,
+                                  title: 'Отметка об очистке принята',
+                                  type: ToastType.success,
+                                );
+                              },
+                              icon: const Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.accentGreen),
+                              label: const Text(
+                                'Очищено',
+                                style: TextStyle(color: AppColors.accentGreen, fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: AppColors.accentGreen.withValues(alpha: 0.4)),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               // 4. Primary Action Buttons
               Row(

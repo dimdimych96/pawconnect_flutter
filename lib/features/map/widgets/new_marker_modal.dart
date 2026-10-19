@@ -24,6 +24,7 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
   final _descController = TextEditingController();
   final _breedController = TextEditingController();
   String _selectedType = 'lost_pet';
+  String _selectedDangerType = 'poison';
 
   @override
   void dispose() {
@@ -43,8 +44,10 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
       description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
       latitude: widget.currentLat + (0.001 - (0.002 * (DateTime.now().millisecond / 1000))),
       longitude: widget.currentLng + (0.001 - (0.002 * (DateTime.now().microsecond / 1000))),
-      breed: _breedController.text.trim().isEmpty ? null : _breedController.text.trim(),
+      breed: _selectedType == 'danger' ? null : (_breedController.text.trim().isEmpty ? null : _breedController.text.trim()),
       age: 'Не указан',
+      dangerType: _selectedType == 'danger' ? _selectedDangerType : null,
+      confirmationsCount: _selectedType == 'danger' ? 1 : 0,
       createdAt: DateTime.now(),
     );
 
@@ -88,7 +91,9 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
             const SizedBox(height: 16),
 
             // Type Segmented Selection
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 _TypeChip(
                   label: '🚨 Потеряшка',
@@ -97,7 +102,6 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
                   isSelected: _selectedType == 'lost_pet',
                   onTap: () => setState(() => _selectedType = 'lost_pet'),
                 ),
-                const SizedBox(width: 8),
                 _TypeChip(
                   label: '🦮 Площадка',
                   type: 'playground',
@@ -105,7 +109,6 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
                   isSelected: _selectedType == 'playground',
                   onTap: () => setState(() => _selectedType = 'playground'),
                 ),
-                const SizedBox(width: 8),
                 _TypeChip(
                   label: '🐾 Прогулка',
                   type: 'companion',
@@ -113,16 +116,81 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
                   isSelected: _selectedType == 'companion',
                   onTap: () => setState(() => _selectedType = 'companion'),
                 ),
+                _TypeChip(
+                  label: '⚠️ Опасность',
+                  type: 'danger',
+                  color: const Color(0xFFF59E0B),
+                  isSelected: _selectedType == 'danger',
+                  onTap: () => setState(() => _selectedType = 'danger'),
+                ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
+            // Danger Type Sub-selector (if danger selected)
+            if (_selectedType == 'danger') ...[
+              const Text(
+                'Тип угрозы (Радар безопасности):',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  ChoiceChip(
+                    label: const Text('☠️ Отрава / яд', style: TextStyle(fontSize: 11)),
+                    selected: _selectedDangerType == 'poison',
+                    onSelected: (val) {
+                      if (val) setState(() => _selectedDangerType = 'poison');
+                    },
+                    selectedColor: const Color(0xFFF59E0B),
+                    backgroundColor: AppColors.obsidianGlassSurface,
+                    showCheckmark: false,
+                  ),
+                  ChoiceChip(
+                    label: const Text('🐕‍🦺 Стая собак', style: TextStyle(fontSize: 11)),
+                    selected: _selectedDangerType == 'aggressive_pack',
+                    onSelected: (val) {
+                      if (val) setState(() => _selectedDangerType = 'aggressive_pack');
+                    },
+                    selectedColor: const Color(0xFFF59E0B),
+                    backgroundColor: AppColors.obsidianGlassSurface,
+                    showCheckmark: false,
+                  ),
+                  ChoiceChip(
+                    label: const Text('⚠️ Битое стекло', style: TextStyle(fontSize: 11)),
+                    selected: _selectedDangerType == 'broken_glass',
+                    onSelected: (val) {
+                      if (val) setState(() => _selectedDangerType = 'broken_glass');
+                    },
+                    selectedColor: const Color(0xFFF59E0B),
+                    backgroundColor: AppColors.obsidianGlassSurface,
+                    showCheckmark: false,
+                  ),
+                  ChoiceChip(
+                    label: const Text('❓ Другое', style: TextStyle(fontSize: 11)),
+                    selected: _selectedDangerType == 'other',
+                    onSelected: (val) {
+                      if (val) setState(() => _selectedDangerType = 'other');
+                    },
+                    selectedColor: const Color(0xFFF59E0B),
+                    backgroundColor: AppColors.obsidianGlassSurface,
+                    showCheckmark: false,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
 
             // Title Field
             TextField(
               controller: _titleController,
               style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
-                hintText: 'Название (например, Пропал хаски Арчи)',
+                hintText: _selectedType == 'danger'
+                    ? 'Что произошло? (например, Рассыпан яд на газоне)'
+                    : 'Название (например, Пропал хаски Арчи)',
                 hintStyle: const TextStyle(color: AppColors.textSecondary),
                 filled: true,
                 fillColor: AppColors.obsidianGlassSurface,
@@ -142,26 +210,28 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
             ),
             const SizedBox(height: 12),
 
-            // Breed Field
-            TextField(
-              controller: _breedController,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Порода (необязательно)',
-                hintStyle: const TextStyle(color: AppColors.textSecondary),
-                filled: true,
-                fillColor: AppColors.obsidianGlassSurface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.glassBorder),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
+            // Breed Field (only for lost pet or companion)
+            if (_selectedType != 'danger') ...[
+              TextField(
+                controller: _breedController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'Порода (необязательно)',
+                  hintStyle: const TextStyle(color: AppColors.textSecondary),
+                  filled: true,
+                  fillColor: AppColors.obsidianGlassSurface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: AppColors.glassBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
+            ],
 
             // Description Field
             TextField(
@@ -191,13 +261,13 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
               child: ElevatedButton(
                 onPressed: _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentGreen,
+                  backgroundColor: _selectedType == 'danger' ? const Color(0xFFF59E0B) : AppColors.accentGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text(
-                  'Опубликовать метку',
-                  style: TextStyle(
+                child: Text(
+                  _selectedType == 'danger' ? 'Опубликовать предупреждение' : 'Опубликовать метку',
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -229,27 +299,25 @@ class _TypeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.25) : AppColors.obsidianGlassSurface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? color : AppColors.glassBorderSubtle,
-              width: isSelected ? 1.5 : 1.0,
-            ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.25) : AppColors.obsidianGlassSurface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : AppColors.glassBorderSubtle,
+            width: isSelected ? 1.5 : 1.0,
           ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? color : AppColors.textSecondary,
-            ),
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? color : AppColors.textSecondary,
           ),
         ),
       ),

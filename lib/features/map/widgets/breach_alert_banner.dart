@@ -4,17 +4,22 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/colors.dart';
 
 class BreachAlertBanner extends StatelessWidget {
-  final String petName;
+  final String? petName;
+  final String? hazardTitle;
   final VoidCallback onNavigateToMap;
 
   const BreachAlertBanner({
     super.key,
-    required this.petName,
+    this.petName,
+    this.hazardTitle,
     required this.onNavigateToMap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isHazard = hazardTitle != null;
+    final bannerColor = isHazard ? const Color(0xFFD97706) : AppColors.accentRed;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0),
@@ -26,7 +31,7 @@ class BreachAlertBanner extends StatelessWidget {
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.accentRed.withValues(alpha: 0.90),
+                color: bannerColor.withValues(alpha: 0.92),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.4),
@@ -34,7 +39,7 @@ class BreachAlertBanner extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.accentRed.withValues(alpha: 0.6),
+                    color: bannerColor.withValues(alpha: 0.6),
                     blurRadius: 20,
                     spreadRadius: 2,
                     offset: const Offset(0, 4),
@@ -43,8 +48,8 @@ class BreachAlertBanner extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.warning_amber_rounded,
+                  Icon(
+                    isHazard ? Icons.shield_outlined : Icons.warning_amber_rounded,
                     color: Colors.white,
                     size: 28,
                   ),
@@ -54,9 +59,9 @@ class BreachAlertBanner extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'ТРЕВОГА ГЕОЗОНЫ',
-                          style: TextStyle(
+                        Text(
+                          isHazard ? 'РАДАР БЕЗОПАСНОСТИ' : 'ТРЕВОГА ГЕОЗОНЫ',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
                             fontSize: 11,
@@ -65,12 +70,16 @@ class BreachAlertBanner extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Собака $petName покинула безопасную зону!',
+                          isHazard
+                              ? 'Внимание: опасная зона в радиусе 300м ($hazardTitle)'
+                              : 'Собака ${petName ?? 'Питомец'} покинула безопасную зону!',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -78,12 +87,14 @@ class BreachAlertBanner extends StatelessWidget {
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () {
-                      context.go('/map');
+                      try {
+                        context.go('/map');
+                      } catch (_) {}
                       onNavigateToMap();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: AppColors.accentRed,
+                      foregroundColor: bannerColor,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       shape: RoundedRectangleBorder(
