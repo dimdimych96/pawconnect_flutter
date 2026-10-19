@@ -13,6 +13,9 @@ class CommunityPostModel {
   final bool isLiked;
   final int commentsCount;
   final bool isBookmarked;
+  final int volunteersCount;
+  final int sightingsCount;
+  final bool isVolunteering;
   final DateTime createdAt;
   final String? imageUrl;
 
@@ -31,6 +34,9 @@ class CommunityPostModel {
     required this.isLiked,
     this.commentsCount = 0,
     this.isBookmarked = false,
+    this.volunteersCount = 0,
+    this.sightingsCount = 0,
+    this.isVolunteering = false,
     required this.createdAt,
     this.imageUrl,
   });
@@ -39,10 +45,10 @@ class CommunityPostModel {
     return CommunityPostModel(
       id: json['id'] ?? '',
       authorId: json['authorId'] ?? json['author_id']?.toString(),
-      authorName: json['authorName'] ?? 'Аноним',
-      isOfficial: json['isOfficial'] ?? false,
-      authorAvatar: json['authorAvatar'],
-      petName: json['petName'],
+      authorName: json['authorName'] ?? json['author_name'] ?? 'Аноним',
+      isOfficial: json['isOfficial'] ?? json['is_official'] ?? false,
+      authorAvatar: json['authorAvatar'] ?? json['author_avatar'],
+      petName: json['petName'] ?? json['pet_name'],
       district: json['district'] ?? 'Центральный',
       category: json['category'] ?? 'general',
       title: json['title'] ?? '',
@@ -51,6 +57,9 @@ class CommunityPostModel {
       isLiked: json['isLiked'] ?? json['is_liked'] ?? false,
       commentsCount: json['commentsCount'] ?? json['comments_count'] ?? 0,
       isBookmarked: json['isBookmarked'] ?? json['is_bookmarked'] ?? false,
+      volunteersCount: json['volunteersCount'] ?? json['volunteers_count'] ?? 0,
+      sightingsCount: json['sightingsCount'] ?? json['sightings_count'] ?? 0,
+      isVolunteering: json['isVolunteering'] ?? json['is_volunteering'] ?? false,
       createdAt: DateTime.tryParse(json['createdAt'] ?? json['created_at'] ?? '') ?? DateTime.now(),
       imageUrl: json['imageUrl'] ?? json['photo_url'],
     );
@@ -81,6 +90,12 @@ class CommunityPostModel {
         'comments_count': commentsCount,
         'isBookmarked': isBookmarked,
         'is_bookmarked': isBookmarked,
+        'volunteersCount': volunteersCount,
+        'volunteers_count': volunteersCount,
+        'sightingsCount': sightingsCount,
+        'sightings_count': sightingsCount,
+        'isVolunteering': isVolunteering,
+        'is_volunteering': isVolunteering,
         'createdAt': createdAt.toIso8601String(),
         'created_at': createdAt.toIso8601String(),
         'imageUrl': imageUrl,
@@ -102,6 +117,9 @@ class CommunityPostModel {
     bool? isLiked,
     int? commentsCount,
     bool? isBookmarked,
+    int? volunteersCount,
+    int? sightingsCount,
+    bool? isVolunteering,
     DateTime? createdAt,
     String? imageUrl,
   }) {
@@ -120,6 +138,9 @@ class CommunityPostModel {
       isLiked: isLiked ?? this.isLiked,
       commentsCount: commentsCount ?? this.commentsCount,
       isBookmarked: isBookmarked ?? this.isBookmarked,
+      volunteersCount: volunteersCount ?? this.volunteersCount,
+      sightingsCount: sightingsCount ?? this.sightingsCount,
+      isVolunteering: isVolunteering ?? this.isVolunteering,
       createdAt: createdAt ?? this.createdAt,
       imageUrl: imageUrl ?? this.imageUrl,
     );
