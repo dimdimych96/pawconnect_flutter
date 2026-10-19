@@ -18,7 +18,9 @@ import 'widgets/turn_by_turn_hud.dart';
 import 'widgets/right_control_rail.dart';
 import 'widgets/map_theme_sandbox_sheet.dart';
 import 'widgets/walk_session_hud.dart';
+import 'widgets/start_walk_modal.dart';
 import '../../models/route_model.dart';
+import '../../models/walk_session_model.dart';
 import '../../providers/map_theme_provider.dart';
 import '../../providers/walk_provider.dart';
 
@@ -131,6 +133,50 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         onAdd: (newMarker) {
           ref.read(mapNotifierProvider.notifier).addMarker(newMarker);
           _mapController.move(LatLng(newMarker.latitude, newMarker.longitude), 16.0);
+        },
+      ),
+    );
+  }
+
+  void _openStartWalkModal(double lat, double lng) {
+    final walkState = ref.read(walkNotifierProvider);
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StartWalkModal(
+        currentLat: lat,
+        currentLng: lng,
+        petName: walkState.activePetName,
+        defaultTemperament: walkState.userPetTemperament,
+        onStart: ({
+          required String petId,
+          required String petName,
+          required String walkMode,
+          required double latitude,
+          required double longitude,
+          required DogTemperament temperament,
+          String? note,
+        }) async {
+          final ok = await ref.read(walkNotifierProvider.notifier).startWalk(
+            petId: petId,
+            petName: petName,
+            walkMode: walkMode,
+            latitude: latitude,
+            longitude: longitude,
+            temperament: temperament,
+            note: note,
+          );
+          if (ok && mounted) {
+            PawToast.show(
+              context,
+              title: 'Вы на прогулке!',
+              subtitle: 'Радар выгула активирован',
+              type: ToastType.success,
+            );
+          }
+          return ok;
         },
       ),
     );
@@ -428,6 +474,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     _onMapInteraction();
                     setState(() => _isThemeSandboxOpen = true);
                   },
+                  onStartWalk: () {
+                    _onMapInteraction();
+                    _openStartWalkModal(maxLat, maxLng);
+                  },
+                  isWalking: ref.watch(walkNotifierProvider).isWalking,
                 ),
               ),
             ),

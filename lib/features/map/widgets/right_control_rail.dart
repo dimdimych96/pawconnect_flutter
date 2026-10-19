@@ -14,6 +14,8 @@ class RightControlRail extends StatefulWidget {
   final VoidCallback onAddEvent;
   final VoidCallback onBuildRoute;
   final VoidCallback? onOpenThemeSandbox;
+  final VoidCallback? onStartWalk;
+  final bool isWalking;
 
   const RightControlRail({
     super.key,
@@ -28,6 +30,8 @@ class RightControlRail extends StatefulWidget {
     required this.onAddEvent,
     required this.onBuildRoute,
     this.onOpenThemeSandbox,
+    this.onStartWalk,
+    this.isWalking = false,
   });
 
   @override
@@ -354,6 +358,19 @@ class _RightControlRailState extends State<RightControlRail> {
                     margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 4),
                     color: Colors.white.withValues(alpha: 0.10),
                   ),
+
+                  // Walk Radar Button (Start Walk / Walk Radar)
+                  _RailIconButton(
+                    icon: Icons.radar_rounded,
+                    tooltip: 'Радар прогулок • Выйти на выгул',
+                    isSelected: widget.isWalking,
+                    activeColor: AppColors.accentGreen,
+                    onTap: () {
+                      setState(() => _isLayersExpanded = false);
+                      widget.onStartWalk?.call();
+                    },
+                  ),
+                  const SizedBox(height: 5),
 
                   // Lower Section: Add Event (+) Button
                   _RailIconButton(
