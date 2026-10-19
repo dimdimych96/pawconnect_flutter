@@ -44,6 +44,7 @@ enum DogTemperament {
 
     if ((this == DogTemperament.playful && other == DogTemperament.playful) ||
         (this == DogTemperament.playful && other == DogTemperament.energetic) ||
+        (this == DogTemperament.energetic && other == DogTemperament.playful) ||
         (this == DogTemperament.energetic && other == DogTemperament.energetic)) {
       return const CompatibilityResult(
         level: CompatibilityLevel.high,

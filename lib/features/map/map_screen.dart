@@ -19,6 +19,7 @@ import 'widgets/right_control_rail.dart';
 import 'widgets/map_theme_sandbox_sheet.dart';
 import '../../models/route_model.dart';
 import '../../providers/map_theme_provider.dart';
+import '../../providers/walk_provider.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -443,6 +444,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 onClose: () => mapNotifier.selectMarker(null),
                 onVerifyHazard: (markerId, action) {
                   mapNotifier.verifyHazard(markerId, action);
+                },
+                userTemperament: ref.watch(walkNotifierProvider).userPetTemperament,
+                onInviteWalk: (markerId) {
+                  ref.read(walkNotifierProvider.notifier).sendWalkInvite(toPetId: markerId);
                 },
                 onBuildRoute: () async {
                   final dest = LatLng(mapState.selectedMarker!.latitude, mapState.selectedMarker!.longitude);

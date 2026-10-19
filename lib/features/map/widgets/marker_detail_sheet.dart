@@ -5,12 +5,15 @@ import '../../../core/widgets/glass_widgets.dart';
 import '../../../core/widgets/paw_image.dart';
 import '../../../core/widgets/pill_toast.dart';
 import '../../../models/map_marker_model.dart';
+import '../../../models/walk_session_model.dart';
 
 class MarkerDetailSheet extends StatelessWidget {
   final MapMarkerModel marker;
   final VoidCallback onClose;
   final VoidCallback? onBuildRoute;
   final void Function(String markerId, String action)? onVerifyHazard;
+  final DogTemperament? userTemperament;
+  final void Function(String markerId)? onInviteWalk;
 
   const MarkerDetailSheet({
     super.key,
@@ -18,6 +21,8 @@ class MarkerDetailSheet extends StatelessWidget {
     required this.onClose,
     this.onBuildRoute,
     this.onVerifyHazard,
+    this.userTemperament,
+    this.onInviteWalk,
   });
 
   Color _getBadgeColor() {
@@ -27,7 +32,7 @@ class MarkerDetailSheet extends StatelessWidget {
       case 'playground':
         return AppColors.accentGreen;
       case 'companion':
-        return AppColors.accentBlue;
+        return AppColors.accentGreen;
       case 'danger':
         return const Color(0xFFF59E0B);
       default:
@@ -334,6 +339,11 @@ class MarkerDetailSheet extends StatelessWidget {
                 ),
               ],
 
+              // Walk Radar & Compatibility Deck (for companion or walking markers)
+              if (marker.type == 'companion' || marker.isWalking) ...[
+                _buildWalkRadarCompanionDeck(context),
+              ],
+
               // 4. Primary Action Buttons
               Row(
                 children: [
@@ -576,6 +586,190 @@ class MarkerDetailSheet extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildWalkRadarCompanionDeck(BuildContext context) {
+    final otherTemperament = DogTemperament.fromString(marker.temperament);
+    final myTemperament = userTemperament ?? DogTemperament.playful;
+    final compat = myTemperament.checkCompatibility(otherTemperament);
+    final isPrivate = marker.walkMode == 'private';
+    final walkTimeMin = marker.walkStartedAt != null
+        ? DateTime.now().difference(marker.walkStartedAt!).inMinutes.clamp(1, 180)
+        : 20;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.accentGreen.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.accentGreen.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header badge
+          Row(
+            children: [
+              const Icon(Icons.radar_rounded, size: 16, color: AppColors.accentGreen),
+              const SizedBox(width: 6),
+              const Text(
+                'РАДАР ПРОГУЛОК',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.accentGreen,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: (isPrivate ? const Color(0xFFA78BFA) : AppColors.accentGreen).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  isPrivate ? '🛡️ Приватный выгул' : '🌿 Открытый выгул',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: isPrivate ? const Color(0xFFA78BFA) : AppColors.accentGreen,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Walk telemetry chips
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.timer_outlined, size: 13, color: AppColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Гуляет ~$walkTimeMin мин',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: otherTemperament.color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(otherTemperament.emoji, style: const TextStyle(fontSize: 11)),
+                    const SizedBox(width: 4),
+                    Text(
+                      otherTemperament.label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: otherTemperament.color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Compatibility Matrix Box
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: compat.badgeColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: compat.badgeColor.withValues(alpha: 0.25),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(compat.emoji, style: const TextStyle(fontSize: 20)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        compat.title,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: compat.badgeColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        compat.subtitle,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                          height: 1.25,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Invite to Walk Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                onInviteWalk?.call(marker.id);
+                PawToast.show(
+                  context,
+                  title: 'Приглашение отправлено!',
+                  subtitle: 'Владелец получит уведомление на радаре прогулок',
+                  type: ToastType.success,
+                );
+              },
+              icon: const Icon(Icons.pets_rounded, size: 15, color: Colors.black),
+              label: const Text(
+                'Позвать на совместный выгул',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentGreen,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

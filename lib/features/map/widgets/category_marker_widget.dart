@@ -3,6 +3,8 @@ import '../../../core/theme/colors.dart';
 import '../../../core/widgets/paw_image.dart';
 import '../../../models/map_marker_model.dart';
 
+import 'companion_walk_marker.dart';
+
 class CategoryMarkerWidget extends StatelessWidget {
   final MapMarkerModel marker;
   final VoidCallback onTap;
@@ -20,7 +22,7 @@ class CategoryMarkerWidget extends StatelessWidget {
       case 'playground':
         return AppColors.accentGreen;
       case 'companion':
-        return AppColors.accentBlue;
+        return AppColors.accentGreen;
       case 'danger':
         return const Color(0xFFF59E0B);
       default:
@@ -54,6 +56,10 @@ class CategoryMarkerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (marker.type == 'companion' || marker.isWalking) {
+      return CompanionWalkMarker(marker: marker, onTap: onTap);
+    }
+
     final badgeColor = _getBadgeColor();
 
     return GestureDetector(
