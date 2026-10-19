@@ -1,5 +1,6 @@
 import uuid
 import math
+from datetime import datetime, timezone, timedelta
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +8,12 @@ from sqlalchemy import select
 from ....db.session import get_db
 from ....models.user import User
 from ....models.marker import MapMarker
-from ....schemas.marker import MapMarkerCreate, MapMarkerUpdate, MapMarkerResponse
+from ....schemas.marker import (
+    MapMarkerCreate,
+    MapMarkerUpdate,
+    MapMarkerResponse,
+    MapMarkerVerifyRequest,
+)
 from ...deps import get_current_user, get_current_moderator
 
 router = APIRouter()
@@ -65,18 +71,50 @@ async def create_marker(
 ) -> Any:
     # Lost pets and danger zones are approved immediately; public dog parks undergo moderation
     initial_status = "approved" if marker_in.category in ["lost_pet", "danger"] else "approved"
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=48) if marker_in.category == "danger" else None
 
     marker = MapMarker(
         author_id=current_user.id,
         title=marker_in.title,
         description=marker_in.description,
         category=marker_in.category,
+        danger_type=marker_in.danger_type,
         status=initial_status,
         latitude=marker_in.latitude,
         longitude=marker_in.longitude,
         photo_url=marker_in.photo_url,
+        confirmations_count=1,
+        cleared_count=0,
+        expires_at=expires_at,
     )
     db.add(marker)
+    await db.commit()
+    await db.refresh(marker)
+    return MapMarkerResponse.model_validate(marker)
+
+
+@router.post("/{marker_id}/verify", response_model=MapMarkerResponse)
+async def verify_marker(
+    marker_id: uuid.UUID,
+    verify_in: MapMarkerVerifyRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Any:
+    result = await db.execute(select(MapMarker).where(MapMarker.id == marker_id))
+    marker = result.scalar_one_or_none()
+    if not marker:
+        raise HTTPException(status_code=404, detail="Метка не найдена")
+
+    if verify_in.action == "confirm":
+        marker.confirmations_count = (marker.confirmations_count or 1) + 1
+        marker.expires_at = datetime.now(timezone.utc) + timedelta(hours=48)
+    elif verify_in.action == "cleared":
+        marker.cleared_count = (marker.cleared_count or 0) + 1
+        if marker.cleared_count >= 3:
+            marker.status = "resolved"
+    else:
+        raise HTTPException(status_code=400, detail="Недопустимое действие. Используйте 'confirm' или 'cleared'")
+
     await db.commit()
     await db.refresh(marker)
     return MapMarkerResponse.model_validate(marker)
