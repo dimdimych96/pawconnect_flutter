@@ -86,9 +86,12 @@ class CommunityPostResponse(CommunityPostBase):
     author_avatar: Optional[str] = None
     likes_count: int = 0
     comments_count: int = 0
+    volunteers_count: int = 0
+    sightings_count: int = 0
     is_official: bool = False
     is_liked: bool = False
     is_bookmarked: bool = False
+    is_volunteering: bool = False
     created_at: datetime
 
     # CamelCase aliases for Flutter compatibility
@@ -99,8 +102,11 @@ class CommunityPostResponse(CommunityPostBase):
     isOfficial: Optional[bool] = None
     likesCount: Optional[int] = None
     commentsCount: Optional[int] = None
+    volunteersCount: Optional[int] = None
+    sightingsCount: Optional[int] = None
     isLiked: Optional[bool] = None
     isBookmarked: Optional[bool] = None
+    isVolunteering: Optional[bool] = None
     content: Optional[str] = None
     imageUrl: Optional[str] = None
     createdAt: Optional[datetime] = None
@@ -115,10 +121,13 @@ class CommunityPostResponse(CommunityPostBase):
         self.isOfficial = self.is_official
         self.likesCount = self.likes_count
         self.commentsCount = self.comments_count
+        self.volunteersCount = self.volunteers_count
+        self.sightingsCount = self.sightings_count
         self.content = self.text
         self.imageUrl = self.photo_url
         self.isLiked = self.is_liked
         self.isBookmarked = self.is_bookmarked
+        self.isVolunteering = self.is_volunteering
         self.createdAt = self.created_at
         return self
 
@@ -131,10 +140,13 @@ class CommunityPostResponse(CommunityPostBase):
         self.isOfficial = self.is_official
         self.likesCount = self.likes_count
         self.commentsCount = self.comments_count
+        self.volunteersCount = self.volunteers_count
+        self.sightingsCount = self.sightings_count
         self.content = self.text if self.content is None else self.content
         self.imageUrl = self.photo_url if self.imageUrl is None else self.imageUrl
         self.isLiked = self.is_liked
         self.isBookmarked = self.is_bookmarked
+        self.isVolunteering = self.is_volunteering
         self.createdAt = self.created_at if self.createdAt is None else self.createdAt
         return self
 

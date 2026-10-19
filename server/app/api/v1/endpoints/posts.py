@@ -3,12 +3,13 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, func
 from sqlalchemy.orm import selectinload
 from ....db.session import get_db
 from ....models.user import User
 from ....models.post import CommunityPost, PostComment
 from ....models.story import CommunityStory
+from ....models.sos import SOSSighting, SOSVolunteer
 from ....schemas.post import (
     CommunityPostCreate,
     CommunityPostUpdate,
@@ -17,6 +18,11 @@ from ....schemas.post import (
     StoryResponse,
     CommentCreate,
     CommentResponse,
+)
+from ....schemas.sos import (
+    SOSSightingCreate,
+    SOSSightingResponse,
+    SOSVolunteerStatusResponse,
 )
 from ...deps import get_current_user, get_current_user_optional
 
@@ -279,6 +285,7 @@ async def get_posts(
     skip: int = 0,
     limit: int = 50,
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ) -> Any:
     await ensure_showcase_data(db)
 
@@ -307,6 +314,21 @@ async def get_posts(
         resp_obj.is_official = bool(p.is_official)
         resp_obj.pet_name = p.pet_name
         resp_obj.title = p.title
+
+        # Query volunteer & sightings count
+        v_count_res = await db.execute(select(func.count(SOSVolunteer.id)).where(SOSVolunteer.post_id == p.id))
+        resp_obj.volunteers_count = v_count_res.scalar() or 0
+        s_count_res = await db.execute(select(func.count(SOSSighting.id)).where(SOSSighting.post_id == p.id))
+        resp_obj.sightings_count = s_count_res.scalar() or 0
+
+        if current_user:
+            is_vol_res = await db.execute(
+                select(SOSVolunteer.id).where(SOSVolunteer.post_id == p.id, SOSVolunteer.user_id == current_user.id)
+            )
+            resp_obj.is_volunteering = is_vol_res.scalar_one_or_none() is not None
+        else:
+            resp_obj.is_volunteering = False
+
         resp_obj.sync()
         response.append(resp_obj)
     return response
@@ -360,6 +382,9 @@ async def create_post(
     resp_obj.author_avatar = author_avatar
     resp_obj.is_official = is_official
     resp_obj.comments_count = 0
+    resp_obj.volunteers_count = 0
+    resp_obj.sightings_count = 0
+    resp_obj.is_volunteering = False
     resp_obj.sync()
     return resp_obj
 
@@ -562,4 +587,130 @@ async def create_comment(
         text=comment.text,
         likes_count=0,
         created_at=comment.created_at,
+    )
+
+
+@router.get("/{post_id}/sightings", response_model=List[SOSSightingResponse])
+async def get_post_sightings(
+    post_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> Any:
+    post_res = await db.execute(select(CommunityPost).where(CommunityPost.id == post_id))
+    if not post_res.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Пост не найден")
+
+    stmt = (
+        select(SOSSighting)
+        .options(selectinload(SOSSighting.author))
+        .where(SOSSighting.post_id == post_id)
+        .order_by(desc(SOSSighting.created_at))
+    )
+    result = await db.execute(stmt)
+    sightings = result.scalars().all()
+
+    response = []
+    for s in sightings:
+        s_resp = SOSSightingResponse(
+            id=s.id,
+            post_id=s.post_id,
+            author_id=s.author_id,
+            author_name=s.author.name if s.author else "Анонимный свидетель",
+            author_avatar=s.author.avatar_url if s.author else None,
+            latitude=s.latitude,
+            longitude=s.longitude,
+            note=s.note,
+            time_ago_str=s.time_ago_str,
+            photo_url=s.photo_url,
+            created_at=s.created_at,
+        )
+        response.append(s_resp)
+    return response
+
+
+@router.post("/{post_id}/sightings", response_model=SOSSightingResponse, status_code=status.HTTP_201_CREATED)
+async def create_post_sighting(
+    post_id: uuid.UUID,
+    sighting_in: SOSSightingCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+) -> Any:
+    post_res = await db.execute(select(CommunityPost).where(CommunityPost.id == post_id))
+    if not post_res.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Пост не найден")
+
+    if not current_user:
+        await ensure_showcase_data(db)
+        user_res = await db.execute(select(User).where(User.email == "demo@pawconnect.app"))
+        current_user = user_res.scalar_one_or_none()
+        if not current_user:
+            raise HTTPException(status_code=401, detail="Требуется авторизация")
+
+    sighting = SOSSighting(
+        post_id=post_id,
+        author_id=current_user.id,
+        latitude=sighting_in.latitude,
+        longitude=sighting_in.longitude,
+        note=sighting_in.note,
+        time_ago_str=sighting_in.time_ago_str,
+        photo_url=sighting_in.photo_url,
+    )
+    db.add(sighting)
+    await db.commit()
+    await db.refresh(sighting)
+
+    return SOSSightingResponse(
+        id=sighting.id,
+        post_id=sighting.post_id,
+        author_id=current_user.id,
+        author_name=current_user.name,
+        author_avatar=current_user.avatar_url,
+        latitude=sighting.latitude,
+        longitude=sighting.longitude,
+        note=sighting.note,
+        time_ago_str=sighting.time_ago_str,
+        photo_url=sighting.photo_url,
+        created_at=sighting.created_at,
+    )
+
+
+@router.post("/{post_id}/volunteer", response_model=SOSVolunteerStatusResponse)
+async def toggle_volunteer(
+    post_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+) -> Any:
+    post_res = await db.execute(select(CommunityPost).where(CommunityPost.id == post_id))
+    if not post_res.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Пост не найден")
+
+    if not current_user:
+        await ensure_showcase_data(db)
+        user_res = await db.execute(select(User).where(User.email == "demo@pawconnect.app"))
+        current_user = user_res.scalar_one_or_none()
+        if not current_user:
+            raise HTTPException(status_code=401, detail="Требуется авторизация")
+
+    existing = await db.execute(
+        select(SOSVolunteer).where(
+            SOSVolunteer.post_id == post_id,
+            SOSVolunteer.user_id == current_user.id,
+        )
+    )
+    vol = existing.scalar_one_or_none()
+    if vol:
+        await db.delete(vol)
+        await db.commit()
+        is_vol = False
+    else:
+        new_vol = SOSVolunteer(post_id=post_id, user_id=current_user.id)
+        db.add(new_vol)
+        await db.commit()
+        is_vol = True
+
+    count_res = await db.execute(select(func.count(SOSVolunteer.id)).where(SOSVolunteer.post_id == post_id))
+    total_volunteers = count_res.scalar() or 0
+
+    return SOSVolunteerStatusResponse(
+        is_volunteering=is_vol,
+        volunteers_count=total_volunteers,
     )
