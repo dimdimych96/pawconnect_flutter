@@ -14,6 +14,10 @@ class MapMarkerModel {
   final int clearedCount;
   final DateTime? expiresAt;
   final DateTime createdAt;
+  final String? temperament; // 'playful', 'calm', 'energetic', 'shy', 'reactive'
+  final String? walkMode; // 'open', 'private', 'training'
+  final bool isWalking;
+  final DateTime? walkStartedAt;
 
   MapMarkerModel({
     required this.id,
@@ -31,6 +35,10 @@ class MapMarkerModel {
     this.clearedCount = 0,
     this.expiresAt,
     required this.createdAt,
+    this.temperament,
+    this.walkMode,
+    this.isWalking = false,
+    this.walkStartedAt,
   });
 
   factory MapMarkerModel.fromJson(Map<String, dynamic> json) {
@@ -50,6 +58,10 @@ class MapMarkerModel {
       clearedCount: json['clearedCount'] ?? json['cleared_count'] ?? 0,
       expiresAt: DateTime.tryParse(json['expiresAt'] ?? json['expires_at'] ?? ''),
       createdAt: DateTime.tryParse(json['createdAt'] ?? json['created_at'] ?? '') ?? DateTime.now(),
+      temperament: json['temperament'],
+      walkMode: json['walkMode'] ?? json['walk_mode'],
+      isWalking: json['isWalking'] ?? json['is_walking'] ?? false,
+      walkStartedAt: DateTime.tryParse(json['walkStartedAt'] ?? json['walk_started_at'] ?? ''),
     );
   }
 
@@ -75,6 +87,13 @@ class MapMarkerModel {
         'expiresAt': expiresAt?.toIso8601String(),
         'expires_at': expiresAt?.toIso8601String(),
         'createdAt': createdAt.toIso8601String(),
+        'temperament': temperament,
+        'walkMode': walkMode,
+        'walk_mode': walkMode,
+        'isWalking': isWalking,
+        'is_walking': isWalking,
+        'walkStartedAt': walkStartedAt?.toIso8601String(),
+        'walk_started_at': walkStartedAt?.toIso8601String(),
       };
 
   MapMarkerModel copyWith({
@@ -93,6 +112,10 @@ class MapMarkerModel {
     int? clearedCount,
     DateTime? expiresAt,
     DateTime? createdAt,
+    String? temperament,
+    String? walkMode,
+    bool? isWalking,
+    DateTime? walkStartedAt,
   }) {
     return MapMarkerModel(
       id: id ?? this.id,
@@ -110,6 +133,10 @@ class MapMarkerModel {
       clearedCount: clearedCount ?? this.clearedCount,
       expiresAt: expiresAt ?? this.expiresAt,
       createdAt: createdAt ?? this.createdAt,
+      temperament: temperament ?? this.temperament,
+      walkMode: walkMode ?? this.walkMode,
+      isWalking: isWalking ?? this.isWalking,
+      walkStartedAt: walkStartedAt ?? this.walkStartedAt,
     );
   }
 }
