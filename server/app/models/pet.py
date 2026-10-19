@@ -30,6 +30,11 @@ class Pet(Base):
     is_walking = Column(Boolean, default=False, nullable=False, index=True)
     walk_mode = Column(String(30), default="open", nullable=False)  # 'open', 'private', 'training'
     walk_started_at = Column(DateTime(timezone=True), nullable=True)
+
+    weight_kg = Column(Float, nullable=True, default=11.4)
+    target_weight_kg = Column(Float, nullable=True, default=11.0)
+    bcs_score = Column(Integer, default=5, nullable=False)  # 1-9 Body Condition Score
+    activity_goal_minutes = Column(Integer, default=60, nullable=False)
     
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)

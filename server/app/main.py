@@ -8,7 +8,10 @@ from .core.config import settings
 from .api.v1.api import api_router
 from .db.session import engine, Base
 # Import all models to register with Base
-from .models import user, pet, marker, post, reminder, story, sos, walk
+from .models import user, pet, marker, post, reminder, story, sos, walk, breed
+from .models.breed import Breed, CURATED_BREEDS
+from .db.session import engine, Base, AsyncSessionLocal
+from sqlalchemy import select
 
 
 @asynccontextmanager
@@ -21,6 +24,17 @@ async def lifespan(app: FastAPI):
     os.makedirs(os.path.join(settings.MEDIA_ROOT, "avatars"), exist_ok=True)
     os.makedirs(os.path.join(settings.MEDIA_ROOT, "posts"), exist_ok=True)
     os.makedirs(os.path.join(settings.MEDIA_ROOT, "markers"), exist_ok=True)
+
+    # Seed curated breeds if empty
+    async with AsyncSessionLocal() as session:
+        try:
+            result = await session.execute(select(Breed).limit(1))
+            if not result.scalar_one_or_none():
+                for b_data in CURATED_BREEDS:
+                    session.add(Breed(**b_data))
+                await session.commit()
+        except Exception:
+            await session.rollback()
     
     yield
 
