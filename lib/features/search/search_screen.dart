@@ -4,8 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
-import '../../providers/map_provider.dart';
 import '../../models/map_marker_model.dart';
+import '../../models/specialist_model.dart';
+import '../../providers/map_provider.dart';
+import '../../providers/specialist_provider.dart';
+import 'widgets/specialist_card.dart';
+import 'widgets/specialist_inquiry_modal.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -16,7 +20,7 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _selectedCategory = 'all'; // 'all', 'lost_pet', 'playground', 'vet', 'companion'
+  String _selectedCategory = 'all'; // 'all', 'cynologist', 'dogsitter', 'groomer', 'vet', 'playground', 'lost_pet', 'companion'
 
   @override
   void dispose() {
@@ -50,28 +54,143 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
+  void _navigateToMapAndBuildRouteToSpecialist(SpecialistModel specialist) async {
+    final mapNotifier = ref.read(mapNotifierProvider.notifier);
+    context.go('/map');
+    await mapNotifier.buildRouteTo(
+      LatLng(specialist.latitude, specialist.longitude),
+      specialist.name,
+      type: 'specialist',
+    );
+  }
+
+  void _openSpecialistInquiry(SpecialistModel specialist) {
+    SpecialistInquiryModal.show(
+      context,
+      specialist: specialist,
+      onSubmit: (message) async {
+        return ref.read(specialistsNotifierProvider.notifier).sendInquiry(
+              specialist.id,
+              message: message,
+            );
+      },
+    );
+  }
+
+  Widget _buildFilterChip(String categoryId, String label) {
+    final isSelected = _selectedCategory == categoryId;
+    return Padding(
+      padding: const EdgeInsets.only(right: 6.0),
+      child: InkWell(
+        key: ValueKey('search_chip_$categoryId'),
+        onTap: () => _onTileTap(categoryId),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.accentGreen.withValues(alpha: 0.20)
+                : AppColors.obsidianGlassSurface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.accentGreen
+                  : Colors.white.withValues(alpha: 0.10),
+              width: isSelected ? 1.2 : 0.8,
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? AppColors.accentGreen : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mapState = ref.watch(mapNotifierProvider);
     final allMarkers = mapState.markers;
     final query = _searchController.text.trim().toLowerCase();
 
-    // Filter markers based on query and selected category tile
-    final filtered = allMarkers.where((m) {
+    // Specialists from provider
+    final specialistsState = ref.watch(specialistsNotifierProvider);
+    final allSpecialists = specialistsState.specialistsAsync.maybeWhen(
+      data: (list) => list,
+      orElse: () => <SpecialistModel>[],
+    );
+
+    // Filter specialists
+    final filteredSpecialists = allSpecialists.where((s) {
+      final matchesQuery = query.isEmpty ||
+          s.name.toLowerCase().contains(query) ||
+          (s.bio ?? '').toLowerCase().contains(query) ||
+          s.address.toLowerCase().contains(query) ||
+          s.professionTitle.toLowerCase().contains(query);
+
+      bool matchesCat;
+      if (_selectedCategory == 'all') {
+        matchesCat = true;
+      } else if (_selectedCategory == 'vet') {
+        matchesCat = s.profession == 'vet_specialist';
+      } else {
+        matchesCat = s.profession == _selectedCategory;
+      }
+
+      return matchesQuery && matchesCat;
+    }).toList();
+
+    // Filter markers based on query and selected category
+    final filteredMarkers = allMarkers.where((m) {
       final titleMatch = m.title.toLowerCase().contains(query);
       final descMatch = (m.description ?? '').toLowerCase().contains(query);
       final addrMatch = (m.address ?? '').toLowerCase().contains(query);
       final matchesQuery = query.isEmpty || titleMatch || descMatch || addrMatch;
 
-      final matchesCategory = _selectedCategory == 'all' || m.type == _selectedCategory;
+      bool matchesCategory;
+      if (_selectedCategory == 'all') {
+        matchesCategory = true;
+      } else if (_selectedCategory == 'cynologist' ||
+          _selectedCategory == 'dogsitter' ||
+          _selectedCategory == 'groomer') {
+        matchesCategory = false; // Only specialists for these categories
+      } else {
+        matchesCategory = m.type == _selectedCategory;
+      }
 
       return matchesQuery && matchesCategory;
     }).toList();
+
+    final totalCount = filteredSpecialists.length + filteredMarkers.length;
 
     // Counts for tiles
     final lostCount = allMarkers.where((m) => m.type == 'lost_pet').length;
     final playgroundCount = allMarkers.where((m) => m.type == 'playground').length;
     final companionCount = allMarkers.where((m) => m.type == 'companion').length;
+
+    String sectionTitle;
+    if (_selectedCategory == 'cynologist') {
+      sectionTitle = '🐕 Кинологи & Зоопсихологи';
+    } else if (_selectedCategory == 'dogsitter') {
+      sectionTitle = '🏡 Догситтеры & Передержка';
+    } else if (_selectedCategory == 'groomer') {
+      sectionTitle = '✂️ Мастера груминга';
+    } else if (_selectedCategory == 'vet') {
+      sectionTitle = '🏥 Ветеринарные центры & Скорая';
+    } else if (_selectedCategory == 'playground') {
+      sectionTitle = '🐶 Площадки для собак';
+    } else if (_selectedCategory == 'lost_pet') {
+      sectionTitle = '🐾 Объявления о пропажах';
+    } else if (_selectedCategory == 'companion') {
+      sectionTitle = '🎾 Поиск компаньонов';
+    } else {
+      sectionTitle = '📍 Верифицированные специалисты и места';
+    }
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -79,14 +198,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Clean Header Title (No district selector needed)
+            // 1. Clean Header Title
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text(
-                    'Поиск',
+                    'Поиск & Специалисты',
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 24,
@@ -96,7 +215,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                   SizedBox(height: 3),
                   Text(
-                    'Места, площадки и объявления поблизости',
+                    'Верифицированные кинологи, догситтеры, клиники и площадки',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
@@ -133,7 +252,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                           decoration: const InputDecoration(
-                            hintText: 'Введите имя питомца, клинику или место...',
+                            hintText: 'Поиск кинологов, клиник, догситтеров, мест...',
                             hintStyle: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 13,
@@ -161,97 +280,111 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ),
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
-            // 3. Interactive 2x2 Category Grid Tiles
+            // 3. Category Filter Chips Rail
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  // Tile 1: Lost Pets (SOS)
-                  Expanded(
-                    child: _CategoryTile(
-                      icon: Icons.warning_amber_rounded,
-                      title: 'Пропажи',
-                      subtitle: '$lostCount рядом',
-                      activeColor: AppColors.accentRed,
-                      isSelected: _selectedCategory == 'lost_pet',
-                      onTap: () => _onTileTap('lost_pet'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Tile 2: Playgrounds
-                  Expanded(
-                    child: _CategoryTile(
-                      icon: Icons.park_rounded,
-                      title: 'Площадки',
-                      subtitle: '$playgroundCount мест',
-                      activeColor: AppColors.accentGreen,
-                      isSelected: _selectedCategory == 'playground',
-                      onTap: () => _onTileTap('playground'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  // Tile 3: Vet Clinics
-                  Expanded(
-                    child: _CategoryTile(
-                      icon: Icons.local_hospital_rounded,
-                      title: 'Ветклиники',
-                      subtitle: '24/7 скорая',
-                      activeColor: AppColors.accentBlue,
-                      isSelected: _selectedCategory == 'vet',
-                      onTap: () => _onTileTap('vet'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Tile 4: Companions
-                  Expanded(
-                    child: _CategoryTile(
-                      icon: Icons.people_alt_rounded,
-                      title: 'Компаньоны',
-                      subtitle: '$companionCount онлайн',
-                      activeColor: AppColors.accentYellow,
-                      isSelected: _selectedCategory == 'companion',
-                      onTap: () => _onTileTap('companion'),
-                    ),
-                  ),
-                ],
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildFilterChip('all', '🐾 Все'),
+                    _buildFilterChip('cynologist', '🐕 Кинологи'),
+                    _buildFilterChip('dogsitter', '🏡 Догситтеры'),
+                    _buildFilterChip('groomer', '✂️ Груминг'),
+                    _buildFilterChip('vet', '🏥 Ветклиники'),
+                    _buildFilterChip('playground', '🌳 Площадки'),
+                    _buildFilterChip('lost_pet', '🚨 Пропажи'),
+                  ],
+                ),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
 
-            // Section Label
+            // 4. Quick 2x2 Category Grid Tiles (when on 'all' or quick browsing)
+            if (_selectedCategory == 'all') ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _CategoryTile(
+                        icon: Icons.warning_amber_rounded,
+                        title: 'Пропажи',
+                        subtitle: '$lostCount рядом',
+                        activeColor: AppColors.accentRed,
+                        isSelected: false,
+                        onTap: () => _onTileTap('lost_pet'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _CategoryTile(
+                        icon: Icons.park_rounded,
+                        title: 'Площадки',
+                        subtitle: '$playgroundCount мест',
+                        activeColor: AppColors.accentGreen,
+                        isSelected: false,
+                        onTap: () => _onTileTap('playground'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _CategoryTile(
+                        icon: Icons.local_hospital_rounded,
+                        title: 'Ветклиники',
+                        subtitle: '24/7 скорая',
+                        activeColor: AppColors.accentBlue,
+                        isSelected: false,
+                        onTap: () => _onTileTap('vet'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _CategoryTile(
+                        icon: Icons.people_alt_rounded,
+                        title: 'Компаньоны',
+                        subtitle: '$companionCount онлайн',
+                        activeColor: AppColors.accentYellow,
+                        isSelected: false,
+                        onTap: () => _onTileTap('companion'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+            ],
+
+            // Section Label & Total Count
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    _selectedCategory == 'lost_pet'
-                        ? '🐾 Объявления о пропажах'
-                        : (_selectedCategory == 'playground'
-                            ? '🐶 Площадки для собак'
-                            : (_selectedCategory == 'vet'
-                                ? '🏥 Круглосуточные клиники'
-                                : (_selectedCategory == 'companion'
-                                    ? '🎾 Поиск компаньонов'
-                                    : '📍 Результаты рядом со мной'))),
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      sectionTitle,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
-                    '${filtered.length} найдено',
+                    '$totalCount найдено',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 11,
@@ -264,9 +397,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
             const SizedBox(height: 8),
 
-            // 4. Filtered Activity / Search Results Stream
+            // 5. Results Stream (Specialists + Places)
             Expanded(
-              child: filtered.isEmpty
+              child: totalCount == 0
                   ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -290,9 +423,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 100),
-                      itemCount: filtered.length,
+                      itemCount: totalCount,
                       itemBuilder: (context, index) {
-                        final marker = filtered[index];
+                        // Render Specialists first
+                        if (index < filteredSpecialists.length) {
+                          final specialist = filteredSpecialists[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: SpecialistCard(
+                              key: ValueKey('specialist_${specialist.id}'),
+                              specialist: specialist,
+                              onRoute: () => _navigateToMapAndBuildRouteToSpecialist(specialist),
+                              onInquire: () => _openSpecialistInquiry(specialist),
+                            ),
+                          );
+                        }
+
+                        // Render Map Markers
+                        final markerIndex = index - filteredSpecialists.length;
+                        final marker = filteredMarkers[markerIndex];
                         final isSos = marker.type == 'lost_pet';
                         final isPark = marker.type == 'playground';
                         final activeColor = isSos
@@ -358,35 +507,45 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                     Expanded(
                                       child: GlassCapsule(
                                         isActive: true,
-                                        activeColor: activeColor,
-                                        padding: const EdgeInsets.symmetric(vertical: 8),
-                                        onTap: () {
-                                          if (isPark) {
-                                            _navigateToMapAndBuildRoute(marker);
-                                          } else {
-                                            _navigateToMapAndFocus(marker);
-                                          }
-                                        },
-                                        child: Center(
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                isPark ? Icons.directions_rounded : Icons.map_rounded,
-                                                color: Colors.white,
-                                                size: 14,
+                                        activeColor: AppColors.accentBlue,
+                                        onTap: () => _navigateToMapAndFocus(marker),
+                                        child: const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.location_on_rounded, size: 14, color: AppColors.accentBlue),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              'На карте',
+                                              style: TextStyle(
+                                                color: AppColors.accentBlue,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                isPark ? 'Построить маршрут 🧭' : 'Показать на карте 📍',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: GlassCapsule(
+                                        isActive: true,
+                                        activeColor: AppColors.accentGreen,
+                                        onTap: () => _navigateToMapAndBuildRoute(marker),
+                                        child: const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.directions_walk_rounded, size: 14, color: AppColors.accentGreen),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              'Маршрут',
+                                              style: TextStyle(
+                                                color: AppColors.accentGreen,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -425,51 +584,60 @@ class _CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor.withValues(alpha: 0.20) : Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(18),
+          color: isSelected
+              ? activeColor.withValues(alpha: 0.18)
+              : AppColors.obsidianGlassSurface,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? activeColor : Colors.white.withValues(alpha: 0.12),
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected
+                ? activeColor.withValues(alpha: 0.50)
+                : AppColors.glassBorderSubtle,
+            width: isSelected ? 1.2 : 0.8,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: activeColor.withValues(alpha: 0.30),
-                    blurRadius: 14,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : [],
         ),
-        child: Column(
+        child: Row(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? activeColor : Colors.white.withValues(alpha: 0.85),
-              size: 22,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: activeColor.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
               ),
+              child: Icon(icon, color: activeColor, size: 16),
             ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: isSelected ? activeColor : AppColors.textSecondary,
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: activeColor.withValues(alpha: 0.9),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
           ],
