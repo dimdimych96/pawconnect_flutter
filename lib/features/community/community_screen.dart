@@ -16,6 +16,7 @@ import 'widgets/district_picker_bottom_sheet.dart';
 import 'widgets/feed_segmented_control.dart';
 import 'widgets/new_post_modal.dart';
 import 'widgets/new_story_modal.dart';
+import 'widgets/sos_sighting_modal.dart';
 import 'widgets/story_player_screen.dart';
 
 /// Tab 0 (/feed): Instagram 2026 Liquid Glass Community Feed.
@@ -163,6 +164,30 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
       return;
     }
     notifier.toggleBookmark(post.id);
+  }
+
+  void _handleVolunteer(CommunityPostModel post, CommunityNotifier notifier) {
+    final authState = ref.read(authNotifierProvider);
+    if (!authState.isAuthenticated) {
+      AuthPromptModal.show(context, action: 'присоединиться к отряду поиска');
+      return;
+    }
+    notifier.toggleVolunteer(post.id);
+    final willJoin = !post.isVolunteering;
+    PawToast.show(
+      context,
+      title: willJoin ? 'Вы присоединились к поисковому отряду!' : 'Вы покинули поисковый отряд',
+      type: ToastType.success,
+    );
+  }
+
+  void _handleSighting(CommunityPostModel post) {
+    SosSightingModal.show(
+      context,
+      ref,
+      postId: post.id,
+      petName: post.petName ?? post.title,
+    );
   }
 
   bool _isPostAuthor(CommunityPostModel post, UserAuthModel? currentUser) {
@@ -847,11 +872,15 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                         post: post,
                         isAuthor: isAuthor,
                         isAdmin: isAdmin,
+                        useBeaconLayout: true,
                         onLike: () => _handleLike(post, notifier),
                         onBookmark: () => _handleBookmark(post, notifier),
                         onComment: () => _openComments(context, notifier, state, post.id),
                         onEdit: canEdit ? () => _openEditPostModal(context, post) : null,
                         onDelete: canDelete ? () => _handleDeletePost(context, post) : null,
+                        onSightingTap: () => _handleSighting(post),
+                        onVolunteerTap: () => _handleVolunteer(post, notifier),
+                        onOpenMapTap: () => context.go('/map'),
                         onShare: () {
                           PawToast.show(
                             context,

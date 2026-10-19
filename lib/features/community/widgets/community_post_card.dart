@@ -4,6 +4,7 @@ import '../../../core/widgets/paw_image.dart';
 import '../../../models/community_post_model.dart';
 import 'heart_burst_overlay.dart';
 import 'heart_pop_button.dart';
+import 'sos_beacon_card.dart';
 
 /// Instagram-style Liquid Glass card widget for community feed posts.
 /// Complies with Apple Liquid Glass performance rules (STRICT ZERO JANK:
@@ -16,8 +17,12 @@ class CommunityPostCard extends StatefulWidget {
   final VoidCallback onShare;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onSightingTap;
+  final VoidCallback? onVolunteerTap;
+  final VoidCallback? onOpenMapTap;
   final bool isAuthor;
   final bool isAdmin;
+  final bool useBeaconLayout;
 
   const CommunityPostCard({
     super.key,
@@ -28,8 +33,12 @@ class CommunityPostCard extends StatefulWidget {
     required this.onShare,
     this.onEdit,
     this.onDelete,
+    this.onSightingTap,
+    this.onVolunteerTap,
+    this.onOpenMapTap,
     this.isAuthor = false,
     this.isAdmin = false,
+    this.useBeaconLayout = false,
   });
 
   @override
@@ -529,6 +538,22 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.useBeaconLayout && widget.post.category.toLowerCase() == 'sos') {
+      return SosBeaconCard(
+        post: widget.post,
+        isAuthor: widget.isAuthor,
+        isAdmin: widget.isAdmin,
+        onLike: widget.onLike,
+        onComment: widget.onComment,
+        onShare: widget.onShare,
+        onEdit: widget.onEdit,
+        onDelete: widget.onDelete,
+        onSightingTap: widget.onSightingTap ?? () {},
+        onVolunteerTap: widget.onVolunteerTap ?? () {},
+        onOpenMapTap: widget.onOpenMapTap ?? () {},
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(

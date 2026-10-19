@@ -781,5 +781,45 @@ void main() {
       expect(find.byType(AuthPromptModal), findsOneWidget);
       expect(find.text('Требуется авторизация'), findsOneWidget);
     });
+
+    testWidgets('22. tapping «Замечен здесь» in SOS tab opens SosSightingModal', (tester) async {
+      await tester.pumpWidget(createCommunityScreen());
+      await tester.pumpAndSettle();
+
+      // Switch to SOS tab
+      await tester.tap(find.byKey(const ValueKey('feed_tab_sos')));
+      await tester.pumpAndSettle();
+
+      // Tap «Замечен здесь» button
+      final sightingBtn = find.text('Замечен здесь');
+      expect(sightingBtn, findsOneWidget);
+      await tester.tap(sightingBtn);
+      await tester.pumpAndSettle();
+
+      // Verify SosSightingModal is open
+      expect(find.text('Зафиксировать след'), findsOneWidget);
+      expect(find.text('Когда вы видели питомца?'), findsOneWidget);
+    });
+
+    testWidgets('23. tapping «Помочь в поиске» in SOS tab toggles volunteer status', (tester) async {
+      await tester.pumpWidget(createCommunityScreen());
+      await tester.pumpAndSettle();
+
+      // Switch to SOS tab
+      await tester.tap(find.byKey(const ValueKey('feed_tab_sos')));
+      await tester.pumpAndSettle();
+
+      // Tap «Помочь в поиске»
+      final volunteerBtn = find.text('Помочь в поиске');
+      expect(volunteerBtn, findsOneWidget);
+      await tester.tap(volunteerBtn);
+      await tester.pumpAndSettle();
+
+      // Verify button status toggled to 'В отряде'
+      expect(find.text('В отряде'), findsOneWidget);
+
+      // Drain toast timer
+      await tester.pump(const Duration(seconds: 3));
+    });
   });
 }
