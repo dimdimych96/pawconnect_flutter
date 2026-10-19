@@ -26,6 +26,11 @@ class Pet(Base):
     safe_zone_latitude = Column(Float, nullable=True)
     safe_zone_longitude = Column(Float, nullable=True)
     
+    temperament = Column(String(50), default="playful", nullable=False)  # 'playful', 'calm', 'energetic', 'shy', 'reactive'
+    is_walking = Column(Boolean, default=False, nullable=False, index=True)
+    walk_mode = Column(String(30), default="open", nullable=False)  # 'open', 'private', 'training'
+    walk_started_at = Column(DateTime(timezone=True), nullable=True)
+    
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     last_seen_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
@@ -33,3 +38,4 @@ class Pet(Base):
 
     owner = relationship("User", back_populates="pets")
     reminders = relationship("PetReminder", back_populates="pet", cascade="all, delete-orphan")
+    walk_sessions = relationship("WalkSession", back_populates="pet", cascade="all, delete-orphan")
