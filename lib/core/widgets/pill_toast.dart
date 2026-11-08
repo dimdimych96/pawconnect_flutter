@@ -9,8 +9,7 @@ enum ToastType {
   alert,
 }
 
-/// Стеклянная «пилюля» - капсула Liquid Glass.
-/// Тёмное стекло, тонкая рамка, единственный цветовой акцент - иконка события.
+/// Компактный тост в стиле Graphite Liquid Glass.
 class PillToast extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -41,7 +40,7 @@ class PillToast extends StatelessWidget {
       case ToastType.success:
         return Icons.check_rounded;
       case ToastType.info:
-        return Icons.info_rounded;
+        return Icons.info_outline_rounded;
       case ToastType.alert:
         return Icons.warning_amber_rounded;
     }
@@ -52,41 +51,40 @@ class PillToast extends StatelessWidget {
     final accent = _accent;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(14),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: const Color(0xE1121814),
-            borderRadius: BorderRadius.circular(26),
+            color: AppColors.obsidianCardTranslucent,
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.12),
+              color: AppColors.glassBorder,
               width: 1.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.45),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Круглая иконка-плашка в цвете события
               Container(
-                width: 30,
-                height: 30,
+                width: 28,
+                height: 28,
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.16),
-                  shape: BoxShape.circle,
+                  color: accent.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   _icon,
                   color: accent,
-                  size: 15,
+                  size: 16,
                 ),
               ),
               const SizedBox(width: 12),
@@ -101,20 +99,19 @@ class PillToast extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppColors.textPrimary,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.2,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 1),
+                      const SizedBox(height: 2),
                       Text(
                         subtitle!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.textSecondary.withValues(alpha: 0.9),
-                          fontSize: 10.5,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -125,17 +122,13 @@ class PillToast extends StatelessWidget {
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: onClose,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
+                  behavior: HitTestBehavior.opaque,
+                  child: const Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Icon(
                       Icons.close_rounded,
-                      color: AppColors.textSecondary,
-                      size: 13,
+                      color: AppColors.textTertiary,
+                      size: 16,
                     ),
                   ),
                 ),
@@ -148,8 +141,7 @@ class PillToast extends StatelessWidget {
   }
 }
 
-/// Сервис показа пилюль-тостов поверх всего приложения.
-/// Использует корневой Overlay, поэтому тост виден на любом слое.
+/// Сервис показа тостов поверх всего приложения.
 class PawToast {
   static OverlayEntry? _current;
   static final ValueNotifier<bool> isVisible = ValueNotifier(false);
@@ -239,10 +231,10 @@ class _PillToastOverlayState extends State<_PillToastOverlay> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
             left: 12,
             right: 12,
-            top: widget.topOffset != null ? 8 : 8,
+            top: 8,
           ),
           child: GestureDetector(
             onVerticalDragEnd: (details) {

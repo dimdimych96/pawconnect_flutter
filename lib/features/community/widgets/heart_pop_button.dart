@@ -26,12 +26,12 @@ class _HeartPopButtonState extends State<HeartPopButton> with SingleTickerProvid
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 240),
     );
 
     _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.4), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.4, end: 1.0), weight: 50),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.25), weight: 50),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.25, end: 1.0), weight: 50),
     ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
@@ -54,31 +54,25 @@ class _HeartPopButtonState extends State<HeartPopButton> with SingleTickerProvid
       scale: _scaleAnimation,
       child: InkWell(
         onTap: _handleTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: widget.isLiked ? AppColors.accentRed.withValues(alpha: 0.15) : AppColors.obsidianGlassSurface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: widget.isLiked ? AppColors.accentRed.withValues(alpha: 0.4) : AppColors.glassBorderSubtle,
-            ),
-          ),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 widget.isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                 color: heartColor,
-                size: 18,
+                size: 20,
               ),
               const SizedBox(width: 6),
               Text(
                 '${widget.likesCount}',
                 style: TextStyle(
                   color: heartColor,
-                  fontWeight: widget.isLiked ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: FontWeight.w500,
                   fontSize: 13,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ],

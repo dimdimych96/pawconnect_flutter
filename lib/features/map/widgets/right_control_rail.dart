@@ -63,31 +63,31 @@ class _RightControlRailState extends State<RightControlRail> {
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           top: 4.0,
-          right: _isLayersExpanded ? 52.0 : 34.0,
+          right: _isLayersExpanded ? 56.0 : 38.0,
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: _isLayersExpanded ? 1.0 : 0.0,
             child: IgnorePointer(
               ignoring: !_isLayersExpanded,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                   child: Container(
                     width: 240,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xEA16181C),
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppColors.obsidianCardTranslucent,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.14),
+                        color: AppColors.glassBorder,
                         width: 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.75),
-                          blurRadius: 28,
-                          offset: const Offset(0, 10),
+                          color: Colors.black.withValues(alpha: 0.55),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
@@ -103,20 +103,21 @@ class _RightControlRailState extends State<RightControlRail> {
                               style: TextStyle(
                                 color: AppColors.textPrimary,
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
                               '$activeFiltersCount активны',
                               style: TextStyle(
                                 color: hasFilterActive ? AppColors.accentGreen : AppColors.textSecondary,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                fontFeatures: const [FontFeature.tabularFigures()],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
                         _LayerRowItem(
                           icon: Icons.warning_amber_rounded,
                           title: 'Потерянные питомцы',
@@ -146,34 +147,34 @@ class _RightControlRailState extends State<RightControlRail> {
           ),
         ),
 
-        // 2. Sliding Distance & Quick Route Badge (Left of the rail when Pet mode is active)
+        // 2. Unified Calm Graphite Distance & Quick Route Badge (Left of the rail when Pet mode is active)
         AnimatedPositioned(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          top: 44.0,
-          right: isPetFocus ? 52.0 : 34.0,
+          top: 48.0,
+          right: isPetFocus ? 56.0 : 38.0,
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: (isPetFocus && !_isLayersExpanded) ? 1.0 : 0.0,
             child: IgnorePointer(
               ignoring: !(isPetFocus && !_isLayersExpanded),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(14),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xD8121814),
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppColors.obsidianCardTranslucent,
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: activeGreen.withValues(alpha: 0.35),
+                        color: AppColors.glassBorder,
                         width: 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: activeGreen.withValues(alpha: 0.15),
-                          blurRadius: 16,
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -188,63 +189,46 @@ class _RightControlRailState extends State<RightControlRail> {
                           decoration: BoxDecoration(
                             color: activeGreen,
                             shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: activeGreen.withValues(alpha: 0.75),
-                                blurRadius: 6,
-                                spreadRadius: 1,
-                              ),
-                            ],
                           ),
                         ),
-                        const SizedBox(width: 7),
+                        const SizedBox(width: 8),
                         Text(
                           '${widget.petName}: ${widget.distanceMeters} м',
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
+                            fontWeight: FontWeight.w500,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        Container(
+                          width: 1,
+                          height: 14,
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          color: AppColors.glassBorder,
+                        ),
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: widget.onBuildRoute,
-                            borderRadius: BorderRadius.circular(14),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.accentBlue.withValues(alpha: 0.22),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: AppColors.accentBlue.withValues(alpha: 0.55),
-                                  width: 1.0,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.accentBlue.withValues(alpha: 0.20),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: const Row(
+                            borderRadius: BorderRadius.circular(6),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.directions_rounded,
-                                    color: AppColors.accentBlue,
-                                    size: 13,
+                                    color: AppColors.accentGreen,
+                                    size: 14,
                                   ),
-                                  SizedBox(width: 3),
+                                  SizedBox(width: 4),
                                   Text(
                                     'Путь',
                                     style: TextStyle(
-                                      color: AppColors.accentBlue,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.accentGreen,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -261,102 +245,85 @@ class _RightControlRailState extends State<RightControlRail> {
           ),
         ),
 
-        // 3. Single Right Control Rail (Unified Liquid Glass Monolith)
+        // 3. Single Right Control Rail (48px width, single clean border)
         ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
-              width: 44,
-              padding: const EdgeInsets.all(4),
+              width: 48,
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
               decoration: BoxDecoration(
-                color: const Color(0xC8121814),
-                borderRadius: BorderRadius.circular(24),
+                color: AppColors.obsidianCardTranslucent,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.14),
+                  color: AppColors.glassBorder,
                   width: 1.0,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.65),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
+                    color: Colors.black.withValues(alpha: 0.45),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Upper Segmented Section: Layers, Pet Focus, User Focus
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        width: 1.0,
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(2),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Map Layer Filter Button
-                        _RailIconButton(
-                          icon: Icons.layers_rounded,
-                          tooltip: 'Слои и фильтры карты',
-                          isSelected: _isLayersExpanded,
-                          hasActiveBadge: hasFilterActive,
-                          activeColor: AppColors.accentGreen,
-                          onTap: _toggleLayers,
-                        ),
-                        const SizedBox(height: 4),
-                        // Pet Focus Button
-                        _RailIconButton(
-                          icon: Icons.pets_rounded,
-                          tooltip: 'Центрировать на питомце (${widget.petName})',
-                          isSelected: isPetFocus,
-                          activeColor: activeGreen,
-                          onTap: () {
-                            setState(() => _isLayersExpanded = false);
-                            widget.onPetFocus();
-                          },
-                        ),
-                        const SizedBox(height: 4),
-                        // User Focus Button
-                        _RailIconButton(
-                          icon: Icons.my_location_rounded,
-                          tooltip: 'Моя геопозиция',
-                          isSelected: !isPetFocus,
-                          activeColor: AppColors.accentBlue,
-                          onTap: () {
-                            setState(() => _isLayersExpanded = false);
-                            widget.onUserFocus();
-                          },
-                        ),
-                        if (widget.onOpenThemeSandbox != null) ...[
-                          const SizedBox(height: 4),
-                          // Map Theme Sandbox Tuner Button
-                          _RailIconButton(
-                            icon: Icons.palette_rounded,
-                            tooltip: 'Тюнинг темы и цветов карты',
-                            isSelected: false,
-                            activeColor: AppColors.accentGreen,
-                            onTap: () {
-                              setState(() => _isLayersExpanded = false);
-                              widget.onOpenThemeSandbox!();
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
+                  // Map Layer Filter Button
+                  _RailIconButton(
+                    icon: Icons.layers_rounded,
+                    tooltip: 'Слои и фильтры карты',
+                    isSelected: _isLayersExpanded,
+                    hasActiveBadge: hasFilterActive,
+                    activeColor: AppColors.accentGreen,
+                    onTap: _toggleLayers,
                   ),
+                  const SizedBox(height: 4),
+                  // Pet Focus Button
+                  _RailIconButton(
+                    icon: Icons.pets_rounded,
+                    tooltip: 'Центрировать на питомце (${widget.petName})',
+                    isSelected: isPetFocus,
+                    activeColor: activeGreen,
+                    onTap: () {
+                      setState(() => _isLayersExpanded = false);
+                      widget.onPetFocus();
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  // User Focus Button
+                  _RailIconButton(
+                    icon: Icons.my_location_rounded,
+                    tooltip: 'Моя геопозиция',
+                    isSelected: !isPetFocus,
+                    activeColor: AppColors.accentBlue,
+                    onTap: () {
+                      setState(() => _isLayersExpanded = false);
+                      widget.onUserFocus();
+                    },
+                  ),
+                  if (widget.onOpenThemeSandbox != null) ...[
+                    const SizedBox(height: 4),
+                    // Map Theme Sandbox Tuner Button
+                    _RailIconButton(
+                      icon: Icons.palette_rounded,
+                      tooltip: 'Тюнинг темы и цветов карты',
+                      isSelected: false,
+                      activeColor: AppColors.accentGreen,
+                      onTap: () {
+                        setState(() => _isLayersExpanded = false);
+                        widget.onOpenThemeSandbox!();
+                      },
+                    ),
+                  ],
 
-                  // Divider between focus toggle and action section
+                  // Hairline divider between focus controls and actions
                   Container(
                     height: 1,
-                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 4),
-                    color: Colors.white.withValues(alpha: 0.10),
+                    margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                    color: AppColors.glassBorder,
                   ),
 
                   // Walk Radar Button (Start Walk / Walk Radar)
@@ -370,7 +337,7 @@ class _RightControlRailState extends State<RightControlRail> {
                       widget.onStartWalk?.call();
                     },
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 4),
 
                   // Lower Section: Add Event (+) Button
                   _RailIconButton(
@@ -413,12 +380,12 @@ class _LayerRowItem extends StatelessWidget {
       onTap: onToggle,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: AppColors.obsidianRaised,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: AppColors.glassBorderSubtle,
             width: 1.0,
           ),
         ),
@@ -430,7 +397,7 @@ class _LayerRowItem extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: AppColors.textSecondary,
                     size: 16,
                   ),
                   const SizedBox(width: 8),
@@ -451,20 +418,20 @@ class _LayerRowItem extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 180),
               width: 30,
-              height: 17,
+              height: 18,
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: isActive ? AppColors.accentGreen : Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
+                color: isActive ? AppColors.accentGreen : Colors.white.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(9),
               ),
               child: AnimatedAlign(
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 180),
                 alignment: isActive ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
-                  width: 13,
-                  height: 13,
+                  width: 14,
+                  height: 14,
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -517,68 +484,39 @@ class _RailIconButtonState extends State<_RailIconButton> {
     } else if (isSelected) {
       iconColor = activeColor;
     } else {
-      iconColor = Colors.white.withValues(alpha: 0.60);
+      iconColor = AppColors.textSecondary;
     }
 
     return Tooltip(
       message: widget.tooltip,
       child: GestureDetector(
         onTap: widget.onTap,
+        behavior: HitTestBehavior.opaque,
         onTapDown: (_) => setState(() => _isPressed = true),
         onTapCancel: () => setState(() => _isPressed = false),
         onTapUp: (_) => setState(() => _isPressed = false),
         child: AnimatedScale(
-          scale: _isPressed ? 0.90 : 1.0,
-          duration: const Duration(milliseconds: 120),
+          scale: _isPressed ? 0.94 : 1.0,
+          duration: const Duration(milliseconds: 140),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            width: 32,
-            height: 32,
+            duration: const Duration(milliseconds: 180),
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: isSelected
-                  ? LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        activeColor.withValues(alpha: 0.30),
-                        activeColor.withValues(alpha: 0.15),
-                      ],
-                    )
+              color: isSelected
+                  ? AppColors.obsidianRaised
                   : (isAccentAdd
-                      ? LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.accentGreen.withValues(alpha: 0.22),
-                            AppColors.accentGreen.withValues(alpha: 0.10),
-                          ],
-                        )
-                      : null),
-              border: isSelected
-                  ? Border.all(
-                      color: activeColor.withValues(alpha: 0.60),
-                      width: 1.0,
-                    )
-                  : (isAccentAdd
-                      ? Border.all(
-                          color: AppColors.accentGreen.withValues(alpha: 0.45),
-                          width: 1.0,
-                        )
-                      : Border.all(
-                          color: Colors.transparent,
-                          width: 1.0,
-                        )),
-              boxShadow: (isSelected || isAccentAdd)
-                  ? [
-                      BoxShadow(
-                        color: (isSelected ? activeColor : AppColors.accentGreen).withValues(alpha: 0.22),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
+                      ? AppColors.accentGreen.withValues(alpha: 0.14)
+                      : Colors.transparent),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected
+                    ? activeColor.withValues(alpha: 0.45)
+                    : (isAccentAdd
+                        ? AppColors.accentGreen.withValues(alpha: 0.35)
+                        : Colors.transparent),
+                width: 1.0,
+              ),
             ),
             child: Stack(
               alignment: Alignment.center,
@@ -590,20 +528,14 @@ class _RailIconButtonState extends State<_RailIconButton> {
                 ),
                 if (widget.hasActiveBadge && !isSelected)
                   Positioned(
-                    top: 3,
-                    right: 3,
+                    top: 4,
+                    right: 4,
                     child: Container(
                       width: 6,
                       height: 6,
                       decoration: const BoxDecoration(
                         color: AppColors.accentGreen,
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.accentGreen,
-                            blurRadius: 4,
-                          ),
-                        ],
                       ),
                     ),
                   ),

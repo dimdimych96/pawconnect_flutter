@@ -43,58 +43,33 @@ class MarkerDetailSheet extends StatelessWidget {
   String _getDangerTypeName(String type) {
     switch (type) {
       case 'poison':
-        return '☠️ Отрава / Догхантеры';
+        return 'Отрава / Догхантеры';
       case 'aggressive_pack':
-        return '🐕‍🦺 Агрессивная стая';
+        return 'Агрессивная стая';
       case 'broken_glass':
-        return '⚠️ Битое стекло';
+        return 'Битое стекло';
       default:
-        return '⚠️ Опасный участок';
+        return 'Опасный участок';
     }
   }
 
-  List<String> _getMockGalleryImages() {
-    if (marker.type == 'danger') {
-      return [];
-    }
-    if (marker.type == 'lost_pet' || marker.type == 'companion') {
-      return [
-        marker.image ?? 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80',
-        'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&w=300&q=80',
-        'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=300&q=80',
-      ];
-    } else {
-      return [
-        'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?auto=format&fit=crop&w=300&q=80',
-        'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=300&q=80',
-        'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=300&q=80',
-      ];
-    }
-  }
-
-  List<Map<String, dynamic>> _getMockReviews() {
-    if (marker.type == 'playground') {
-      return [
-        {'author': 'Мария', 'rating': 5, 'text': 'Отличное место, всегда чисто и много дружелюбных собак.'},
-        {'author': 'Алексей', 'rating': 4, 'text': 'Есть барьеры для тренировок, но вечером бывает людно.'},
-      ];
-    } else if (marker.type == 'lost_pet') {
-      return [
-        {'author': 'Анна', 'rating': 5, 'text': 'Видела похожего пса полчаса назад около Центрального парка!'},
-        {'author': 'Игорь', 'rating': 4, 'text': 'Надеюсь, малыш найдется. Сделал репост в чат района.'},
-      ];
-    } else {
-      return [
-        {'author': 'Елена', 'rating': 5, 'text': 'Отличный напарник для утренних пробежек в парке.'},
-      ];
+  IconData _getDangerTypeIcon(String? type) {
+    switch (type) {
+      case 'poison':
+        return Icons.science_outlined;
+      case 'aggressive_pack':
+        return Icons.pets_rounded;
+      case 'broken_glass':
+        return Icons.warning_amber_rounded;
+      default:
+        return Icons.report_problem_outlined;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final badgeColor = _getBadgeColor();
-    final mockGallery = _getMockGalleryImages();
-    final mockReviews = _getMockReviews();
+    final hasImage = marker.image != null && marker.image!.isNotEmpty;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.32,
@@ -105,14 +80,14 @@ class MarkerDetailSheet extends StatelessWidget {
       builder: (BuildContext context, ScrollController scrollController) {
         return GlassContainer(
           padding: EdgeInsets.zero,
-          borderRadius: 24.0,
-          borderColor: badgeColor.withValues(alpha: 0.35),
+          borderRadius: 20.0,
+          borderColor: AppColors.glassBorder,
           child: ListView(
             controller: scrollController,
             padding: EdgeInsets.only(
               left: 16.0,
               right: 16.0,
-              top: 10.0,
+              top: 12.0,
               bottom: 32.0 + MediaQuery.of(context).padding.bottom,
             ),
             children: [
@@ -120,10 +95,10 @@ class MarkerDetailSheet extends StatelessWidget {
               Center(
                 child: Container(
                   width: 36,
-                  height: 5,
+                  height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(2.5),
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
@@ -135,9 +110,13 @@ class MarkerDetailSheet extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: onClose,
-                    child: CircleAvatar(
-                      radius: 14,
-                      backgroundColor: Colors.white.withValues(alpha: 0.08),
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        color: AppColors.obsidianRaised,
+                        shape: BoxShape.circle,
+                      ),
                       child: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 16),
                     ),
                   ),
@@ -149,15 +128,15 @@ class MarkerDetailSheet extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (marker.image != null)
+                  if (hasImage)
                     PawImage(
                       url: marker.image,
                       width: 72,
                       height: 72,
-                      borderRadius: 16,
+                      borderRadius: 14,
                       fallbackColor: badgeColor,
                     ),
-                  if (marker.image != null) const SizedBox(width: 14),
+                  if (hasImage) const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,8 +144,8 @@ class MarkerDetailSheet extends StatelessWidget {
                         Text(
                           marker.title,
                           style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -200,13 +179,13 @@ class MarkerDetailSheet extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 color: AppColors.accentGreen.withValues(alpha: 0.9),
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Text(
+                            const Text(
                               '•',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 12),
+                              style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
                             ),
                             const SizedBox(width: 8),
                             GestureDetector(
@@ -223,10 +202,11 @@ class MarkerDetailSheet extends StatelessWidget {
                               },
                               child: Text(
                                 '${marker.latitude.toStringAsFixed(5)}, ${marker.longitude.toStringAsFixed(5)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontFamily: 'monospace',
                                   fontSize: 11,
-                                  color: Colors.white.withValues(alpha: 0.25),
+                                  color: AppColors.textTertiary,
+                                  fontFeatures: [FontFeature.tabularFigures()],
                                 ),
                               ),
                             ),
@@ -245,8 +225,8 @@ class MarkerDetailSheet extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
+                    color: AppColors.obsidianRaised,
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
                       width: 1,
@@ -260,21 +240,26 @@ class MarkerDetailSheet extends StatelessWidget {
                           const Icon(Icons.shield_outlined, size: 16, color: Color(0xFFF59E0B)),
                           const SizedBox(width: 6),
                           const Text(
-                            'РАДАР БЕЗОПАСНОСТИ',
+                            'Радар безопасности',
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                               color: Color(0xFFF59E0B),
-                              letterSpacing: 0.5,
                             ),
                           ),
                           const Spacer(),
+                          Icon(
+                            _getDangerTypeIcon(marker.dangerType),
+                            size: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 4),
                           Text(
                             marker.dangerType != null ? _getDangerTypeName(marker.dangerType!) : 'Опасная зона',
                             style: const TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -282,9 +267,13 @@ class MarkerDetailSheet extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         'Подтверждений: ${marker.confirmationsCount}  •  Сообщений об очистке: ${marker.clearedCount}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           Expanded(
@@ -300,7 +289,7 @@ class MarkerDetailSheet extends StatelessWidget {
                               icon: const Icon(Icons.thumb_up_alt_rounded, size: 14, color: Color(0xFFF59E0B)),
                               label: const Text(
                                 'Актуально',
-                                style: TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
@@ -323,7 +312,7 @@ class MarkerDetailSheet extends StatelessWidget {
                               icon: const Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.accentGreen),
                               label: const Text(
                                 'Очищено',
-                                style: TextStyle(color: AppColors.accentGreen, fontSize: 12, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: AppColors.accentGreen, fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(color: AppColors.accentGreen.withValues(alpha: 0.4)),
@@ -361,22 +350,22 @@ class MarkerDetailSheet extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        height: 38,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: badgeColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(19),
+                          color: badgeColor.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: badgeColor.withValues(alpha: 0.35),
-                            width: 1.5,
+                            color: badgeColor.withValues(alpha: 0.4),
+                            width: 1.0,
                           ),
                         ),
                         alignment: Alignment.center,
                         child: const Text(
                           'Маршрут • 5 мин',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -405,10 +394,10 @@ class MarkerDetailSheet extends StatelessWidget {
                         }
                       },
                       child: Container(
-                        height: 38,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: AppColors.obsidianGlassSurface,
-                          borderRadius: BorderRadius.circular(19),
+                          color: AppColors.obsidianRaised,
+                          borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: AppColors.glassBorder,
                             width: 1.0,
@@ -418,9 +407,9 @@ class MarkerDetailSheet extends StatelessWidget {
                         child: Text(
                           marker.type == 'playground' ? 'Поделиться' : 'Связаться',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -430,158 +419,48 @@ class MarkerDetailSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // 5. Description Block
-              if (marker.description != null) ...[
+              // 5. Description Block (Clean text, no decorative Georgia quote or italic)
+              if (marker.description != null && marker.description!.isNotEmpty) ...[
                 const Text(
                   'Описание',
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.only(left: 4, right: 8),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 0,
-                        top: -16,
-                        child: Text(
-                          '“',
-                          style: TextStyle(
-                            fontFamily: 'Georgia',
-                            fontSize: 54,
-                            fontWeight: FontWeight.bold,
-                            color: badgeColor.withValues(alpha: 0.25),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 22, top: 6),
-                        child: Text(
-                          marker.description!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                            color: AppColors.textSecondary,
-                            height: 1.45,
-                          ),
-                        ),
-                      ),
-                    ],
+                Text(
+                  marker.description!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                    height: 1.45,
                   ),
                 ),
                 const SizedBox(height: 20),
               ],
 
-              // 6. Photo Gallery Block
-              const Text(
-                'Фотогалерея',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+              // 6. Photo Block (Shown only if marker has a real image URL)
+              if (hasImage) ...[
+                const Text(
+                  'Фотография',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: mockGallery.length,
-                  itemBuilder: (context, idx) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 10.0),
-                      child: PawImage(
-                        url: mockGallery[idx],
-                        width: 100,
-                        height: 100,
-                        borderRadius: 12,
-                        fallbackColor: badgeColor,
-                      ),
-                    );
-                  },
+                const SizedBox(height: 8),
+                PawImage(
+                  url: marker.image,
+                  width: double.infinity,
+                  height: 160,
+                  borderRadius: 12,
+                  fallbackColor: badgeColor,
                 ),
-              ),
-              const SizedBox(height: 16),
-
-
-
-              // 8. Reviews / Info Block
-              Text(
-                marker.type == 'playground' ? 'Отзывы собаководов' : 'Последние обновления',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: mockReviews.asMap().entries.map((entry) {
-                  final idx = entry.key;
-                  final rev = entry.value;
-                  final isLast = idx == mockReviews.length - 1;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            rev['author'] as String,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '•',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Row(
-                            children: List.generate(5, (starIdx) {
-                              return Icon(
-                                Icons.star_rounded,
-                                size: 13,
-                                color: starIdx < (rev['rating'] as int)
-                                    ? AppColors.accentYellow
-                                    : Colors.white12,
-                              );
-                            }),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        rev['text'] as String,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                          height: 1.4,
-                        ),
-                      ),
-                      if (!isLast)
-                        const Divider(
-                          height: 20,
-                          color: AppColors.glassBorderSubtle,
-                        )
-                      else
-                        const SizedBox(height: 8),
-                    ],
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 40),
+                const SizedBox(height: 16),
+              ],
             ],
           ),
         );
@@ -594,6 +473,7 @@ class MarkerDetailSheet extends StatelessWidget {
     final myTemperament = userTemperament ?? DogTemperament.playful;
     final compat = myTemperament.checkCompatibility(otherTemperament);
     final isPrivate = marker.walkMode == 'private';
+    final modeColor = isPrivate ? const Color(0xFFA78BFA) : AppColors.accentGreen;
     final walkTimeMin = marker.walkStartedAt != null
         ? DateTime.now().difference(marker.walkStartedAt!).inMinutes.clamp(1, 180)
         : 20;
@@ -602,44 +482,54 @@ class MarkerDetailSheet extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.accentGreen.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.obsidianRaised,
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppColors.accentGreen.withValues(alpha: 0.3),
+          color: AppColors.glassBorder,
           width: 1,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header badge
+          // Header badge (Sentence case, vector icons)
           Row(
             children: [
               const Icon(Icons.radar_rounded, size: 16, color: AppColors.accentGreen),
               const SizedBox(width: 6),
               const Text(
-                'РАДАР ПРОГУЛОК',
+                'Радар прогулок',
                 style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.accentGreen,
-                  letterSpacing: 0.5,
                 ),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isPrivate ? const Color(0xFFA78BFA) : AppColors.accentGreen).withValues(alpha: 0.15),
+                  color: modeColor.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  isPrivate ? '🛡️ Приватный выгул' : '🌿 Открытый выгул',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: isPrivate ? const Color(0xFFA78BFA) : AppColors.accentGreen,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isPrivate ? Icons.shield_outlined : Icons.public_rounded,
+                      size: 13,
+                      color: modeColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isPrivate ? 'Приватный выгул' : 'Открытый выгул',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: modeColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -652,7 +542,7 @@ class MarkerDetailSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.06),
+                  color: Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -662,7 +552,11 @@ class MarkerDetailSheet extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'Гуляет ~$walkTimeMin мин',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ],
                 ),
@@ -671,14 +565,21 @@ class MarkerDetailSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: otherTemperament.color.withValues(alpha: 0.15),
+                  color: otherTemperament.color.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(otherTemperament.emoji, style: const TextStyle(fontSize: 11)),
-                    const SizedBox(width: 4),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: otherTemperament.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
                     Text(
                       otherTemperament.label,
                       style: TextStyle(
@@ -699,7 +600,7 @@ class MarkerDetailSheet extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: compat.badgeColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: compat.badgeColor.withValues(alpha: 0.25),
                 width: 1,
@@ -708,7 +609,7 @@ class MarkerDetailSheet extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(compat.emoji, style: const TextStyle(fontSize: 20)),
+                Icon(Icons.verified_rounded, size: 18, color: compat.badgeColor),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -718,7 +619,7 @@ class MarkerDetailSheet extends StatelessWidget {
                         compat.title,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: compat.badgeColor,
                         ),
                       ),
@@ -728,7 +629,7 @@ class MarkerDetailSheet extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
-                          height: 1.25,
+                          height: 1.3,
                         ),
                       ),
                     ],
@@ -742,12 +643,13 @@ class MarkerDetailSheet extends StatelessWidget {
           // Invite to Walk Button
           SizedBox(
             width: double.infinity,
+            height: 40,
             child: ElevatedButton.icon(
               onPressed: () {
                 onInviteWalk?.call(marker.id);
                 PawToast.show(
                   context,
-                  title: 'Приглашение отправлено!',
+                  title: 'Приглашение отправлено',
                   subtitle: 'Владелец получит уведомление на радаре прогулок',
                   type: ToastType.success,
                 );
@@ -757,14 +659,15 @@ class MarkerDetailSheet extends StatelessWidget {
                 'Позвать на совместный выгул',
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accentGreen,
+                elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
           ),

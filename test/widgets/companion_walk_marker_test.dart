@@ -8,7 +8,7 @@ import 'package:pawconnect/models/walk_session_model.dart';
 
 void main() {
   group('Companion Walk Marker and Deck Widget Tests', () {
-    testWidgets('CompanionWalkMarker renders temperament badge and privacy indicator', (tester) async {
+    testWidgets('CompanionWalkMarker renders temperament dot indicator, semantics and privacy indicator', (tester) async {
       bool tapped = false;
       final marker = MapMarkerModel(
         id: 'companion-1',
@@ -33,8 +33,8 @@ void main() {
         ),
       );
 
-      // Verify temperament emoji
-      expect(find.text('⛔'), findsOneWidget);
+      // Verify semantics label and button flag
+      expect(find.bySemanticsLabel('Шериф на прогулке'), findsOneWidget);
       // Verify private shield icon
       expect(find.byIcon(Icons.shield_rounded), findsOneWidget);
 
@@ -67,7 +67,7 @@ void main() {
       );
 
       expect(find.byType(CompanionWalkMarker), findsOneWidget);
-      expect(find.text('⚡'), findsOneWidget);
+      expect(find.bySemanticsLabel('Майло гуляет'), findsOneWidget);
     });
 
     testWidgets('MarkerDetailSheet renders Walk Radar companion deck and compatibility matrix', (tester) async {
@@ -110,9 +110,10 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Check walk radar header
-      expect(find.text('РАДАР ПРОГУЛОК'), findsOneWidget);
-      expect(find.text('🌿 Открытый выгул'), findsOneWidget);
+      // Check walk radar header (Sentence case, vector icons)
+      expect(find.text('Радар прогулок'), findsOneWidget);
+      expect(find.text('Открытый выгул'), findsOneWidget);
+      expect(find.byIcon(Icons.public_rounded), findsOneWidget);
       expect(find.text('Гуляет ~25 мин'), findsOneWidget);
       expect(find.text('Игривый'), findsOneWidget);
 

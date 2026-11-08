@@ -171,7 +171,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           if (ok && mounted) {
             PawToast.show(
               context,
-              title: 'Вы на прогулке!',
+              title: 'Вы на прогулке',
               subtitle: 'Радар выгула активирован',
               type: ToastType.success,
             );
@@ -187,8 +187,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (!mounted) return;
     PawToast.show(
       context,
-      title: 'Прогулка завершена!',
-      subtitle: 'Маршрут и активность сохранены 🐾',
+      title: 'Прогулка завершена',
+      subtitle: 'Маршрут и активность сохранены',
       type: ToastType.success,
     );
   }
@@ -198,6 +198,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final mapState = ref.watch(mapNotifierProvider);
     final userState = ref.watch(userNotifierProvider);
     final mapThemeState = ref.watch(mapThemeNotifierProvider);
+    final walkState = ref.watch(walkNotifierProvider);
     final mapNotifier = ref.read(mapNotifierProvider.notifier);
     final gpsDevice = mapState.gpsDevice;
 
@@ -205,17 +206,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final maxLng = gpsDevice?.longitude ?? 82.9204;
     final safeZoneRadius = gpsDevice?.safeZoneRadius ?? 350.0;
     final isBreached = (gpsDevice?.isBreached ?? false) || userState.isSimulatingBreach;
+    final isWalking = walkState.isWalking;
+    final hasAlertBanner = isBreached || mapState.activeHazardNearby != null;
+    final hasTopBanner = hasAlertBanner || isWalking;
 
     // Position RightControlRail safely in the upper-right area, clearing any top banners
-    final double controlRailTop = isBreached
-        ? 140.0
-        : (mapState.isNavigating ? 150.0 : 80.0);
+    final double controlRailTop = mapState.isNavigating
+        ? 150.0
+        : (hasTopBanner ? 144.0 : 80.0);
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
       body: Stack(
         children: [
-          // 1. FlutterMap with CartoDB Dark Matter Tiles
+          // 1. FlutterMap with Yandex Maps Tiles
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -353,42 +357,40 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
 
           // Top GPS Enable Prompt (if GPS tracking not active yet)
-          if (!mapState.isLocationTrackingActive && !mapState.isNavigating && !isBreached)
+          if (!mapState.isLocationTrackingActive &&
+              !mapState.isNavigating &&
+              !isBreached &&
+              !isWalking &&
+              mapState.activeHazardNearby == null)
             Positioned(
               top: 72,
               left: 16,
-              right: 70,
+              right: 72,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xE01A1D24),
-                      borderRadius: BorderRadius.circular(16),
+                      color: AppColors.obsidianCardTranslucent,
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: AppColors.accentBlue.withValues(alpha: 0.4),
+                        color: AppColors.glassBorder,
                         width: 1.0,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          blurRadius: 16,
-                        ),
-                      ],
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.location_searching_rounded, color: AppColors.accentBlue, size: 20),
-                        const SizedBox(width: 10),
+                        const Icon(Icons.location_searching_rounded, color: AppColors.textSecondary, size: 18),
+                        const SizedBox(width: 8),
                         const Expanded(
                           child: Text(
                             'Включить реальный GPS',
                             style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -396,7 +398,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           onTap: () async {
                             PawToast.show(
                               context,
-                              title: 'Определение геопозиции...',
+                              title: 'Определение геопозиции',
                               subtitle: 'Запрос GPS и сетевых координат',
                               type: ToastType.info,
                             );
@@ -407,25 +409,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                               if (!context.mounted) return;
                               PawToast.show(
                                 context,
-                                title: 'Геопозиция определена!',
+                                title: 'Геопозиция определена',
                                 subtitle: 'Широта: ${st.userLatitude.toStringAsFixed(4)}, Долгота: ${st.userLongitude.toStringAsFixed(4)}',
                                 type: ToastType.success,
                               );
                             }
                           },
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: AppColors.accentBlue,
-                              borderRadius: BorderRadius.circular(10),
+                              color: AppColors.obsidianRaised,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.glassBorder,
+                                width: 1.0,
+                              ),
                             ),
                             child: const Text(
                               'Разрешить',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                color: AppColors.accentGreen,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -489,7 +495,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     _onMapInteraction();
                     _openStartWalkModal(maxLat, maxLng);
                   },
-                  isWalking: ref.watch(walkNotifierProvider).isWalking,
+                  isWalking: isWalking,
                 ),
               ),
             ),
@@ -508,7 +514,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 onVerifyHazard: (markerId, action) {
                   mapNotifier.verifyHazard(markerId, action);
                 },
-                userTemperament: ref.watch(walkNotifierProvider).userPetTemperament,
+                userTemperament: walkState.userPetTemperament,
                 onInviteWalk: (markerId) {
                   ref.read(walkNotifierProvider.notifier).sendWalkInvite(toPetId: markerId);
                 },
@@ -584,16 +590,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
 
           // 6. Active Walk Session HUD Capsule (When user is walking with their pet)
-          if (ref.watch(walkNotifierProvider).isWalking &&
-              ref.watch(walkNotifierProvider).activeWalk != null &&
+          if (isWalking &&
+              walkState.activeWalk != null &&
               !mapState.isNavigating)
             Positioned(
-              top: 0,
+              top: hasAlertBanner ? 76 : 0,
               left: 0,
               right: 0,
               child: WalkSessionHud(
-                session: ref.watch(walkNotifierProvider).activeWalk!,
-                temperament: ref.watch(walkNotifierProvider).userPetTemperament,
+                session: walkState.activeWalk!,
+                temperament: walkState.userPetTemperament,
                 onStopWalk: _handleStopWalk,
               ),
             ),

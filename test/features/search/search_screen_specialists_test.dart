@@ -50,12 +50,24 @@ void main() {
     await tester.pumpWidget(createSearchScreen());
     await tester.pumpAndSettle();
 
-    // Verify chips exist
+    // Verify chips exist with clean labels without emojis
     expect(find.byKey(const ValueKey('search_chip_all')), findsOneWidget);
+    expect(find.text('Все'), findsOneWidget);
     expect(find.byKey(const ValueKey('search_chip_cynologist')), findsOneWidget);
+    expect(find.text('Кинологи'), findsOneWidget);
     expect(find.byKey(const ValueKey('search_chip_dogsitter')), findsOneWidget);
+    expect(find.text('Догситтеры'), findsOneWidget);
     expect(find.byKey(const ValueKey('search_chip_groomer')), findsOneWidget);
+    expect(find.text('Груминг'), findsOneWidget);
     expect(find.byKey(const ValueKey('search_chip_vet')), findsOneWidget);
+    expect(find.text('Ветклиники'), findsOneWidget);
+    expect(find.byKey(const ValueKey('search_chip_playground')), findsOneWidget);
+    expect(find.text('Площадки'), findsOneWidget);
+    expect(find.byKey(const ValueKey('search_chip_lost_pet')), findsOneWidget);
+    expect(find.text('Пропажи'), findsOneWidget);
+
+    // Verify clean default section header without emoji
+    expect(find.text('Специалисты и места рядом'), findsOneWidget);
 
     // Verify specialist cards rendered in 'all' view
     expect(find.byType(SpecialistCard), findsWidgets);
@@ -65,6 +77,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('search_chip_cynologist')));
     await tester.pumpAndSettle();
 
+    expect(find.text('Кинологи и зоопсихологи'), findsOneWidget);
     expect(find.text('Анна Мельникова'), findsOneWidget);
     expect(find.text('Елена Смирнова'), findsNothing);
 
@@ -72,6 +85,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('search_chip_dogsitter')));
     await tester.pumpAndSettle();
 
+    expect(find.text('Догситтеры и передержка'), findsOneWidget);
     expect(find.text('Елена Смирнова'), findsOneWidget);
     expect(find.text('Анна Мельникова'), findsNothing);
 

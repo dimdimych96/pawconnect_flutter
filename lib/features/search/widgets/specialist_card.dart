@@ -18,45 +18,39 @@ class SpecialistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profColor = specialist.professionColor;
+    final metricsText =
+        '★ ${specialist.rating.toStringAsFixed(1)} (${specialist.reviewsCount})  ·  Стаж ${specialist.experienceYears} л.  ·  ${specialist.district}';
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.obsidianCardTranslucent,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.obsidianCard,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.glassBorderSubtle,
+          color: AppColors.glassBorder,
           width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row 1: Avatar, Name, Trust Badge & Profession
+          // Row 1: Avatar, Name, Quiet Verification Label & Profession
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Avatar with verified badge ring
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
                   PawAvatar(
                     url: specialist.avatarUrl,
-                    radius: 26,
+                    radius: 24,
                     fallbackColor: profColor,
                   ),
                   if (specialist.isVerified)
                     Container(
                       padding: const EdgeInsets.all(2),
                       decoration: const BoxDecoration(
-                        color: AppColors.obsidianBackground,
+                        color: AppColors.obsidianCard,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -68,8 +62,6 @@ class SpecialistCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 12),
-
-              // Name, Title, Experience
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,60 +75,35 @@ class SpecialistCard extends StatelessWidget {
                             style: const TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (specialist.isVerified)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.accentGreen.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColors.accentGreen.withValues(alpha: 0.35),
-                                width: 0.8,
-                              ),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.shield_rounded, size: 10, color: AppColors.accentGreen),
-                                SizedBox(width: 3),
-                                Text(
-                                  'ВЕРИФИЦИРОВАН',
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.accentGreen,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Icon(specialist.professionIcon, size: 14, color: profColor),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            '${specialist.professionTitle} • Стаж ${specialist.experienceYears} лет',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: profColor,
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (specialist.isVerified) ...[
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Верифицирован',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      specialist.professionTitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -146,75 +113,52 @@ class SpecialistCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // Row 2: Metrics pill bar (Rating, Price, District)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.glassBorderSubtle),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Rating
-                Row(
-                  children: [
-                    const Icon(Icons.star_rounded, size: 16, color: AppColors.accentYellow),
-                    const SizedBox(width: 4),
-                    Text(
-                      specialist.formattedRating,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(width: 1, height: 16, color: AppColors.glassBorder),
-                // Price
-                Text(
-                  specialist.formattedPrice,
+          // Row 2: Clean Metrics Line & Tabular Price
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  metricsText,
                   style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.accentGreen,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
+                    fontFeatures: [FontFeature.tabularFigures()],
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Container(width: 1, height: 16, color: AppColors.glassBorder),
-                // District
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
-                    const SizedBox(width: 3),
-                    Text(
-                      specialist.district,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              ),
+              const SizedBox(width: 12),
+              Text(
+                specialist.formattedPrice,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                  fontFeatures: [FontFeature.tabularFigures()],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
 
           // Address & Bio
           if (specialist.address.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.map_outlined, size: 14, color: AppColors.textTertiary),
-                const SizedBox(width: 6),
+                const Icon(Icons.location_on_outlined, size: 16, color: AppColors.textTertiary),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     specialist.address,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w400,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -225,39 +169,39 @@ class SpecialistCard extends StatelessWidget {
           ],
 
           if (specialist.bio != null && specialist.bio!.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               specialist.bio!,
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimary.withValues(alpha: 0.8),
-                height: 1.35,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+                height: 1.4,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
 
-          // Services chips
+          // Services chips without nested Border.all
           if (specialist.services.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Wrap(
-              spacing: 6,
-              runSpacing: 4,
+              spacing: 8,
+              runSpacing: 8,
               children: specialist.services.take(2).map((srv) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.obsidianCard,
+                    color: AppColors.obsidianGlassSurface,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.glassBorderSubtle),
                   ),
                   child: Text(
                     '${srv.title} · ${srv.price} ₽',
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
+                      fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ),
                 );
@@ -265,49 +209,56 @@ class SpecialistCard extends StatelessWidget {
             ),
           ],
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
-          // Action Buttons: «Маршрут» and «Связаться»
+          // Action Buttons: «Маршрут» and «Связаться» (44px height, 10px radius)
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onRoute,
-                  icon: const Icon(Icons.directions_rounded, size: 16, color: AppColors.accentBlue),
-                  label: const Text(
-                    'Маршрут',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                child: SizedBox(
+                  height: 44,
+                  child: OutlinedButton.icon(
+                    onPressed: onRoute,
+                    icon: const Icon(Icons.directions_outlined, size: 16, color: AppColors.textSecondary),
+                    label: const Text(
+                      'Маршрут',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.glassBorder),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: AppColors.obsidianGlassSurface,
+                      side: const BorderSide(color: AppColors.glassBorder),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: onInquire,
-                  icon: const Icon(Icons.send_rounded, size: 14, color: Colors.black),
-                  label: const Text(
-                    'Связаться',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                child: SizedBox(
+                  height: 44,
+                  child: ElevatedButton(
+                    onPressed: onInquire,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.textPrimary,
+                      foregroundColor: AppColors.obsidianBackground,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentGreen,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
+                    child: const Text(
+                      'Связаться',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.obsidianBackground,
+                      ),
+                    ),
                   ),
                 ),
               ),

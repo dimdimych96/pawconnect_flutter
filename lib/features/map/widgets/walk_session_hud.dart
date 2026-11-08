@@ -77,53 +77,49 @@ class _WalkSessionHudState extends State<WalkSessionHud> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(22.0),
+          borderRadius: BorderRadius.circular(16.0),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF141416).withValues(alpha: 0.90),
-                borderRadius: BorderRadius.circular(22.0),
+                color: AppColors.obsidianCardTranslucent,
+                borderRadius: BorderRadius.circular(16.0),
                 border: Border.all(
-                  color: modeColor.withValues(alpha: 0.45),
-                  width: 1.5,
+                  color: AppColors.glassBorder,
+                  width: 1.0,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                  BoxShadow(
-                    color: modeColor.withValues(alpha: 0.2),
+                    color: Colors.black.withValues(alpha: 0.4),
                     blurRadius: 12,
-                    spreadRadius: 1,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Row(
                 children: [
-                  // 1. Live Indicator Beacon
+                  // 1. Live Indicator Beacon (Clean vector icon in temperament color)
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
-                      color: modeColor.withValues(alpha: 0.15),
+                      color: widget.temperament.color.withValues(alpha: 0.14),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: modeColor.withValues(alpha: 0.4),
-                        width: 1.2,
+                        color: widget.temperament.color.withValues(alpha: 0.35),
+                        width: 1.0,
                       ),
                     ),
                     child: Center(
-                      child: Text(
-                        widget.temperament.emoji,
-                        style: const TextStyle(fontSize: 16),
+                      child: Icon(
+                        Icons.pets_rounded,
+                        size: 18,
+                        color: widget.temperament.color,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
 
                   // 2. Pet info and timer
                   Expanded(
@@ -137,29 +133,29 @@ class _WalkSessionHudState extends State<WalkSessionHud> {
                               widget.session.petName ?? 'Питомец',
                               style: const TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: modeColor.withValues(alpha: 0.18),
+                                color: modeColor.withValues(alpha: 0.14),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 modeLabel,
                                 style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
                                   color: modeColor,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 3),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
                             Container(
@@ -170,22 +166,22 @@ class _WalkSessionHudState extends State<WalkSessionHud> {
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            const SizedBox(width: 5),
+                            const SizedBox(width: 6),
                             Text(
                               _formatTimer(_elapsed),
                               style: const TextStyle(
                                 fontFamily: 'monospace',
                                 fontSize: 13,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: AppColors.textPrimary,
-                                letterSpacing: 0.5,
+                                fontFeatures: [FontFeature.tabularFigures()],
                               ),
                             ),
                             const SizedBox(width: 6),
                             const Text(
                               '• На радаре',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: AppColors.textSecondary,
                               ),
                             ),
@@ -195,16 +191,18 @@ class _WalkSessionHudState extends State<WalkSessionHud> {
                     ),
                   ),
 
-                  // 3. Finish Walk Button
+                  // 3. Finish Walk Button (38px height comfortable hit target)
                   GestureDetector(
                     onTap: widget.onStopWalk,
+                    behavior: HitTestBehavior.opaque,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      height: 38,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: AppColors.accentRed.withValues(alpha: 0.16),
-                        borderRadius: BorderRadius.circular(14),
+                        color: AppColors.accentRed.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppColors.accentRed.withValues(alpha: 0.4),
+                          color: AppColors.accentRed.withValues(alpha: 0.35),
                           width: 1.0,
                         ),
                       ),
@@ -213,15 +211,15 @@ class _WalkSessionHudState extends State<WalkSessionHud> {
                         children: [
                           Icon(
                             Icons.stop_rounded,
-                            size: 14,
+                            size: 16,
                             color: AppColors.accentRed,
                           ),
                           SizedBox(width: 4),
                           Text(
                             'Завершить',
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.accentRed,
                             ),
                           ),

@@ -41,7 +41,7 @@ class MainShell extends ConsumerWidget {
           // Active Screen Branch
           navigationShell,
 
-          // Global Floating Liquid Glass Tab Bar (Hides during route preview & navigation)
+          // Global Floating Liquid Glass Tab Bar (Quiet Graphite Chrome)
           Positioned(
             left: 0,
             right: 0,
@@ -50,37 +50,31 @@ class MainShell extends ConsumerWidget {
               ignoring: isSheetOrNavActive,
               child: AnimatedSlide(
                 duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOutCubic,
+                curve: const Cubic(0.22, 1.0, 0.36, 1.0),
                 offset: isSheetOrNavActive ? const Offset(0, 1.5) : Offset.zero,
                 child: SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Center(
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(26),
+                        borderRadius: BorderRadius.circular(20),
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                           child: Container(
-                            height: 52,
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                            height: 56,
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: const Color(0xC8121814),
-                              borderRadius: BorderRadius.circular(26),
+                              color: AppColors.obsidianCardTranslucent,
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.12),
+                                color: AppColors.glassBorder,
                                 width: 1.0,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.65),
-                                  blurRadius: 36,
-                                  offset: const Offset(0, 16),
-                                ),
-                                BoxShadow(
-                                  color: Colors.white.withValues(alpha: 0.15),
-                                  blurRadius: 0,
-                                  spreadRadius: 0,
-                                  offset: const Offset(0, -1),
+                                  color: Colors.black.withValues(alpha: 0.45),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
@@ -92,43 +86,43 @@ class MainShell extends ConsumerWidget {
                                   activeIcon: Icons.view_agenda_rounded,
                                   label: 'Лента',
                                   isSelected: navigationShell.currentIndex == 0,
-                                  activeColor: const Color(0xFF34D399),
+                                  activeColor: AppColors.textPrimary,
                                   onTap: () => _onTap(0),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
                                 _NavItem(
                                   icon: Icons.map_outlined,
                                   activeIcon: Icons.map_rounded,
                                   label: 'Карта',
                                   isSelected: navigationShell.currentIndex == 1,
-                                  activeColor: isBreached ? AppColors.accentRed : AppColors.accentBlue,
+                                  activeColor: isBreached ? AppColors.accentRed : AppColors.textPrimary,
                                   onTap: () => _onTap(1),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
                                 _NavItem(
                                   icon: Icons.search_outlined,
                                   activeIcon: Icons.search_rounded,
                                   label: 'Поиск',
                                   isSelected: navigationShell.currentIndex == 2,
-                                  activeColor: AppColors.accentGreen,
+                                  activeColor: AppColors.textPrimary,
                                   onTap: () => _onTap(2),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
                                 _NavItem(
                                   icon: Icons.pets_outlined,
                                   activeIcon: Icons.pets_rounded,
                                   label: 'Паспорт',
                                   isSelected: navigationShell.currentIndex == 3,
-                                  activeColor: AppColors.accentYellow,
+                                  activeColor: AppColors.textPrimary,
                                   onTap: () => _onTap(3),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
                                 _NavItem(
                                   icon: Icons.settings_outlined,
                                   activeIcon: Icons.settings_rounded,
                                   label: 'Настройки',
                                   isSelected: navigationShell.currentIndex == 4,
-                                  activeColor: const Color(0xFF34D399),
+                                  activeColor: AppColors.textPrimary,
                                   onTap: () => _onTap(4),
                                 ),
                               ],
@@ -196,77 +190,65 @@ class _NavItemState extends State<_NavItem> {
   Widget build(BuildContext context) {
     final isSelected = widget.isSelected;
     final activeColor = widget.activeColor;
-    final iconColor = isSelected ? activeColor : Colors.white.withValues(alpha: 0.60);
+    final iconColor = isSelected ? activeColor : AppColors.textTertiary;
 
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapCancel: () => setState(() => _isPressed = false),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.92 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: const Cubic(0.4, 0.0, 0.2, 1.0),
-          padding: EdgeInsets.symmetric(
-            horizontal: isSelected ? 14 : 11,
-            vertical: 8,
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: widget.label,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapCancel: () => setState(() => _isPressed = false),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        behavior: HitTestBehavior.opaque,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: 48,
+            minHeight: 48,
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(21),
-            gradient: isSelected
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      activeColor.withValues(alpha: 0.25),
-                      activeColor.withValues(alpha: 0.15),
-                    ],
-                  )
-                : null,
-            border: isSelected
-                ? Border.all(
-                    color: activeColor.withValues(alpha: 0.45),
-                    width: 1.0,
-                  )
-                : Border.all(
-                    color: Colors.transparent,
-                    width: 1.0,
-                  ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: activeColor.withValues(alpha: 0.25),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isSelected ? widget.activeIcon : widget.icon,
-                color: iconColor,
-                size: 20,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.97 : 1.0,
+            duration: const Duration(milliseconds: 140),
+            curve: const Cubic(0.22, 1.0, 0.36, 1.0),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: const Cubic(0.22, 1.0, 0.36, 1.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: isSelected ? 16 : 12,
+                vertical: 10,
               ),
-              if (isSelected) ...[
-                const SizedBox(width: 8),
-                Text(
-                  widget.label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: activeColor,
-                    letterSpacing: 0.2,
-                  ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: isSelected ? AppColors.obsidianGlassSurface : Colors.transparent,
+                border: Border.all(
+                  color: isSelected ? AppColors.glassBorder : Colors.transparent,
+                  width: 1.0,
                 ),
-              ],
-            ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isSelected ? widget.activeIcon : widget.icon,
+                    color: iconColor,
+                    size: 18,
+                  ),
+                  if (isSelected) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.label,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: activeColor,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

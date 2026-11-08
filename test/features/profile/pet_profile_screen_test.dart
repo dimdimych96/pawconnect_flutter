@@ -104,8 +104,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Passport Header
+    // Passport Header & calm safety status
     expect(find.text('Паспорт & Ошейник'), findsOneWidget);
+    expect(find.text('В безопасности'), findsOneWidget);
+    expect(find.text('🛡 В БЕЗОПАСНОСТИ'), findsNothing);
 
     // Health cards rendered
     expect(find.byType(BodyConditionWeightCard), findsOneWidget);
@@ -118,8 +120,8 @@ void main() {
     expect(find.text('Интеллект породы'), findsOneWidget);
     expect(find.text('Вельш-корги пемброк'), findsOneWidget);
 
-    // Collar & Reminders sections
+    // Collar & Personal Reminders sections
     expect(find.text('GPS-Ошейник PawConnect'), findsOneWidget);
-    expect(find.text('Вет-календарь'), findsOneWidget);
+    expect(find.text('Личные напоминания'), findsOneWidget);
   });
 }

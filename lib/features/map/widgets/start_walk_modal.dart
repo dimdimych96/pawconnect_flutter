@@ -23,8 +23,8 @@ class StartWalkModal extends StatefulWidget {
     super.key,
     required this.currentLat,
     required this.currentLng,
-    this.petName = 'Арчи',
-    this.petBreed = 'Вельш-корги',
+    this.petName = 'Макс',
+    this.petBreed = 'Золотистый ретривер',
     this.defaultTemperament = DogTemperament.playful,
     required this.onStart,
   });
@@ -79,7 +79,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: GlassCard(
-        borderRadius: 24,
+        borderRadius: 20,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: SingleChildScrollView(
           child: Column(
@@ -91,9 +91,9 @@ class _StartWalkModalState extends State<StartWalkModal> {
                 child: Container(
                   width: 36,
                   height: 4,
-                  margin: const EdgeInsets.only(bottom: 14),
+                  margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.25),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -111,10 +111,10 @@ class _StartWalkModalState extends State<StartWalkModal> {
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         '${widget.petName} • ${widget.petBreed}',
                         style: const TextStyle(
@@ -129,8 +129,8 @@ class _StartWalkModalState extends State<StartWalkModal> {
                     child: Container(
                       width: 32,
                       height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                      decoration: const BoxDecoration(
+                        color: AppColors.obsidianRaised,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -150,13 +150,13 @@ class _StartWalkModalState extends State<StartWalkModal> {
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
               _buildModeCard(
                 mode: 'open',
-                emoji: '🌿',
+                icon: Icons.public_rounded,
                 title: 'Открытый выгул',
                 subtitle: 'Точные координаты на радаре, видно соседям для совместных игр',
                 color: AppColors.accentGreen,
@@ -164,7 +164,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
               const SizedBox(height: 8),
               _buildModeCard(
                 mode: 'private',
-                emoji: '🛡️',
+                icon: Icons.shield_outlined,
                 title: 'Приватный выгул',
                 subtitle: 'Размытие координат (~120м). Никто не видит точную точку выгула',
                 color: const Color(0xFFA78BFA),
@@ -172,7 +172,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
               const SizedBox(height: 8),
               _buildModeCard(
                 mode: 'training',
-                emoji: '🎯',
+                icon: Icons.explore_rounded,
                 title: 'Тренировка',
                 subtitle: 'Отработка команд. Значок просит держать дистанцию и не отвлекать',
                 color: const Color(0xFFFBBF24),
@@ -185,7 +185,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
@@ -197,27 +197,34 @@ class _StartWalkModalState extends State<StartWalkModal> {
                   return GestureDetector(
                     onTap: () => setState(() => _selectedTemperament = temp),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? temp.color.withValues(alpha: 0.22)
-                            : Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(12),
+                            ? temp.color.withValues(alpha: 0.16)
+                            : AppColors.obsidianRaised,
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isSelected ? temp.color : Colors.white.withValues(alpha: 0.1),
-                          width: isSelected ? 1.5 : 1.0,
+                          color: isSelected ? temp.color : AppColors.glassBorder,
+                          width: 1.0,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(temp.emoji, style: const TextStyle(fontSize: 13)),
-                          const SizedBox(width: 5),
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: temp.color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Text(
                             temp.label,
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                               color: isSelected ? temp.color : AppColors.textPrimary,
                             ),
                           ),
@@ -235,33 +242,33 @@ class _StartWalkModalState extends State<StartWalkModal> {
                 style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'Заметка (напр., гуляем с мячом у фонтана)',
-                  hintStyle: TextStyle(
-                    color: AppColors.textSecondary.withValues(alpha: 0.6),
+                  hintStyle: const TextStyle(
+                    color: AppColors.textTertiary,
                     fontSize: 12,
                   ),
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  fillColor: AppColors.obsidianRaised,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.glassBorder),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.glassBorder),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: AppColors.accentGreen),
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
               // Start Walk Button
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 44,
                 child: ElevatedButton.icon(
                   onPressed: _isSubmitting ? null : _handleStart,
                   icon: _isSubmitting
@@ -270,18 +277,19 @@ class _StartWalkModalState extends State<StartWalkModal> {
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                         )
-                      : const Icon(Icons.pets_rounded, size: 18, color: Colors.black),
+                      : const Icon(Icons.play_arrow_rounded, size: 18, color: Colors.black),
                   label: Text(
-                    _isSubmitting ? 'Активация...' : 'Выйти на прогулку',
+                    _isSubmitting ? 'Активация' : 'Выйти на прогулку',
                     style: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accentGreen,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
               ),
@@ -294,7 +302,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
 
   Widget _buildModeCard({
     required String mode,
-    required String emoji,
+    required IconData icon,
     required String title,
     required String subtitle,
     required Color color,
@@ -305,18 +313,26 @@ class _StartWalkModalState extends State<StartWalkModal> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(14),
+          color: isSelected ? color.withValues(alpha: 0.10) : AppColors.obsidianRaised,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? color.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.08),
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? color.withValues(alpha: 0.6) : AppColors.glassBorder,
+            width: 1.0,
           ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 20)),
-            const SizedBox(width: 10),
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: Icon(
+                icon,
+                size: 18,
+                color: isSelected ? color : AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,17 +341,17 @@ class _StartWalkModalState extends State<StartWalkModal> {
                     title,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: isSelected ? color : AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: AppColors.textSecondary,
-                      height: 1.25,
+                      height: 1.3,
                     ),
                   ),
                 ],
@@ -344,7 +360,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
             if (isSelected)
               Icon(Icons.check_circle_rounded, size: 18, color: color)
             else
-              Icon(Icons.circle_outlined, size: 18, color: Colors.white.withValues(alpha: 0.2)),
+              const Icon(Icons.circle_outlined, size: 18, color: AppColors.textTertiary),
           ],
         ),
       ),

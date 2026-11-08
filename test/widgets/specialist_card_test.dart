@@ -48,10 +48,15 @@ void main() {
 
     expect(find.text('Анна Мельникова'), findsOneWidget);
     expect(find.textContaining('Кинолог-зоопсихолог'), findsOneWidget);
-    expect(find.text('ВЕРИФИЦИРОВАН'), findsOneWidget);
-    expect(find.textContaining('5.0 (48)'), findsOneWidget);
-    expect(find.textContaining('от 1 500 ₽ / занятие'), findsOneWidget);
+    expect(find.text('Верифицирован'), findsOneWidget);
+    expect(find.text('ВЕРИФИЦИРОВАН'), findsNothing);
+    expect(
+      find.text('★ 5.0 (48)  ·  Стаж 7 л.  ·  Заельцовский'),
+      findsOneWidget,
+    );
+    expect(find.text('от 1 500 ₽ / занятие'), findsOneWidget);
     expect(find.textContaining('Красный проспект, 182'), findsOneWidget);
+    expect(find.text('Индивидуальная тренировка · 1500 ₽'), findsOneWidget);
     expect(find.text('Маршрут'), findsOneWidget);
     expect(find.text('Связаться'), findsOneWidget);
 

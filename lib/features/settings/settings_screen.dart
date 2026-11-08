@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/config/app_config.dart';
 import '../../core/theme/colors.dart';
 import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
@@ -40,8 +41,8 @@ class SettingsScreen extends ConsumerWidget {
       useRootNavigator: true,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.obsidianCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Выход из аккаунта', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Выход из аккаунта', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
         content: const Text(
           'Вы действительно хотите выйти? Данные GPS-ошейника Макса останутся привязаны к вашему профилю.',
           style: TextStyle(color: AppColors.textSecondary),
@@ -65,9 +66,10 @@ class SettingsScreen extends ConsumerWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.accentRed,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 0,
             ),
-            child: const Text('Выйти', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Выйти', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -82,7 +84,7 @@ class SettingsScreen extends ConsumerWidget {
 
     final ownerName = authState.currentUser?.name ?? userState.ownerName;
     final ownerAvatar = authState.currentUser?.avatarUrl ?? userState.ownerAvatar;
-    final ownerEmail = authState.currentUser?.email ?? 'alex@pawconnect.app';
+    final ownerEmail = authState.currentUser?.email ?? 'Почта не указана';
 
     return Scaffold(
       backgroundColor: AppColors.obsidianBackground,
@@ -94,7 +96,7 @@ class SettingsScreen extends ConsumerWidget {
               'Настройки',
               style: TextStyle(
                 fontSize: 28,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
@@ -103,7 +105,7 @@ class SettingsScreen extends ConsumerWidget {
             // 1. Profile Card (Guest or Owner)
             if (!authState.isAuthenticated) ...[
               GlassCard(
-                borderRadius: 24,
+                borderRadius: 16,
                 padding: const EdgeInsets.all(20),
                 accentColor: AppColors.accentBlue,
                 child: Row(
@@ -113,34 +115,34 @@ class SettingsScreen extends ConsumerWidget {
                       height: 56,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.08),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                        color: AppColors.obsidianGlassSurface,
+                        border: Border.all(color: AppColors.glassBorder),
                       ),
                       child: const Icon(
                         Icons.person_outline_rounded,
                         color: AppColors.textSecondary,
-                        size: 30,
+                        size: 28,
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Expanded(
+                    const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Гость PawConnect',
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             'Вход не выполнен',
                             style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.textSecondary.withValues(alpha: 0.8),
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -152,17 +154,17 @@ class SettingsScreen extends ConsumerWidget {
                         backgroundColor: AppColors.accentBlue,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         elevation: 0,
                       ),
-                      child: const Text('Войти', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text('Войти', style: TextStyle(fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
               ),
             ] else ...[
               GlassCard(
-                borderRadius: 24,
+                borderRadius: 16,
                 padding: const EdgeInsets.all(18),
                 onTap: () => _openEditProfileModal(context, ref, ownerName, ownerAvatar),
                 child: Row(
@@ -187,7 +189,7 @@ class SettingsScreen extends ConsumerWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary,
                                   ),
                                 ),
@@ -197,9 +199,8 @@ class SettingsScreen extends ConsumerWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: AppColors.accentGreen.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
+                                    color: AppColors.obsidianGlassSurface,
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: const Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -210,8 +211,8 @@ class SettingsScreen extends ConsumerWidget {
                                         'Админ',
                                         style: TextStyle(
                                           color: AppColors.accentGreen,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],
@@ -226,13 +227,13 @@ class SettingsScreen extends ConsumerWidget {
                             style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.accentBlue,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.edit_rounded, color: AppColors.accentBlue, size: 20),
+                    const Icon(Icons.edit_rounded, color: AppColors.textSecondary, size: 18),
                   ],
                 ),
               ),
@@ -242,7 +243,7 @@ class SettingsScreen extends ConsumerWidget {
 
             // 2. Preferences & Notifications
             GlassCard(
-              borderRadius: 24,
+              borderRadius: 16,
               padding: const EdgeInsets.all(18),
               child: Column(
                 children: [
@@ -269,7 +270,7 @@ class SettingsScreen extends ConsumerWidget {
 
             // 3. Diagnostics & System Info
             GlassCard(
-              borderRadius: 24,
+              borderRadius: 16,
               padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +279,7 @@ class SettingsScreen extends ConsumerWidget {
                     'Диагностика системы',
                     style: TextStyle(
                       color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),
                   ),
@@ -289,33 +290,33 @@ class SettingsScreen extends ConsumerWidget {
                     icon: Icons.satellite_alt_rounded,
                     color: AppColors.accentGreen,
                   ),
-                  Divider(height: 16, color: AppColors.glassBorderSubtle),
+                  const Divider(height: 16, color: AppColors.glassBorderSubtle),
                   _DiagnosticRow(
-                    label: 'Бэкенд REST API',
-                    value: 'Online (JWT Session Active)',
-                    icon: Icons.cloud_done_rounded,
-                    color: AppColors.accentGreen,
+                    label: 'Статус сессии',
+                    value: authState.isAuthenticated ? 'Авторизован (JWT)' : 'Гостевой режим',
+                    icon: authState.isAuthenticated ? Icons.verified_user_outlined : Icons.person_outline_rounded,
+                    color: authState.isAuthenticated ? AppColors.accentGreen : AppColors.textSecondary,
                   ),
-                  Divider(height: 16, color: AppColors.glassBorderSubtle),
+                  const Divider(height: 16, color: AppColors.glassBorderSubtle),
                   const _DiagnosticRow(
-                    label: 'Задержка сети (Ping)',
-                    value: '24 ms',
-                    icon: Icons.speed_rounded,
-                    color: AppColors.accentGreen,
+                    label: 'Бэкенд REST API',
+                    value: AppConfig.apiBaseUrl,
+                    icon: Icons.cloud_outlined,
+                    color: AppColors.textPrimary,
                   ),
-                  Divider(height: 16, color: AppColors.glassBorderSubtle),
+                  const Divider(height: 16, color: AppColors.glassBorderSubtle),
                   const _DiagnosticRow(
                     label: 'Версия приложения',
-                    value: 'v1.0.4-liquid-glass',
+                    value: 'v1.0.4',
                     icon: Icons.info_outline_rounded,
-                    color: AppColors.accentYellow,
+                    color: AppColors.textSecondary,
                   ),
-                  Divider(height: 16, color: AppColors.glassBorderSubtle),
+                  const Divider(height: 16, color: AppColors.glassBorderSubtle),
                   _DiagnosticRow(
                     label: 'Роль профиля',
                     value: authState.isAuthenticated
-                        ? (authState.currentUser?.role.toUpperCase() ?? 'USER')
-                        : 'ГОСТЬ',
+                        ? (authState.currentUser?.role ?? 'Владелец')
+                        : 'Гость',
                     icon: (authState.currentUser?.canPublishAsTeam ?? false)
                         ? Icons.admin_panel_settings_rounded
                         : (authState.isAuthenticated ? Icons.person_rounded : Icons.person_outline_rounded),
@@ -335,15 +336,15 @@ class SettingsScreen extends ConsumerWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () => _showLogoutDialog(context, ref),
-                  icon: const Icon(Icons.logout_rounded, color: AppColors.accentRed),
+                  icon: const Icon(Icons.logout_rounded, color: AppColors.accentRed, size: 18),
                   label: const Text(
                     'Выйти из аккаунта',
-                    style: TextStyle(color: AppColors.accentRed, fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(color: AppColors.accentRed, fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: AppColors.accentRed.withValues(alpha: 0.5)),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    side: BorderSide(color: AppColors.accentRed.withValues(alpha: 0.4)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),
@@ -375,7 +376,7 @@ class _DiagnosticRow extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 18, color: color),
+            Icon(icon, size: 18, color: AppColors.textSecondary),
             const SizedBox(width: 10),
             Text(
               label,
@@ -386,12 +387,18 @@ class _DiagnosticRow extends StatelessWidget {
             ),
           ],
         ),
-        Text(
-          value,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
         ),
       ],
@@ -420,7 +427,7 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.accentBlue, size: 22),
+        Icon(icon, color: AppColors.textSecondary, size: 20),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
@@ -428,7 +435,7 @@ class _ToggleRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14),
+                style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500, fontSize: 14),
               ),
               const SizedBox(height: 2),
               Text(
@@ -447,4 +454,3 @@ class _ToggleRow extends StatelessWidget {
     );
   }
 }
-

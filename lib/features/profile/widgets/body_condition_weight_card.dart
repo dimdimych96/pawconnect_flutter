@@ -64,7 +64,7 @@ class BodyConditionWeightCard extends ConsumerWidget {
     if (targetWeight != null) {
       final diff = currentWeight - targetWeight;
       if (diff.abs() < 0.1) {
-        diffText = '🎯 Точно в цели';
+        diffText = 'Точно в цели';
         diffColor = AppColors.accentGreen;
       } else if (diff > 0) {
         diffText = '+${diff.toStringAsFixed(1)} кг к цели';
@@ -76,7 +76,7 @@ class BodyConditionWeightCard extends ConsumerWidget {
     }
 
     return GlassCard(
-      borderRadius: 24,
+      borderRadius: 16,
       padding: const EdgeInsets.all(20),
       accentColor: bcsColor,
       child: Column(
@@ -86,41 +86,46 @@ class BodyConditionWeightCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.monitor_weight_outlined, color: AppColors.accentGreen, size: 22),
-                  SizedBox(width: 8),
-                  Text(
-                    'Шкала кондиции & Вес',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+              const Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.monitor_weight_outlined, color: AppColors.textSecondary, size: 18),
+                    SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Шкала кондиции & Вес',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               InkWell(
                 onTap: () => _openWeightLogger(context, ref),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.accentGreen.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.3)),
+                    color: AppColors.obsidianGlassSurface,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.edit_outlined, size: 13, color: AppColors.accentGreen),
+                      Icon(Icons.edit_outlined, size: 14, color: AppColors.accentGreen),
                       SizedBox(width: 4),
                       Text(
                         'Записать',
                         style: TextStyle(
                           color: AppColors.accentGreen,
                           fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -129,15 +134,14 @@ class BodyConditionWeightCard extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
           // Weight Metrics Box
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.glassBorderSubtle),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
@@ -160,9 +164,10 @@ class BodyConditionWeightCard extends ConsumerWidget {
                           Text(
                             currentWeight.toStringAsFixed(1),
                             style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
+                              fontFeatures: [FontFeature.tabularFigures()],
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -170,7 +175,7 @@ class BodyConditionWeightCard extends ConsumerWidget {
                             'кг',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -181,9 +186,10 @@ class BodyConditionWeightCard extends ConsumerWidget {
                         Text(
                           diffText,
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 12,
                             color: diffColor,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
                       ],
@@ -193,7 +199,7 @@ class BodyConditionWeightCard extends ConsumerWidget {
                 Container(
                   width: 1,
                   height: 44,
-                  color: AppColors.glassBorder,
+                  color: AppColors.glassBorderSubtle,
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -212,8 +218,9 @@ class BodyConditionWeightCard extends ConsumerWidget {
                         profile.idealWeightRange ?? '10.0 – 14.0 кг',
                         style: const TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
+                          fontFeatures: [FontFeature.tabularFigures()],
                         ),
                       ),
                       if (targetWeight != null) ...[
@@ -221,8 +228,9 @@ class BodyConditionWeightCard extends ConsumerWidget {
                         Text(
                           'Цель: ${targetWeight.toStringAsFixed(1)} кг',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 12,
                             color: AppColors.textSecondary,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
                         ),
                       ],
@@ -239,27 +247,31 @@ class BodyConditionWeightCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Индекс BCS (1–9 баллов)',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+              const Flexible(
+                child: Text(
+                  'Индекс BCS (1–9 баллов)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: bcsColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: bcsColor.withValues(alpha: 0.5)),
+                  color: AppColors.obsidianGlassSurface,
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   '$bcs/9 • $bcsLabel',
                   style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     color: bcsColor,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ),
@@ -267,13 +279,11 @@ class BodyConditionWeightCard extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
 
-          // 9-step Visual Gauge
+          // 9-step Visual Gauge (Unslop: neutral steps with accent only on the active score)
           Row(
             children: List.generate(9, (index) {
               final step = index + 1;
               final isSelected = step == bcs;
-              final stepColor = BodyConditionHelper.getColor(step);
-              final isIdealRange = step == 4 || step == 5;
 
               return Expanded(
                 child: Padding(
@@ -281,41 +291,19 @@ class BodyConditionWeightCard extends ConsumerWidget {
                   child: Column(
                     children: [
                       Container(
-                        height: isSelected ? 24 : 14,
+                        height: 24,
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? stepColor
-                              : (isIdealRange
-                                  ? stepColor.withValues(alpha: 0.35)
-                                  : AppColors.obsidianGlassSurface),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected
-                                ? Colors.white
-                                : (isIdealRange
-                                    ? stepColor.withValues(alpha: 0.5)
-                                    : AppColors.glassBorderSubtle),
-                            width: isSelected ? 2.0 : 1.0,
-                          ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: stepColor.withValues(alpha: 0.6),
-                                    blurRadius: 10,
-                                    spreadRadius: 1,
-                                  ),
-                                ]
-                              : null,
+                          color: isSelected ? bcsColor : AppColors.obsidianGlassSurface,
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: Center(
                           child: Text(
                             '$step',
                             style: TextStyle(
-                              fontSize: isSelected ? 11 : 9,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected
-                                  ? Colors.black
-                                  : (isIdealRange ? stepColor : AppColors.textTertiary),
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                              color: isSelected ? Colors.black : AppColors.textSecondary,
                             ),
                           ),
                         ),
@@ -325,13 +313,13 @@ class BodyConditionWeightCard extends ConsumerWidget {
                         const Text(
                           'Идеал',
                           style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.accentGreen,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textTertiary,
                           ),
                         )
                       else
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
                     ],
                   ),
                 ),
@@ -345,9 +333,8 @@ class BodyConditionWeightCard extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: bcsColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: bcsColor.withValues(alpha: 0.25)),
+              color: AppColors.obsidianGlassSurface,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,10 +344,10 @@ class BodyConditionWeightCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     bcsAdvice,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textPrimary.withValues(alpha: 0.9),
-                      height: 1.35,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
                     ),
                   ),
                 ),
@@ -419,8 +406,8 @@ class _WeightLoggerModalState extends State<_WeightLoggerModal> {
       ),
       child: SingleChildScrollView(
         child: GlassCard(
-          borderRadius: 28,
-          padding: const EdgeInsets.all(22),
+          borderRadius: 16,
+          padding: const EdgeInsets.all(20),
           accentColor: AppColors.accentGreen,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -433,14 +420,14 @@ class _WeightLoggerModalState extends State<_WeightLoggerModal> {
                   const Expanded(
                     child: Row(
                       children: [
-                        Icon(Icons.monitor_weight_rounded, color: AppColors.accentGreen, size: 22),
+                        Icon(Icons.monitor_weight_rounded, color: AppColors.textSecondary, size: 18),
                         SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             'Запись веса и кондиции',
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -457,20 +444,19 @@ class _WeightLoggerModalState extends State<_WeightLoggerModal> {
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
               // Stepper for Weight
               const Text(
                 'Вес питомца (кг)',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.obsidianGlassSurface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.glassBorderSubtle),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -497,8 +483,9 @@ class _WeightLoggerModalState extends State<_WeightLoggerModal> {
                           '${_weight.toStringAsFixed(1)} кг',
                           style: const TextStyle(
                             fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -523,7 +510,7 @@ class _WeightLoggerModalState extends State<_WeightLoggerModal> {
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
               // Stepper / Selector for BCS (1-9)
               Row(
@@ -532,80 +519,85 @@ class _WeightLoggerModalState extends State<_WeightLoggerModal> {
                   const Flexible(
                     child: Text(
                       'Оценка кондиции (BCS)',
-                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '$_bcs/9 • $bcsLabel',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: bcsColor),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: bcsColor,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ],
               ),
-            const SizedBox(height: 8),
-            SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: bcsColor,
-                inactiveTrackColor: AppColors.obsidianGlassSurface,
-                thumbColor: bcsColor,
-                overlayColor: bcsColor.withValues(alpha: 0.2),
-                trackHeight: 6,
-                tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 2.5),
-                activeTickMarkColor: Colors.white,
-                inactiveTickMarkColor: AppColors.glassBorder,
-              ),
-              child: Slider(
-                value: _bcs.toDouble(),
-                min: 1,
-                max: 9,
-                divisions: 8,
-                onChanged: (val) {
-                  setState(() {
-                    _bcs = val.round();
-                  });
-                },
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSaving
-                    ? null
-                    : () async {
-                        setState(() => _isSaving = true);
-                        await widget.onSave(_weight, _bcs);
-                        if (!context.mounted) return;
-                        Navigator.of(context).pop();
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentGreen,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
+              const SizedBox(height: 8),
+              SliderTheme(
+                data: SliderThemeData(
+                  activeTrackColor: bcsColor,
+                  inactiveTrackColor: AppColors.obsidianGlassSurface,
+                  thumbColor: bcsColor,
+                  overlayColor: bcsColor.withValues(alpha: 0.2),
+                  trackHeight: 6,
+                  tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 2.5),
+                  activeTickMarkColor: Colors.white,
+                  inactiveTickMarkColor: AppColors.glassBorder,
                 ),
-                child: _isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Сохранить изменения',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
+                child: Slider(
+                  value: _bcs.toDouble(),
+                  min: 1,
+                  max: 9,
+                  divisions: 8,
+                  onChanged: (val) {
+                    setState(() {
+                      _bcs = val.round();
+                    });
+                  },
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 20),
+
+              // Save Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isSaving
+                      ? null
+                      : () async {
+                          setState(() => _isSaving = true);
+                          await widget.onSave(_weight, _bcs);
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accentGreen,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 0,
+                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Сохранить изменения',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                        ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
@@ -624,20 +616,21 @@ class _StepButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           color: AppColors.obsidianCard,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppColors.glassBorder),
         ),
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
             color: AppColors.textPrimary,
+            fontFeatures: [FontFeature.tabularFigures()],
           ),
         ),
       ),

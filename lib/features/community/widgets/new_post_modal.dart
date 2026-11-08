@@ -143,313 +143,314 @@ class _NewPostModalState extends ConsumerState<NewPostModal> {
         right: 16,
       ),
       child: GlassCard(
-        borderRadius: 28,
+        borderRadius: 24,
         padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.initialPost != null ? 'Редактировать запись' : 'Новая запись в ленту',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.textSecondary),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            if (currentUser != null && currentUser.canPublishAsTeam) ...[
-              const Text(
-                'Автор публикации',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: AppColors.obsidianGlassSurface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.glassBorderSubtle),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _isPublishingAsTeam = false),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: !_isPublishingAsTeam ? AppColors.accentBlue.withValues(alpha: 0.3) : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: !_isPublishingAsTeam ? AppColors.accentBlue : Colors.transparent,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              PawAvatar(
-                                url: currentUser.avatarUrl,
-                                radius: 10,
-                                fallbackIcon: Icons.person,
-                              ),
-                              const SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  currentUser.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: !_isPublishingAsTeam ? FontWeight.bold : FontWeight.normal,
-                                    color: !_isPublishingAsTeam ? Colors.white : AppColors.textSecondary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _isPublishingAsTeam = true),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: _isPublishingAsTeam ? AppColors.accentGreen.withValues(alpha: 0.25) : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: _isPublishingAsTeam ? AppColors.accentGreen : Colors.transparent,
-                            ),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.verified, size: 15, color: AppColors.accentGreen),
-                              SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  'PawConnect Team',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.accentGreen,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-            ],
-
-            if (_errorMessage != null) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.accentRed.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.accentRed.withValues(alpha: 0.35)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline_rounded, color: AppColors.accentRed, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-            ],
-
-            // District Selector Dropdown / Menu
-            const Text(
-              'Выберите район Новосибирска',
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: AppColors.obsidianGlassSurface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.glassBorderSubtle),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedDistrict,
-                  isExpanded: true,
-                  dropdownColor: AppColors.obsidianCard,
-                  icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.accentBlue),
-                  items: CommunityService.novosibirskDistricts
-                      .where((d) => d != 'Все районы')
-                      .map((d) => DropdownMenuItem(
-                            value: d,
-                            child: Text(d, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15)),
-                          ))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedDistrict = val);
-                  },
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // Topic Category Selection
-            const Text(
-              'Тема публикации',
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 6),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _TopicChip(
-                    label: 'Общее',
-                    category: 'general',
-                    color: AppColors.accentBlue,
-                    isSelected: _selectedCategory == 'general',
-                    onTap: () => setState(() => _selectedCategory = 'general'),
+                  Text(
+                    widget.initialPost != null ? 'Редактировать запись' : 'Новая запись в ленту',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  _TopicChip(
-                    label: '🏥 Здоровье',
-                    category: 'health',
-                    color: AppColors.accentGreen,
-                    isSelected: _selectedCategory == 'health',
-                    onTap: () => setState(() => _selectedCategory = 'health'),
-                  ),
-                  const SizedBox(width: 8),
-                  _TopicChip(
-                    label: '🦮 Дрессировка',
-                    category: 'training',
-                    color: AppColors.accentBlue,
-                    isSelected: _selectedCategory == 'training',
-                    onTap: () => setState(() => _selectedCategory = 'training'),
-                  ),
-                  const SizedBox(width: 8),
-                  _TopicChip(
-                    label: '🚨 SOS',
-                    category: 'sos',
-                    color: AppColors.accentRed,
-                    isSelected: _selectedCategory == 'sos',
-                    onTap: () => setState(() => _selectedCategory = 'sos'),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // Title Field
-            TextField(
-              controller: _titleController,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Заголовок записи...',
-                hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
-                filled: true,
-                fillColor: AppColors.obsidianGlassSurface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.glassBorder),
+              if (currentUser != null && currentUser.canPublishAsTeam) ...[
+                const Text(
+                  'Автор публикации',
+                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Content Field
-            TextField(
-              controller: _contentController,
-              maxLines: 4,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Расскажите подробнее сообществу районов...',
-                hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
-                filled: true,
-                fillColor: AppColors.obsidianGlassSurface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.glassBorder),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Publish Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                key: const ValueKey('submit_new_post_button'),
-                onPressed: _isPublishing ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentBlue,
-                  disabledBackgroundColor: AppColors.accentBlue.withValues(alpha: 0.5),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: _isPublishing
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        widget.initialPost != null ? 'Сохранить изменения' : 'Опубликовать запись',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.obsidianCard,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.glassBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isPublishingAsTeam = false),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: !_isPublishingAsTeam ? AppColors.obsidianGlassSurface : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: !_isPublishingAsTeam ? AppColors.glassBorder : Colors.transparent,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                PawAvatar(
+                                  url: currentUser.avatarUrl,
+                                  radius: 10,
+                                  fallbackIcon: Icons.person,
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    currentUser.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: !_isPublishingAsTeam ? AppColors.textPrimary : AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isPublishingAsTeam = true),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: _isPublishingAsTeam ? AppColors.obsidianGlassSurface : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: _isPublishingAsTeam ? AppColors.glassBorder : Colors.transparent,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.verified, size: 15, color: AppColors.accentGreen),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    'PawConnect Team',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: _isPublishingAsTeam ? AppColors.textPrimary : AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              if (_errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentRed.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.accentRed.withValues(alpha: 0.35)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline_rounded, color: AppColors.accentRed, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // District Selector Dropdown / Menu
+              const Text(
+                'Выберите район Новосибирска',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
               ),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.obsidianGlassSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.glassBorder),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedDistrict,
+                    isExpanded: true,
+                    dropdownColor: AppColors.obsidianCard,
+                    icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
+                    items: CommunityService.novosibirskDistricts
+                        .where((d) => d != 'Все районы')
+                        .map((d) => DropdownMenuItem(
+                              value: d,
+                              child: Text(d, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15)),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedDistrict = val);
+                    },
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Topic Category Selection
+              const Text(
+                'Тема публикации',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 6),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _TopicChip(
+                      label: 'Общее',
+                      category: 'general',
+                      color: AppColors.accentBlue,
+                      isSelected: _selectedCategory == 'general',
+                      onTap: () => setState(() => _selectedCategory = 'general'),
+                    ),
+                    const SizedBox(width: 8),
+                    _TopicChip(
+                      label: 'Здоровье',
+                      category: 'health',
+                      color: AppColors.accentGreen,
+                      isSelected: _selectedCategory == 'health',
+                      onTap: () => setState(() => _selectedCategory = 'health'),
+                    ),
+                    const SizedBox(width: 8),
+                    _TopicChip(
+                      label: 'Дрессировка',
+                      category: 'training',
+                      color: AppColors.accentBlue,
+                      isSelected: _selectedCategory == 'training',
+                      onTap: () => setState(() => _selectedCategory = 'training'),
+                    ),
+                    const SizedBox(width: 8),
+                    _TopicChip(
+                      label: 'SOS',
+                      category: 'sos',
+                      color: AppColors.accentRed,
+                      isSelected: _selectedCategory == 'sos',
+                      onTap: () => setState(() => _selectedCategory = 'sos'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Title Field
+              TextField(
+                controller: _titleController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'Заголовок записи...',
+                  hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                  filled: true,
+                  fillColor: AppColors.obsidianGlassSurface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.glassBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Content Field
+              TextField(
+                controller: _contentController,
+                maxLines: 4,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'Расскажите подробнее сообществу районов...',
+                  hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                  filled: true,
+                  fillColor: AppColors.obsidianGlassSurface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.glassBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Publish Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  key: const ValueKey('submit_new_post_button'),
+                  onPressed: _isPublishing ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.textPrimary,
+                    foregroundColor: AppColors.obsidianBackground,
+                    disabledBackgroundColor: AppColors.textPrimary.withValues(alpha: 0.5),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _isPublishing
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.obsidianBackground,
+                          ),
+                        )
+                      : Text(
+                          widget.initialPost != null ? 'Сохранить изменения' : 'Опубликовать запись',
+                          style: const TextStyle(
+                            color: AppColors.obsidianBackground,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _TopicChip extends StatelessWidget {
@@ -472,22 +473,36 @@ class _TopicChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.25) : AppColors.obsidianGlassSurface,
-          borderRadius: BorderRadius.circular(14),
+          color: isSelected ? AppColors.obsidianGlassSurface : AppColors.obsidianCard,
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? color : AppColors.glassBorderSubtle,
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? color : AppColors.glassBorder,
+            width: 1.0,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? color : AppColors.textSecondary,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+              ),
+            ),
+          ],
         ),
       ),
     );

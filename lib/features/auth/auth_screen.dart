@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,78 +81,46 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       backgroundColor: AppColors.obsidianBackground,
       body: Stack(
         children: [
-          // Background Gradient Orbs
-          Positioned(
-            top: -60,
-            left: -60,
-            child: Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accentBlue.withValues(alpha: 0.15),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -80,
-            right: -60,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accentGreen.withValues(alpha: 0.12),
-              ),
-            ),
-          ),
-
           // Top Back Navigation Button
           Positioned(
             top: 16,
             left: 16,
             child: SafeArea(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go('/feed');
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xC8141916),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.12),
-                            width: 1.0,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/feed');
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.obsidianCard,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.glassBorder,
+                        width: 1.0,
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: AppColors.textPrimary),
+                        SizedBox(width: 6),
+                        Text(
+                          'К ленте',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: AppColors.textPrimary),
-                            SizedBox(width: 6),
-                            Text(
-                              'К ленте',
-                              style: TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
@@ -168,223 +135,203 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 420),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-                      child: Container(
-                        padding: const EdgeInsets.all(28),
-                        decoration: BoxDecoration(
-                          color: const Color(0xDC181B22),
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.12),
-                            width: 1.0,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.75),
-                              blurRadius: 36,
-                              offset: const Offset(0, 16),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.obsidianCard,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.glassBorder,
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // App Logo & Title
+                          Center(
+                            child: Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: AppColors.obsidianGlassSurface,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: AppColors.glassBorder,
+                                  width: 1.0,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.pets_rounded,
+                                color: AppColors.accentGreen,
+                                size: 28,
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // App Logo & Title
-                              Center(
-                                child: Container(
-                                  width: 68,
-                                  height: 68,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColors.accentBlue.withValues(alpha: 0.35),
-                                        AppColors.accentGreen.withValues(alpha: 0.20),
-                                      ],
-                                    ),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.accentBlue.withValues(alpha: 0.5),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.pets_rounded,
-                                    color: AppColors.accentGreen,
-                                    size: 34,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'PawConnect',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                _isRegister
-                                    ? 'Создайте аккаунт для синхронизации GPS-ошейника'
-                                    : 'Войдите в свой профиль владельца',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Auth Mode Switcher (Liquid Glass Capsule)
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.06),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.08),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: _AuthTabButton(
-                                        title: 'Вход',
-                                        isSelected: !_isRegister,
-                                        onTap: () => setState(() => _isRegister = false),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: _AuthTabButton(
-                                        title: 'Регистрация',
-                                        isSelected: _isRegister,
-                                        onTap: () => setState(() => _isRegister = true),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Name Field (Register mode only)
-                              if (_isRegister) ...[
-                                _buildTextField(
-                                  controller: _nameController,
-                                  label: 'Ваше имя',
-                                  hint: 'Алексей Иванов',
-                                  icon: Icons.person_outline_rounded,
-                                  validator: (val) =>
-                                      (val == null || val.trim().isEmpty) ? 'Введите имя' : null,
-                                ),
-                                const SizedBox(height: 16),
-                              ],
-
-                              // Email Field
-                              _buildTextField(
-                                controller: _emailController,
-                                label: 'Email',
-                                hint: 'example@pawconnect.app',
-                                icon: Icons.mail_outline_rounded,
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (val) {
-                                  if (val == null || val.trim().isEmpty) return 'Введите email';
-                                  if (!val.contains('@')) return 'Некорректный email';
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 16),
-
-                              // Password Field
-                              _buildTextField(
-                                controller: _passwordController,
-                                label: 'Пароль',
-                                hint: '••••••••',
-                                icon: Icons.lock_outline_rounded,
-                                obscureText: _obscurePassword,
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                    color: AppColors.textSecondary,
-                                    size: 18,
-                                  ),
-                                  onPressed: () =>
-                                      setState(() => _obscurePassword = !_obscurePassword),
-                                ),
-                                validator: (val) {
-                                  if (val == null || val.length < 6) {
-                                    return 'Пароль должен быть не менее 6 символов';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 26),
-
-                              // Submit Button
-                              ElevatedButton(
-                                onPressed: authState.isLoading ? null : _submit,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.accentBlue,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  elevation: 0,
-                                  shadowColor: Colors.transparent,
-                                ),
-                                child: authState.isLoading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation(Colors.white),
-                                        ),
-                                      )
-                                    : Text(
-                                        _isRegister ? 'Зарегистрироваться' : 'Войти в аккаунт',
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                              ),
-                              const SizedBox(height: 12),
-
-                              // Continue as Guest Action
-                              TextButton(
-                                onPressed: () {
-                                  if (context.canPop()) {
-                                    context.pop();
-                                  } else {
-                                    context.go('/feed');
-                                  }
-                                },
-                                style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.textSecondary,
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                ),
-                                child: const Text(
-                                  'Продолжить как гость',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                              ),
-                            ],
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'PawConnect',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _isRegister
+                                ? 'Создайте аккаунт для синхронизации GPS-ошейника'
+                                : 'Войдите в свой профиль владельца',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Auth Mode Switcher (Graphite Control)
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.obsidianGlassSurface,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppColors.glassBorderSubtle,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _AuthTabButton(
+                                    title: 'Вход',
+                                    isSelected: !_isRegister,
+                                    onTap: () => setState(() => _isRegister = false),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _AuthTabButton(
+                                    title: 'Регистрация',
+                                    isSelected: _isRegister,
+                                    onTap: () => setState(() => _isRegister = true),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Name Field (Register mode only)
+                          if (_isRegister) ...[
+                            _buildTextField(
+                              controller: _nameController,
+                              label: 'Ваше имя',
+                              hint: 'Алексей Иванов',
+                              icon: Icons.person_outline_rounded,
+                              validator: (val) =>
+                                  (val == null || val.trim().isEmpty) ? 'Введите имя' : null,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
+                          // Email Field
+                          _buildTextField(
+                            controller: _emailController,
+                            label: 'Email',
+                            hint: 'example@pawconnect.app',
+                            icon: Icons.mail_outline_rounded,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (val) {
+                              if (val == null || val.trim().isEmpty) return 'Введите email';
+                              if (!val.contains('@')) return 'Некорректный email';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Password Field
+                          _buildTextField(
+                            controller: _passwordController,
+                            label: 'Пароль',
+                            hint: '••••••••',
+                            icon: Icons.lock_outline_rounded,
+                            obscureText: _obscurePassword,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                color: AppColors.textSecondary,
+                                size: 18,
+                              ),
+                              onPressed: () =>
+                                  setState(() => _obscurePassword = !_obscurePassword),
+                            ),
+                            validator: (val) {
+                              if (val == null || val.length < 6) {
+                                return 'Пароль должен быть не менее 6 символов';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Submit Button
+                          ElevatedButton(
+                            onPressed: authState.isLoading ? null : _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.accentBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                              shadowColor: Colors.transparent,
+                            ),
+                            child: authState.isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                                    ),
+                                  )
+                                : Text(
+                                    _isRegister ? 'Зарегистрироваться' : 'Войти в аккаунт',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Continue as Guest Action
+                          TextButton(
+                            onPressed: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              } else {
+                                context.go('/feed');
+                              }
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.textSecondary,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            child: const Text(
+                              'Продолжить как гость',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -415,7 +362,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           style: const TextStyle(
             color: AppColors.textSecondary,
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 6),
@@ -427,26 +374,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+            hintStyle: const TextStyle(color: AppColors.textTertiary),
             prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 18),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: AppColors.obsidianGlassSurface,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.glassBorder),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.glassBorder),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.accentBlue, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.accentRed, width: 1.0),
             ),
           ),
@@ -472,13 +419,14 @@ class _AuthTabButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 160),
+        curve: const Cubic(0.22, 1.0, 0.36, 1.0),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.accentBlue.withValues(alpha: 0.25) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? AppColors.obsidianCard : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
           border: isSelected
-              ? Border.all(color: AppColors.accentBlue.withValues(alpha: 0.5), width: 1.0)
+              ? Border.all(color: AppColors.glassBorder, width: 1.0)
               : Border.all(color: Colors.transparent),
         ),
         child: Text(
@@ -487,7 +435,7 @@ class _AuthTabButton extends StatelessWidget {
           style: TextStyle(
             color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
             fontSize: 13,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
       ),

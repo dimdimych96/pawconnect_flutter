@@ -84,6 +84,7 @@ class PetProfileScreen extends ConsumerWidget {
 
     final isBreached = gpsDevice?.isBreached ?? false;
     final currentRadius = gpsDevice?.safeZoneRadius ?? 350.0;
+    final safeRadius = currentRadius.toInt();
     final batteryLevel = gpsDevice?.batteryLevel ?? 88;
     final isConnected = gpsDevice?.isConnected ?? true;
 
@@ -100,7 +101,7 @@ class PetProfileScreen extends ConsumerWidget {
                 'Паспорт & Ошейник',
                 style: TextStyle(
                   fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -109,7 +110,7 @@ class PetProfileScreen extends ConsumerWidget {
               // Guest Mode Invitation Banner
               if (!authState.isAuthenticated) ...[
                 GlassCard(
-                  borderRadius: 20,
+                  borderRadius: 16,
                   padding: const EdgeInsets.all(16),
                   accentColor: AppColors.accentBlue,
                   child: Row(
@@ -119,49 +120,49 @@ class PetProfileScreen extends ConsumerWidget {
                         height: 44,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.accentBlue.withValues(alpha: 0.15),
+                          color: AppColors.obsidianGlassSurface,
                           border: Border.all(
-                            color: AppColors.accentBlue.withValues(alpha: 0.45),
+                            color: AppColors.glassBorder,
                             width: 1.0,
                           ),
                         ),
-                        child: const Icon(Icons.pets_rounded, color: AppColors.accentBlue, size: 22),
+                        child: const Icon(Icons.pets_rounded, color: AppColors.accentBlue, size: 20),
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
+                      const SizedBox(width: 12),
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Демо-просмотр паспорта',
                               style: TextStyle(
                                 color: AppColors.textPrimary,
                                 fontSize: 15,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 3),
+                            SizedBox(height: 4),
                             Text(
                               'Войдите, чтобы подключить ошейник и настроить зоны безопасности',
                               style: TextStyle(
-                                color: AppColors.textSecondary.withValues(alpha: 0.85),
+                                color: AppColors.textSecondary,
                                 fontSize: 12,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       ElevatedButton(
                         onPressed: () => context.push('/auth'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.accentBlue,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           elevation: 0,
                         ),
-                        child: const Text('Войти', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        child: const Text('Войти', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                       ),
                     ],
                   ),
@@ -171,7 +172,7 @@ class PetProfileScreen extends ConsumerWidget {
 
               // 1. Pet Passport Card
               GlassCard(
-                borderRadius: 24,
+                borderRadius: 16,
                 padding: const EdgeInsets.all(20),
                 accentColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
                 child: Column(
@@ -189,14 +190,8 @@ class PetProfileScreen extends ConsumerWidget {
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                                  width: 3.0,
+                                  width: 2.0,
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: (isBreached ? AppColors.accentRed : AppColors.accentGreen).withValues(alpha: 0.4),
-                                    blurRadius: 12,
-                                  ),
-                                ],
                               ),
                             ),
                             PawAvatar(
@@ -216,30 +211,45 @@ class PetProfileScreen extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    gpsDevice?.petName ?? 'Макс',
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
+                                  Flexible(
+                                    child: Text(
+                                      gpsDevice?.petName ?? 'Макс',
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: (isBreached ? AppColors.accentRed : AppColors.accentGreen).withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                                      ),
+                                      color: (isBreached ? AppColors.accentRed : AppColors.accentGreen).withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Text(
-                                      isBreached ? '⚠️ ТРЕВОГА' : '🛡 В БЕЗОПАСНОСТИ',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                                      ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          isBreached ? 'Тревога геозоны' : 'В безопасности',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -255,14 +265,18 @@ class PetProfileScreen extends ConsumerWidget {
                               const SizedBox(height: 6),
                               const Row(
                                 children: [
-                                  Icon(Icons.qr_code_2_rounded, size: 16, color: AppColors.accentBlue),
+                                  Icon(Icons.qr_code_2_rounded, size: 16, color: AppColors.textSecondary),
                                   SizedBox(width: 6),
-                                  Text(
-                                    'Чип: 643094100284912',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.accentBlue,
-                                      fontWeight: FontWeight.w600,
+                                  Flexible(
+                                    child: Text(
+                                      'Чип: 643094100284912',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary,
+                                        fontWeight: FontWeight.w500,
+                                        fontFeatures: [FontFeature.tabularFigures()],
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -293,7 +307,7 @@ class PetProfileScreen extends ConsumerWidget {
 
               // 3. GPS Collar Controls Block
               GlassCard(
-                borderRadius: 24,
+                borderRadius: 16,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,26 +315,33 @@ class PetProfileScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Row(
-                          children: [
-                            Icon(Icons.watch_rounded, color: AppColors.accentGreen, size: 22),
-                            SizedBox(width: 8),
-                            Text(
-                              'GPS-Ошейник PawConnect',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                        const Expanded(
+                          child: Row(
+                            children: [
+                              Icon(Icons.watch_rounded, color: AppColors.textSecondary, size: 18),
+                              SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'GPS-Ошейник PawConnect',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         // Connection Status Dot
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 8,
-                              height: 8,
+                              width: 6,
+                              height: 6,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: isConnected ? AppColors.accentGreen : AppColors.accentYellow,
@@ -330,44 +351,50 @@ class PetProfileScreen extends ConsumerWidget {
                             Text(
                               isConnected ? 'В сети' : 'Оффлайн',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 12,
                                 color: isConnected ? AppColors.accentGreen : AppColors.accentYellow,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
 
                     // Battery Indicator Bar
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppColors.obsidianGlassSurface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.glassBorderSubtle),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
-                            children: [
-                              Icon(Icons.battery_charging_full_rounded, color: AppColors.accentGreen, size: 20),
-                              SizedBox(width: 8),
-                              Text(
-                                'Заряд аккумулятора',
-                                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-                              ),
-                            ],
+                          const Expanded(
+                            child: Row(
+                              children: [
+                                Icon(Icons.battery_charging_full_rounded, color: AppColors.accentGreen, size: 18),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'Заряд аккумулятора',
+                                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
                             '$batteryLevel%',
                             style: const TextStyle(
                               color: AppColors.accentGreen,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               fontSize: 16,
+                              fontFeatures: [FontFeature.tabularFigures()],
                             ),
                           ),
                         ],
@@ -380,80 +407,94 @@ class PetProfileScreen extends ConsumerWidget {
                     const Text(
                       'Безопасная геозона (Радиус)',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                         color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       decoration: BoxDecoration(
                         color: AppColors.obsidianGlassSurface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.glassBorderSubtle),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // Button Minus (-10m)
-                          InkWell(
-                            onTap: () {
-                              if (currentRadius > 50.0) {
-                                mapNotifier.updateSafeZoneRadius(currentRadius - 10.0);
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AppColors.obsidianCard,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.glassBorder),
+                          Semantics(
+                            button: true,
+                            label: 'Уменьшить радиус геозоны',
+                            child: InkWell(
+                              onTap: () {
+                                if (currentRadius > 50.0) {
+                                  mapNotifier.updateSafeZoneRadius(currentRadius - 10.0);
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: AppColors.obsidianCard,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColors.glassBorder),
+                                ),
+                                child: const Icon(Icons.remove, color: AppColors.textPrimary, size: 20),
                               ),
-                              child: const Icon(Icons.remove, color: AppColors.textPrimary, size: 20),
                             ),
                           ),
 
                           // Radius Display
-                          Column(
-                            children: [
-                              Text(
-                                '${currentRadius.toInt()} метров',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    '$safeRadius м',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                      fontFeatures: [FontFeature.tabularFigures()],
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Шаг: ±10 м',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                      fontFeatures: [FontFeature.tabularFigures()],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const Text(
-                                'Шаг: ±10м',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
 
                           // Button Plus (+10m)
-                          InkWell(
-                            onTap: () {
-                              if (currentRadius < 2000.0) {
-                                mapNotifier.updateSafeZoneRadius(currentRadius + 10.0);
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AppColors.obsidianCard,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.glassBorder),
+                          Semantics(
+                            button: true,
+                            label: 'Увеличить радиус геозоны',
+                            child: InkWell(
+                              onTap: () {
+                                if (currentRadius < 2000.0) {
+                                  mapNotifier.updateSafeZoneRadius(currentRadius + 10.0);
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: AppColors.obsidianCard,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColors.glassBorder),
+                                ),
+                                child: const Icon(Icons.add, color: AppColors.textPrimary, size: 20),
                               ),
-                              child: const Icon(Icons.add, color: AppColors.textPrimary, size: 20),
                             ),
                           ),
                         ],
@@ -469,15 +510,16 @@ class PetProfileScreen extends ConsumerWidget {
                         onPressed: () {
                           context.go('/map');
                         },
-                        icon: const Icon(Icons.my_location_rounded, color: AppColors.accentGreen),
+                        icon: const Icon(Icons.my_location_rounded, color: AppColors.accentGreen, size: 18),
                         label: const Text(
                           'Настроить центр на карте',
-                          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
                         ),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.accentGreen),
+                          side: const BorderSide(color: AppColors.glassBorder),
+                          backgroundColor: AppColors.obsidianGlassSurface,
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ),
@@ -485,29 +527,38 @@ class PetProfileScreen extends ConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              // 4. Vet Calendar Reminders Section
+              // 4. Personal Reminders Section
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Вет-календарь',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                  const Flexible(
+                    child: Text(
+                      'Личные напоминания',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => _openNewReminderModal(context, ref),
-                    icon: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: AppColors.accentBlue,
-                        shape: BoxShape.circle,
+                  Semantics(
+                    button: true,
+                    label: 'Добавить личное напоминание',
+                    child: IconButton(
+                      onPressed: () => _openNewReminderModal(context, ref),
+                      icon: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.obsidianGlassSurface,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.glassBorder),
+                        ),
+                        child: const Icon(Icons.add, color: AppColors.textPrimary, size: 18),
                       ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 20),
                     ),
                   ),
                 ],
@@ -529,23 +580,22 @@ class PetProfileScreen extends ConsumerWidget {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
                     child: GlassCard(
-                      borderRadius: 20,
+                      borderRadius: 16,
                       padding: const EdgeInsets.all(16),
                       accentColor: reminder.isCompleted ? AppColors.glassBorder : catColor,
                       child: Row(
                         children: [
                           // Category Icon Box
                           Container(
-                            width: 46,
-                            height: 46,
+                            width: 44,
+                            height: 44,
                             decoration: BoxDecoration(
-                              color: catColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: catColor.withValues(alpha: 0.5)),
+                              color: AppColors.obsidianGlassSurface,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Icon(catIcon, color: catColor, size: 22),
+                            child: Icon(catIcon, color: catColor, size: 20),
                           ),
-                          const SizedBox(width: 14),
+                          const SizedBox(width: 12),
 
                           // Details
                           Expanded(
@@ -555,8 +605,8 @@ class PetProfileScreen extends ConsumerWidget {
                                 Text(
                                   reminder.title,
                                   style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
                                     color: reminder.isCompleted ? AppColors.textSecondary : AppColors.textPrimary,
                                     decoration: reminder.isCompleted ? TextDecoration.lineThrough : null,
                                   ),
@@ -566,12 +616,16 @@ class PetProfileScreen extends ConsumerWidget {
                                   children: [
                                     Icon(Icons.event_outlined, size: 14, color: catColor),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      '${reminder.date.day}.${reminder.date.month}.${reminder.date.year} • ${reminder.time}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: catColor,
-                                        fontWeight: FontWeight.w600,
+                                    Flexible(
+                                      child: Text(
+                                        '${reminder.date.day}.${reminder.date.month}.${reminder.date.year} • ${reminder.time}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: catColor,
+                                          fontWeight: FontWeight.w500,
+                                          fontFeatures: const [FontFeature.tabularFigures()],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],

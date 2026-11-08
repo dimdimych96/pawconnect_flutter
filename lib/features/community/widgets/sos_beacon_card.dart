@@ -57,20 +57,12 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF131318),
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.obsidianCard,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.accentRed.withValues(alpha: 0.4),
-          width: 1.5,
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.accentRed.withValues(alpha: 0.12),
-            blurRadius: 16,
-            spreadRadius: 1,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +72,7 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.accentRed.withValues(alpha: 0.12),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
             ),
             child: Row(
               children: [
@@ -90,14 +82,25 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                     color: AppColors.accentRed,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Text(
-                    '🚨 СРОЧНЫЙ ПОИСК',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                    ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        size: 13,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'СРОЧНЫЙ ПОИСК',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -109,7 +112,7 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                     style: TextStyle(
                       color: AppColors.accentRed.withValues(alpha: 0.9),
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -120,21 +123,21 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: AppColors.obsidianGlassSurface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                      border: Border.all(color: AppColors.glassBorder),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.map_outlined, size: 13, color: AppColors.accentBlue),
+                        Icon(Icons.map_outlined, size: 13, color: AppColors.textPrimary),
                         SizedBox(width: 4),
                         Text(
                           'На карте',
                           style: TextStyle(
-                            color: AppColors.accentBlue,
+                            color: AppColors.textPrimary,
                             fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -168,7 +171,7 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                               widget.post.authorName,
                               style: const TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: AppColors.textPrimary,
                               ),
                               maxLines: 1,
@@ -176,20 +179,23 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                             ),
                           ),
                           if (widget.post.petName != null && widget.post.petName!.isNotEmpty) ...[
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.accentRed.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.pets_rounded,
+                              size: 13,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
                               child: Text(
-                                '🐾 ${widget.post.petName}',
+                                widget.post.petName!,
                                 style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.accentRed,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w500,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -199,7 +205,7 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                       Text(
                         'Район: ${widget.post.district}',
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -221,7 +227,7 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                     widget.post.title,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -245,9 +251,9 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                       child: Text(
                         'Читать полностью...',
                         style: TextStyle(
-                          color: AppColors.accentBlue,
+                          color: AppColors.textPrimary,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -263,7 +269,7 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
               child: AspectRatio(
                 aspectRatio: 4 / 3,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(10),
                   child: HeartBurstOverlay(
                     onDoubleTap: widget.onLike,
                     child: PawImage(
@@ -277,120 +283,123 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
               ),
             ),
 
-          // 5. Interactive SOS Command Deck («Замечен здесь» & «Помочь в поиске»)
+          // 5. Interactive SOS Actions («Замечен здесь» & «Помочь в поиске»)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      // «Замечен здесь» (Spotting Signal)
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: widget.onSightingTap,
-                          icon: const Icon(Icons.pin_drop_rounded, size: 16, color: Colors.white),
-                          label: const Text(
-                            'Замечен здесь',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFF59E0B),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            elevation: 0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    // «Замечен здесь» (Spotting Signal) — Dark contrast text on yellow/amber
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: widget.onSightingTap,
+                        icon: const Icon(
+                          Icons.pin_drop_rounded,
+                          size: 16,
+                          color: Color(0xFF0F0F10),
+                        ),
+                        label: const Text(
+                          'Замечен здесь',
+                          style: TextStyle(
+                            color: Color(0xFF0F0F10),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
                           ),
                         ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF59E0B),
+                          foregroundColor: const Color(0xFF0F0F10),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          elevation: 0,
+                        ),
                       ),
-                      const SizedBox(width: 10),
-                      // «Помочь в поиске» (Volunteer Toggle)
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: widget.onVolunteerTap,
-                          icon: Icon(
-                            widget.post.isVolunteering ? Icons.check_circle_rounded : Icons.group_add_rounded,
-                            size: 16,
+                    ),
+                    const SizedBox(width: 10),
+                    // «Помочь в поиске» (Volunteer Toggle)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: widget.onVolunteerTap,
+                        icon: Icon(
+                          widget.post.isVolunteering ? Icons.check_circle_rounded : Icons.group_add_rounded,
+                          size: 16,
+                          color: widget.post.isVolunteering ? AppColors.accentGreen : AppColors.textPrimary,
+                        ),
+                        label: Text(
+                          widget.post.isVolunteering ? 'В отряде' : 'Помочь в поиске',
+                          style: TextStyle(
                             color: widget.post.isVolunteering ? AppColors.accentGreen : AppColors.textPrimary,
-                          ),
-                          label: Text(
-                            widget.post.isVolunteering ? 'В отряде' : 'Помочь в поиске',
-                            style: TextStyle(
-                              color: widget.post.isVolunteering ? AppColors.accentGreen : AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: widget.post.isVolunteering
-                                ? AppColors.accentGreen.withValues(alpha: 0.15)
-                                : Colors.white.withValues(alpha: 0.06),
-                            side: BorderSide(
-                              color: widget.post.isVolunteering
-                                  ? AppColors.accentGreen.withValues(alpha: 0.5)
-                                  : Colors.white.withValues(alpha: 0.15),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Telemetry Counters
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 12,
-                    runSpacing: 4,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.people_alt_outlined, size: 13, color: AppColors.textSecondary),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${widget.post.volunteersCount} в отряде',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: widget.post.isVolunteering
+                              ? AppColors.accentGreen.withValues(alpha: 0.15)
+                              : AppColors.obsidianGlassSurface,
+                          side: BorderSide(
+                            color: widget.post.isVolunteering
+                                ? AppColors.accentGreen.withValues(alpha: 0.5)
+                                : AppColors.glassBorder,
                           ),
-                        ],
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.visibility_outlined, size: 13, color: AppColors.textSecondary),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${widget.post.sightingsCount} отметок следа',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Telemetry Counters
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.people_alt_outlined, size: 13, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.post.volunteersCount} в отряде',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.visibility_outlined, size: 13, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.post.sightingsCount} отметок следа',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
 
           // 6. Action Bar (Likes, Comments, Share)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
             child: Row(
               children: [
                 HeartPopButton(
@@ -398,31 +407,28 @@ class _SosBeaconCardState extends State<SosBeaconCard> {
                   likesCount: widget.post.likesCount,
                   onTap: widget.onLike,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 InkWell(
                   onTap: widget.onComment,
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.obsidianGlassSurface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.glassBorderSubtle),
-                    ),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.chat_bubble_outline_rounded,
                           color: AppColors.textSecondary,
-                          size: 18,
+                          size: 20,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           '${widget.post.commentsCount}',
                           style: const TextStyle(
                             color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
                             fontSize: 13,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
                         ),
                       ],

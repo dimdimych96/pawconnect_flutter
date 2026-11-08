@@ -23,7 +23,7 @@ import 'widgets/story_player_screen.dart';
 ///
 /// Features:
 /// - Clean Branding Header with PawConnect logo & create post button.
-/// - Apple Liquid Glass Segmented Control (Для вас | Мой район | SOS 🚨).
+/// - Apple Liquid Glass Segmented Control (Для вас | Мой район | SOS).
 /// - Natural scroll: stories scroll with posts, freeing 100% of vertical height for media.
 /// - Contextual District Selector (DistrictPickerBottomSheet) within the «Мой район» stream.
 /// - Dedicated SOS urgent search stream.
@@ -314,7 +314,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                   // Tab 1: «Мой район» (District filtered posts + contextual picker)
                   _buildDistrictTab(context, communityState, communityNotifier),
 
-                  // Tab 2: «SOS 🚨» (Emergency lost & found posts)
+                  // Tab 2: «SOS» (Emergency lost & found posts)
                   _buildSosTab(context, communityState, communityNotifier, sosPosts),
                 ],
               ),
@@ -339,24 +339,17 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF34D399), Color(0xFF3B82F6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                  color: AppColors.obsidianGlassSurface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.glassBorder,
+                    width: 1.0,
                   ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF34D399).withValues(alpha: 0.35),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: const Center(
                   child: Icon(
                     Icons.pets_rounded,
-                    color: Color(0xFF0A0A0C),
+                    color: AppColors.accentGreen,
                     size: 18,
                   ),
                 ),
@@ -366,8 +359,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                 'PawConnect',
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.4,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -384,28 +377,28 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                   child: InkWell(
                     key: const ValueKey('feed_guest_login_button'),
                     onTap: () => context.push('/auth'),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(10),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       decoration: BoxDecoration(
-                        color: AppColors.accentBlue.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(16),
+                        color: AppColors.obsidianGlassSurface,
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppColors.accentBlue.withValues(alpha: 0.45),
+                          color: AppColors.glassBorder,
                           width: 1.0,
                         ),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.login_rounded, size: 14, color: AppColors.accentBlue),
+                          Icon(Icons.login_rounded, size: 14, color: AppColors.textSecondary),
                           SizedBox(width: 5),
                           Text(
                             'Войти',
                             style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -422,24 +415,13 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    color: AppColors.textPrimary,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.add_rounded,
-                    color: Colors.white,
-                    size: 22,
+                    color: AppColors.obsidianBackground,
+                    size: 20,
                   ),
                 ),
                 onPressed: () => _openNewPostModal(context),
@@ -548,27 +530,25 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
           _selectedBreedClub = breedId;
         });
       },
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.accentGreen.withValues(alpha: 0.2)
-              : AppColors.obsidianGlassSurface,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? AppColors.obsidianGlassSurface : AppColors.obsidianCard,
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected
-                ? AppColors.accentGreen
-                : Colors.white.withValues(alpha: 0.10),
-            width: isSelected ? 1.2 : 0.8,
+                ? AppColors.accentGreen.withValues(alpha: 0.5)
+                : AppColors.glassBorder,
+            width: 1.0,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? AppColors.accentGreen : AppColors.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
           ),
         ),
       ),
@@ -590,72 +570,57 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(16),
+              color: AppColors.obsidianCard,
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.10),
-                width: 0.8,
+                color: AppColors.glassBorder,
+                width: 1.0,
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentGreen.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.location_on_rounded,
-                        color: AppColors.accentGreen,
-                        size: 15,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isAllDistricts ? 'Все районы Новосибирска' : '$currentDistrict район',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
+                const Icon(
+                  Icons.location_on_rounded,
+                  color: AppColors.accentGreen,
+                  size: 16,
                 ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isAllDistricts ? 'Все районы Новосибирска' : '$currentDistrict район',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 InkWell(
                   key: const ValueKey('feed_change_district_button'),
                   onTap: () => _openDistrictPicker(context, notifier, currentDistrict),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentGreen.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.accentGreen.withValues(alpha: 0.35),
-                        width: 0.8,
-                      ),
-                    ),
-                    child: const Row(
+                  borderRadius: BorderRadius.circular(8),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           'Сменить',
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.accentGreen,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         SizedBox(width: 2),
                         Icon(
-                          Icons.arrow_drop_down_rounded,
-                          color: AppColors.accentGreen,
+                          Icons.keyboard_arrow_down_rounded,
+                          color: AppColors.textSecondary,
                           size: 16,
                         ),
                       ],
@@ -674,17 +639,17 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildBreedChip('Все породы', '🐾 Все породы'),
+                _buildBreedChip('Все породы', 'Все породы'),
                 const SizedBox(width: 6),
-                _buildBreedChip('Корги', '🐕 Клуб: Корги'),
+                _buildBreedChip('Корги', 'Клуб: Корги'),
                 const SizedBox(width: 6),
-                _buildBreedChip('Ретривер', '🦮 Ретриверы'),
+                _buildBreedChip('Ретривер', 'Ретриверы'),
                 const SizedBox(width: 6),
-                _buildBreedChip('Хаски', '🐺 Хаски'),
+                _buildBreedChip('Хаски', 'Хаски'),
                 const SizedBox(width: 6),
-                _buildBreedChip('Бульдог', '🐶 Бульдоги'),
+                _buildBreedChip('Бульдог', 'Бульдоги'),
                 const SizedBox(width: 6),
-                _buildBreedChip('Овчарка', '🐕‍🦺 Овчарки'),
+                _buildBreedChip('Овчарка', 'Овчарки'),
               ],
             ),
           ),
@@ -801,7 +766,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
     );
   }
 
-  // MARK: - Tab 2: «SOS 🚨»
+  // MARK: - Tab 2: «SOS»
   Widget _buildSosTab(
     BuildContext context,
     CommunityState state,
@@ -816,11 +781,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.accentRed.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
+              color: AppColors.obsidianCard,
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: AppColors.accentRed.withValues(alpha: 0.35),
-                width: 0.8,
+                width: 1.0,
               ),
             ),
             child: Row(
@@ -841,25 +806,19 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                       'Экстренные поиски и помощь',
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppColors.accentRed.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    '${sosPosts.length} активных',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.accentRed,
-                    ),
+                Text(
+                  '${sosPosts.length} активных',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.accentRed,
+                    fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),
               ],
@@ -906,16 +865,16 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                               ),
                               const SizedBox(height: 16),
                               const Text(
-                                'Все питомцы дома!',
+                                'Все питомцы дома',
                                 style: TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               const Text(
-                                'В настоящий момент нет активных сигналов SOS в Новосибирске.',
+                                'В настоящий момент нет активных сигналов SOS в Новосибирске',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: AppColors.textSecondary,
@@ -1046,8 +1005,8 @@ class _FeedSkeletonCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppColors.obsidianCardTranslucent,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1093,7 +1052,7 @@ class _FeedSkeletonCard extends StatelessWidget {
             height: 180,
             decoration: BoxDecoration(
               color: Colors.white10,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
           const SizedBox(height: 14),
@@ -1132,16 +1091,9 @@ class _FeedErrorView extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.obsidianCardTranslucent,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.accentRed.withValues(alpha: 0.3)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+              color: AppColors.obsidianCard,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.glassBorder),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1164,7 +1116,7 @@ class _FeedErrorView extends StatelessWidget {
                   'Не удалось загрузить ленту',
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                   textAlign: TextAlign.center,
@@ -1184,11 +1136,11 @@ class _FeedErrorView extends StatelessWidget {
                   key: const ValueKey('feed_retry_button'),
                   onPressed: onRetry,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentBlue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.textPrimary,
+                    foregroundColor: AppColors.obsidianBackground,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
@@ -1197,7 +1149,7 @@ class _FeedErrorView extends StatelessWidget {
                     'Повторить попытку',
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1233,8 +1185,8 @@ class _FeedEmptyView extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              color: AppColors.obsidianCardTranslucent,
-              borderRadius: BorderRadius.circular(24),
+              color: AppColors.obsidianCard,
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.glassBorder),
             ),
             child: Column(
@@ -1244,12 +1196,13 @@ class _FeedEmptyView extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: AppColors.accentBlue.withValues(alpha: 0.12),
+                    color: AppColors.obsidianGlassSurface,
                     shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.glassBorder),
                   ),
                   child: const Icon(
                     Icons.pets_rounded,
-                    color: AppColors.accentBlue,
+                    color: AppColors.textSecondary,
                     size: 28,
                   ),
                 ),
@@ -1258,7 +1211,7 @@ class _FeedEmptyView extends StatelessWidget {
                   'Пока пусто',
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
@@ -1277,11 +1230,11 @@ class _FeedEmptyView extends StatelessWidget {
                   key: const ValueKey('feed_reset_filters_button'),
                   onPressed: onResetFilters,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentBlue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.textPrimary,
+                    foregroundColor: AppColors.obsidianBackground,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
@@ -1289,7 +1242,7 @@ class _FeedEmptyView extends StatelessWidget {
                     actionLabel,
                     style: const TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),

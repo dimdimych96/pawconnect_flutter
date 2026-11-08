@@ -56,8 +56,8 @@ class _NewReminderModalState extends State<NewReminderModal> {
         right: 16,
       ),
       child: GlassCard(
-        borderRadius: 28,
-        padding: const EdgeInsets.all(24),
+        borderRadius: 16,
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,16 +65,19 @@ class _NewReminderModalState extends State<NewReminderModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Новое напоминание',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                const Flexible(
+                  child: Text(
+                    'Новое напоминание',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                  icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 20),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -87,7 +90,8 @@ class _NewReminderModalState extends State<NewReminderModal> {
               child: Row(
                 children: [
                   _CategoryChip(
-                    label: '💉 Вакцина',
+                    label: 'Вакцина',
+                    icon: Icons.vaccines_rounded,
                     category: 'vaccine',
                     color: AppColors.accentBlue,
                     isSelected: _selectedCategory == 'vaccine',
@@ -95,7 +99,8 @@ class _NewReminderModalState extends State<NewReminderModal> {
                   ),
                   const SizedBox(width: 8),
                   _CategoryChip(
-                    label: '💊 Таблетки',
+                    label: 'Таблетки',
+                    icon: Icons.medication_rounded,
                     category: 'pill',
                     color: AppColors.accentGreen,
                     isSelected: _selectedCategory == 'pill',
@@ -103,7 +108,8 @@ class _NewReminderModalState extends State<NewReminderModal> {
                   ),
                   const SizedBox(width: 8),
                   _CategoryChip(
-                    label: '🏥 Клиника',
+                    label: 'Клиника',
+                    icon: Icons.local_hospital_rounded,
                     category: 'vet',
                     color: AppColors.accentRed,
                     isSelected: _selectedCategory == 'vet',
@@ -111,7 +117,8 @@ class _NewReminderModalState extends State<NewReminderModal> {
                   ),
                   const SizedBox(width: 8),
                   _CategoryChip(
-                    label: '✂️ Груминг',
+                    label: 'Груминг',
+                    icon: Icons.content_cut_rounded,
                     category: 'grooming',
                     color: AppColors.accentYellow,
                     isSelected: _selectedCategory == 'grooming',
@@ -125,22 +132,22 @@ class _NewReminderModalState extends State<NewReminderModal> {
             // Title Input
             TextField(
               controller: _titleController,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Продукт / Запись (например, Прививка от бешенства)',
-                hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 14),
                 filled: true,
                 fillColor: AppColors.obsidianGlassSurface,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppColors.glassBorder),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppColors.accentBlue),
                 ),
               ),
@@ -163,20 +170,29 @@ class _NewReminderModalState extends State<NewReminderModal> {
                         setState(() => _selectedDate = picked);
                       }
                     },
+                    borderRadius: BorderRadius.circular(10),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
                         color: AppColors.obsidianGlassSurface,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: AppColors.glassBorderSubtle),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_month_rounded, color: AppColors.accentBlue, size: 18),
+                          const Icon(Icons.calendar_month_rounded, color: AppColors.accentBlue, size: 16),
                           const SizedBox(width: 8),
-                          Text(
-                            '${_selectedDate.day}.${_selectedDate.month}.${_selectedDate.year}',
-                            style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                          Flexible(
+                            child: Text(
+                              '${_selectedDate.day}.${_selectedDate.month}.${_selectedDate.year}',
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -195,20 +211,29 @@ class _NewReminderModalState extends State<NewReminderModal> {
                         setState(() => _selectedTime = picked);
                       }
                     },
+                    borderRadius: BorderRadius.circular(10),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
                         color: AppColors.obsidianGlassSurface,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: AppColors.glassBorderSubtle),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.access_time_rounded, color: AppColors.accentGreen, size: 18),
+                          const Icon(Icons.access_time_rounded, color: AppColors.accentGreen, size: 16),
                           const SizedBox(width: 8),
-                          Text(
-                            '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
-                            style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                          Flexible(
+                            child: Text(
+                              '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -222,18 +247,18 @@ class _NewReminderModalState extends State<NewReminderModal> {
             // Notes Input
             TextField(
               controller: _notesController,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Заметки или адрес клиники...',
-                hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                hintText: 'Заметки или адрес клиники',
+                hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 14),
                 filled: true,
                 fillColor: AppColors.obsidianGlassSurface,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppColors.glassBorder),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppColors.glassBorderSubtle),
                 ),
               ),
@@ -247,15 +272,16 @@ class _NewReminderModalState extends State<NewReminderModal> {
                 onPressed: _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accentBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
                 ),
                 child: const Text(
                   'Добавить процедуру',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -269,6 +295,7 @@ class _NewReminderModalState extends State<NewReminderModal> {
 
 class _CategoryChip extends StatelessWidget {
   final String label;
+  final IconData icon;
   final String category;
   final Color color;
   final bool isSelected;
@@ -276,6 +303,7 @@ class _CategoryChip extends StatelessWidget {
 
   const _CategoryChip({
     required this.label,
+    required this.icon,
     required this.category,
     required this.color,
     required this.isSelected,
@@ -287,22 +315,29 @@ class _CategoryChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.25) : AppColors.obsidianGlassSurface,
-          borderRadius: BorderRadius.circular(14),
+          color: isSelected ? color.withValues(alpha: 0.14) : AppColors.obsidianGlassSurface,
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? color : AppColors.glassBorderSubtle,
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? color.withValues(alpha: 0.4) : AppColors.glassBorderSubtle,
+            width: 1.0,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? color : AppColors.textSecondary,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 15, color: isSelected ? color : AppColors.textSecondary),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+              ),
+            ),
+          ],
         ),
       ),
     );

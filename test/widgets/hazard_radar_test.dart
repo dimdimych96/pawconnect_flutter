@@ -73,7 +73,8 @@ void main() {
         ),
       );
 
-      expect(find.text('РАДАР БЕЗОПАСНОСТИ'), findsOneWidget);
+      expect(find.text('Радар безопасности'), findsOneWidget);
+      expect(find.text('Битое стекло'), findsOneWidget);
       expect(find.text('Подтверждений: 5  •  Сообщений об очистке: 2'), findsOneWidget);
       expect(find.text('Актуально'), findsOneWidget);
       expect(find.text('Очищено'), findsOneWidget);

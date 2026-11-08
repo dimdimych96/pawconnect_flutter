@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/colors.dart';
 
-/// Production-grade Apple Liquid Glass Auth Prompt Modal
-/// Displays an inviting prompt when a guest user attempts a write action.
+/// Calm Graphite Auth Prompt Modal
+/// Displays a clean prompt when a guest user attempts a write action.
 class AuthPromptModal extends StatelessWidget {
   final String action;
 
@@ -34,115 +34,84 @@ class AuthPromptModal extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(20),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xE8141916),
-                borderRadius: BorderRadius.circular(28),
+                color: AppColors.obsidianCardTranslucent,
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: AppColors.glassBorder,
                   width: 1.0,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    blurRadius: 32,
-                    offset: const Offset(0, 16),
-                  ),
-                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Drag Handle
                   Center(
                     child: Container(
-                      width: 40,
+                      width: 36,
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.25),
+                        color: AppColors.glassBorder,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
-
-                  // Glowing Icon Container
                   Container(
-                    width: 64,
-                    height: 64,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.accentGreen.withValues(alpha: 0.25),
-                          AppColors.accentBlue.withValues(alpha: 0.15),
-                        ],
-                      ),
+                      color: AppColors.obsidianGlassSurface,
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.accentGreen.withValues(alpha: 0.45),
-                        width: 1.5,
+                        color: AppColors.glassBorder,
+                        width: 1.0,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accentGreen.withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: const Icon(
                       Icons.lock_outline_rounded,
-                      color: AppColors.accentGreen,
-                      size: 30,
+                      color: AppColors.textPrimary,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(height: 18),
-
-                  // Title
+                  const SizedBox(height: 16),
                   const Text(
                     'Требуется авторизация',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
-                      letterSpacing: -0.3,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 10),
-
-                  // Description
+                  const SizedBox(height: 8),
                   Text(
-                    'Войдите или зарегистрируйтесь, чтобы $action, сохранять публикации и находить друзей в районе.',
-                    style: TextStyle(
+                    'Войдите или зарегистрируйтесь, чтобы $action, сохранять публикации и находить друзей в районе',
+                    style: const TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary.withValues(alpha: 0.9),
+                      color: AppColors.textSecondary,
                       height: 1.45,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-
-                  // Primary Sign In Button
                   SizedBox(
                     width: double.infinity,
+                    height: 48,
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.of(context, rootNavigator: true).pop(true);
                         context.push('/auth');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accentBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        backgroundColor: AppColors.textPrimary,
+                        foregroundColor: AppColors.obsidianBackground,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         elevation: 0,
                       ),
@@ -155,25 +124,23 @@ class AuthPromptModal extends StatelessWidget {
                             'Войти в аккаунт',
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-
-                  // Secondary Continue as Guest Button
+                  const SizedBox(height: 8),
                   SizedBox(
                     width: double.infinity,
+                    height: 44,
                     child: TextButton(
                       onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.textSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: const Text(

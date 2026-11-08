@@ -35,7 +35,7 @@ class _CompanionWalkMarkerState extends State<CompanionWalkMarker>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.35).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeOutQuad),
     );
-    _alphaAnimation = Tween<double>(begin: 0.55, end: 0.0).animate(
+    _alphaAnimation = Tween<double>(begin: 0.45, end: 0.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeOutQuad),
     );
   }
@@ -52,125 +52,120 @@ class _CompanionWalkMarkerState extends State<CompanionWalkMarker>
     final isPrivate = widget.marker.walkMode == 'private';
     final auraColor = isPrivate ? const Color(0xFFA78BFA) : AppColors.accentGreen;
 
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 58,
-            height: 58,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // 1. Radar Pulse Aura
-                AnimatedBuilder(
-                  animation: _pulseController,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _pulseAnimation.value,
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: auraColor.withValues(alpha: _alphaAnimation.value),
-                            width: 2.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: auraColor.withValues(alpha: _alphaAnimation.value * 0.7),
-                              blurRadius: 10,
-                              spreadRadius: 2,
+    return Semantics(
+      button: true,
+      label: widget.marker.title,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 56,
+              height: 56,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // 1. Radar Pulse Ring (No neon shadow)
+                  AnimatedBuilder(
+                    animation: _pulseController,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _pulseAnimation.value,
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: auraColor.withValues(alpha: _alphaAnimation.value),
+                              width: 1.5,
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-
-                // 2. Avatar Container
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: AppColors.obsidianCardTranslucent,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: auraColor,
-                      width: 2.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: auraColor.withValues(alpha: 0.35),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                  child: PawAvatar(
-                    url: widget.marker.image,
-                    radius: 21,
-                    fallbackColor: auraColor,
-                    fallbackIcon: Icons.pets_rounded,
-                  ),
-                ),
 
-                // 3. Temperament Emoji Badge
-                Positioned(
-                  right: 2,
-                  bottom: 2,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
+                  // 2. Avatar Container (Neutral depth, no neon glow)
+                  Container(
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: AppColors.obsidianCard,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: temperament.color.withValues(alpha: 0.8),
-                        width: 1.2,
+                        color: auraColor,
+                        width: 2.0,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      temperament.emoji,
-                      style: const TextStyle(fontSize: 11),
+                    child: PawAvatar(
+                      url: widget.marker.image,
+                      radius: 20,
+                      fallbackColor: auraColor,
+                      fallbackIcon: Icons.pets_rounded,
                     ),
                   ),
-                ),
 
-                // 4. Privacy Shield (if private walk)
-                if (isPrivate)
+                  // 3. Temperament Color Dot Indicator (replaces unreadable 11px emoji)
                   Positioned(
-                    left: 2,
-                    top: 2,
+                    right: 2,
+                    bottom: 2,
                     child: Container(
-                      padding: const EdgeInsets.all(2.5),
+                      width: 14,
+                      height: 14,
+                      padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFA78BFA),
+                        color: AppColors.obsidianCard,
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            blurRadius: 4,
-                          ),
-                        ],
+                        border: Border.all(
+                          color: AppColors.glassBorder,
+                          width: 1.0,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.shield_rounded,
-                        size: 9,
-                        color: Colors.white,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: temperament.color,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
                   ),
-              ],
+
+                  // 4. Privacy Shield (if private walk)
+                  if (isPrivate)
+                    Positioned(
+                      left: 2,
+                      top: 2,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFA78BFA),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.shield_rounded,
+                          size: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          CustomPaint(
-            size: const Size(12, 6),
-            painter: _MarkerTrianglePainter(color: auraColor),
-          ),
-        ],
+            CustomPaint(
+              size: const Size(12, 6),
+              painter: _MarkerTrianglePainter(color: auraColor),
+            ),
+          ],
+        ),
       ),
     );
   }

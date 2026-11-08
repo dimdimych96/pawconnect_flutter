@@ -42,7 +42,8 @@ void main() {
       ),
     );
 
-    expect(find.text('🚨 СРОЧНЫЙ ПОИСК'), findsOneWidget);
+    expect(find.text('СРОЧНЫЙ ПОИСК'), findsOneWidget);
+    expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
     expect(find.text('Замечен здесь'), findsOneWidget);
     expect(find.text('Помочь в поиске'), findsOneWidget);
     expect(find.text('4 в отряде'), findsOneWidget);

@@ -126,6 +126,15 @@ void main() {
       expect(find.text('Записать'), findsOneWidget);
     });
 
+    testWidgets('renders clean target match label without emoji when weight matches target', (tester) async {
+      final onTargetProfile = testProfile.copyWith(weightKg: 11.0, targetWeightKg: 11.0);
+      await tester.pumpWidget(createTestWidget(BodyConditionWeightCard(profile: onTargetProfile)));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Точно в цели'), findsOneWidget);
+      expect(find.text('🎯 Точно в цели'), findsNothing);
+    });
+
     testWidgets('tapping "Записать" opens weight logger bottom sheet', (tester) async {
       await tester.pumpWidget(createTestWidget(BodyConditionWeightCard(profile: testProfile)));
       await tester.pumpAndSettle();
@@ -139,14 +148,16 @@ void main() {
   });
 
   group('SmartHealthMilestonesCard Tests', () {
-    testWidgets('renders parasite protection and milestones', (tester) async {
+    testWidgets('renders parasite protection and milestones without marketing badge', (tester) async {
       await tester.pumpWidget(createTestWidget(SmartHealthMilestonesCard(profile: testProfile)));
       await tester.pumpAndSettle();
 
       expect(find.text('Умные вехи & Защита'), findsOneWidget);
+      expect(find.text('Протокол 2026'), findsNothing);
       expect(find.text('Симпарика'), findsOneWidget);
       expect(find.text('Осталось 18 дн.'), findsOneWidget);
       expect(find.text('Вакцинация от бешенства (Rabies)'), findsOneWidget);
+      expect(find.text('Запланировано'), findsOneWidget);
       expect(find.text('Автозаполнение вех по породе и возрасту'), findsOneWidget);
     });
   });

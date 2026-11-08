@@ -42,7 +42,7 @@ class BreedIntelligenceCard extends StatelessWidget {
     final foodGrams = profile?.dailyFoodGramsEstimate ?? BodyConditionHelper.estimateFoodGrams(kcalTarget);
 
     return GlassCard(
-      borderRadius: 24,
+      borderRadius: 16,
       padding: const EdgeInsets.all(20),
       accentColor: AppColors.accentBlue,
       child: Column(
@@ -52,40 +52,41 @@ class BreedIntelligenceCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentBlue.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
+              const Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.psychology_rounded, color: AppColors.textSecondary, size: 18),
+                    SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Интеллект породы',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    child: const Icon(Icons.psychology_rounded, color: AppColors.accentBlue, size: 20),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Интеллект породы',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.accentBlue.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.accentBlue.withValues(alpha: 0.3)),
+                  ],
                 ),
-                child: Text(
-                  category,
-                  style: const TextStyle(
-                    color: AppColors.accentBlue,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.obsidianGlassSurface,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    category,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -98,7 +99,7 @@ class BreedIntelligenceCard extends StatelessWidget {
             breedName,
             style: const TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
@@ -112,15 +113,14 @@ class BreedIntelligenceCard extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
           // Activity & Nutrition Quick Stats
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.glassBorderSubtle),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
@@ -131,8 +131,8 @@ class BreedIntelligenceCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.accentYellow.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
+                          color: AppColors.obsidianCard,
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.bolt_rounded, color: AppColors.accentYellow, size: 18),
                       ),
@@ -143,15 +143,18 @@ class BreedIntelligenceCard extends StatelessWidget {
                           children: [
                             const Text(
                               'Активность',
-                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              overflow: TextOverflow.ellipsis,
                             ),
                             Text(
                               '$activityGoal мин/день',
                               style: const TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: AppColors.textPrimary,
+                                fontFeatures: [FontFeature.tabularFigures()],
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -162,7 +165,7 @@ class BreedIntelligenceCard extends StatelessWidget {
                 Container(
                   width: 1,
                   height: 36,
-                  color: AppColors.glassBorder,
+                  color: AppColors.glassBorderSubtle,
                 ),
                 const SizedBox(width: 10),
                 // Daily Nutrition Target
@@ -172,8 +175,8 @@ class BreedIntelligenceCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.accentGreen.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
+                          color: AppColors.obsidianCard,
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.restaurant_rounded, color: AppColors.accentGreen, size: 18),
                       ),
@@ -184,15 +187,18 @@ class BreedIntelligenceCard extends StatelessWidget {
                           children: [
                             const Text(
                               'Суточная норма',
-                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              overflow: TextOverflow.ellipsis,
                             ),
                             Text(
                               '~$kcalTarget ккал (~$foodGrams г)',
                               style: const TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: AppColors.textPrimary,
+                                fontFeatures: [FontFeature.tabularFigures()],
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -212,7 +218,7 @@ class BreedIntelligenceCard extends StatelessWidget {
               'Зоны внимания здоровья породы',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: AppColors.textSecondary,
               ),
             ),
@@ -227,12 +233,7 @@ class BreedIntelligenceCard extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: AppColors.obsidianGlassSurface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isHigh
-                          ? AppColors.accentRed.withValues(alpha: 0.35)
-                          : AppColors.glassBorderSubtle,
-                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,30 +250,32 @@ class BreedIntelligenceCard extends StatelessWidget {
                                   size: 16,
                                 ),
                                 const SizedBox(width: 6),
-                                Expanded(
+                                Flexible(
                                   child: Text(
                                     w.title,
                                     style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
                                       color: AppColors.textPrimary,
                                     ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: badgeColor.withValues(alpha: 0.15),
+                              color: AppColors.obsidianCard,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               isHigh ? 'Высокий риск' : 'Контроль',
                               style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
                                 color: badgeColor,
                               ),
                             ),
@@ -282,10 +285,10 @@ class BreedIntelligenceCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         w.advice,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary.withValues(alpha: 0.9),
-                          height: 1.35,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
                         ),
                       ),
                     ],
@@ -301,9 +304,8 @@ class BreedIntelligenceCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.accentGreen.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.2)),
+                color: AppColors.obsidianGlassSurface,
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,10 +315,10 @@ class BreedIntelligenceCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       nutritionAdvice,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textPrimary.withValues(alpha: 0.9),
-                        height: 1.35,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        height: 1.4,
                       ),
                     ),
                   ),

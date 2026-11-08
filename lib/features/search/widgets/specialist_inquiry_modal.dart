@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/colors.dart';
-import '../../../core/widgets/glass_widgets.dart';
 import '../../../core/widgets/paw_image.dart';
 import '../../../core/widgets/pill_toast.dart';
 import '../../../models/specialist_model.dart';
@@ -56,7 +55,7 @@ class _SpecialistInquiryModalState extends State<SpecialistInquiryModal> {
   void _applyQuickTopic(String topic) {
     setState(() {
       if (_messageController.text.isEmpty) {
-        _messageController.text = 'Здравствуйте! Интересует $topic для нашего питомца.';
+        _messageController.text = 'Здравствуйте, интересует $topic для нашего питомца.';
       } else {
         _messageController.text += ' ($topic)';
       }
@@ -75,7 +74,7 @@ class _SpecialistInquiryModalState extends State<SpecialistInquiryModal> {
       Navigator.of(context).pop();
       PawToast.show(
         context,
-        title: 'Заявка успешно отправлена специалисту!',
+        title: 'Заявка отправлена специалисту',
         type: ToastType.success,
       );
     } else {
@@ -90,160 +89,190 @@ class _SpecialistInquiryModalState extends State<SpecialistInquiryModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.obsidianCard,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: AppColors.glassBorder, width: 1.0),
+        ),
+      ),
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        left: 20,
+        right: 20,
         top: 16,
-        left: 16,
-        right: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       child: SingleChildScrollView(
-        child: GlassCard(
-          borderRadius: 28,
-          padding: const EdgeInsets.all(22),
-          accentColor: AppColors.accentGreen,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.glassBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Header Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
                     children: [
                       PawAvatar(
                         url: widget.specialist.avatarUrl,
                         radius: 20,
                         fallbackColor: widget.specialist.professionColor,
                       ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.specialist.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.specialist.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Text(
-                            widget.specialist.professionTitle,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: widget.specialist.professionColor,
-                              fontWeight: FontWeight.w500,
+                            const SizedBox(height: 2),
+                            Text(
+                              widget.specialist.professionTitle,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Quick Topics Rail
-              const Text(
-                'Тема обращения',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
                 ),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 20),
+                    padding: EdgeInsets.zero,
+                    tooltip: 'Закрыть',
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Quick Topics Rail
+            const Text(
+              'Тема обращения',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
               ),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _quickTopics.map((topic) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 6.0),
-                      child: InkWell(
-                        onTap: () => _applyQuickTopic(topic),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.obsidianGlassSurface,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.glassBorderSubtle),
-                          ),
-                          child: Text(
-                            topic,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w500,
-                            ),
+            ),
+            const SizedBox(height: 8),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _quickTopics.map((topic) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                      onTap: () => _applyQuickTopic(topic),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.obsidianGlassSurface,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          topic,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Message Input
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.obsidianGlassSurface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.glassBorder),
+              ),
+              child: TextField(
+                controller: _messageController,
+                maxLines: 4,
+                style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                decoration: const InputDecoration(
+                  hintText: 'Опишите породу, возраст питомца и удобное время для визита',
+                  hintStyle: TextStyle(color: AppColors.textTertiary, fontSize: 14),
+                  border: InputBorder.none,
+                  isDense: true,
                 ),
               ),
+            ),
 
-              const SizedBox(height: 14),
+            const SizedBox(height: 16),
 
-              // Message Input
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.obsidianGlassSurface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.glassBorderSubtle),
+            // Submit Button
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.textPrimary,
+                  foregroundColor: AppColors.obsidianBackground,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
                 ),
-                child: TextField(
-                  controller: _messageController,
-                  maxLines: 4,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
-                  decoration: const InputDecoration(
-                    hintText: 'Опишите породу, возраст питомца и удобное время для визита...',
-                    hintStyle: TextStyle(color: AppColors.textTertiary, fontSize: 13),
-                    border: InputBorder.none,
-                    isDense: true,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentGreen,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
-                  ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
-                        )
-                      : const Text(
-                          'Отправить заявку',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: AppColors.obsidianBackground,
+                          strokeWidth: 2,
                         ),
-                ),
+                      )
+                    : const Text(
+                        'Отправить заявку',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

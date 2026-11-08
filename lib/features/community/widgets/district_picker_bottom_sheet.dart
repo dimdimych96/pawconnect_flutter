@@ -49,7 +49,7 @@ class DistrictPickerBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
@@ -57,11 +57,11 @@ class DistrictPickerBottomSheet extends StatelessWidget {
             maxHeight: MediaQuery.of(context).size.height * 0.75,
           ),
           decoration: BoxDecoration(
-            color: AppColors.obsidianBackground.withValues(alpha: 0.92),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            color: AppColors.obsidianBackground.withValues(alpha: 0.94),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.12),
-              width: 0.8,
+              color: AppColors.glassBorder,
+              width: 1.0,
             ),
           ),
           child: SafeArea(
@@ -89,26 +89,19 @@ class DistrictPickerBottomSheet extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
+                      const Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColors.accentGreen.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.location_on_rounded,
-                              color: AppColors.accentGreen,
-                              size: 18,
-                            ),
+                          Icon(
+                            Icons.location_on_rounded,
+                            color: AppColors.accentGreen,
+                            size: 18,
                           ),
-                          const SizedBox(width: 10),
-                          const Text(
+                          SizedBox(width: 10),
+                          Text(
                             'Район Новосибирска',
                             style: TextStyle(
                               fontSize: 17,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                               letterSpacing: -0.3,
                             ),
@@ -144,19 +137,19 @@ class DistrictPickerBottomSheet extends StatelessWidget {
                       return InkWell(
                         key: ValueKey('district_option_$district'),
                         onTap: () => onSelect(district),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppColors.accentGreen.withValues(alpha: 0.16)
+                                ? AppColors.obsidianGlassSurface
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
-                                  ? AppColors.accentGreen.withValues(alpha: 0.4)
+                                  ? AppColors.glassBorder
                                   : Colors.transparent,
-                              width: 0.8,
+                              width: 1.0,
                             ),
                           ),
                           child: Row(
@@ -171,11 +164,11 @@ class DistrictPickerBottomSheet extends StatelessWidget {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  isAll ? '🏙️ Все районы города' : district,
+                                  isAll ? 'Все районы города' : district,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                    color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
                                   ),
                                 ),
                               ),

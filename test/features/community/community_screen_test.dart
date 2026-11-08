@@ -351,7 +351,7 @@ void main() {
       final sheetFinder = find.byType(DistrictPickerBottomSheet);
       expect(sheetFinder, findsOneWidget);
       expect(find.text('Район Новосибирска'), findsOneWidget);
-      expect(find.descendant(of: sheetFinder, matching: find.text('🏙️ Все районы города')), findsOneWidget);
+      expect(find.descendant(of: sheetFinder, matching: find.text('Все районы города')), findsOneWidget);
       expect(find.descendant(of: sheetFinder, matching: find.text('Центральный')), findsOneWidget);
       expect(find.descendant(of: sheetFinder, matching: find.text('Заельцовский')), findsOneWidget);
 
@@ -365,7 +365,7 @@ void main() {
       expect(find.text('Заельцовский район'), findsOneWidget);
     });
 
-    testWidgets('7. switching to Tab 2 («SOS 🚨») renders SOS banner and filters to urgent posts', (tester) async {
+    testWidgets('7. switching to Tab 2 («SOS») renders SOS banner and filters to urgent posts', (tester) async {
       await tester.pumpWidget(createCommunityScreen());
       await tester.pumpAndSettle();
 
@@ -721,10 +721,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Action sheet should show Admin Delete action
-      expect(find.text('Удалить запись (Администратор 🛡️)'), findsOneWidget);
+      expect(find.text('Удалить запись (Администратор)'), findsOneWidget);
 
       // Tap Admin Delete action
-      await tester.tap(find.text('Удалить запись (Администратор 🛡️)'));
+      await tester.tap(find.text('Удалить запись (Администратор)'));
       await tester.pumpAndSettle();
 
       // AlertDialog should show admin-specific confirmation title and content
@@ -762,7 +762,7 @@ void main() {
       expect(find.text('Скопировать ссылку'), findsOneWidget);
       expect(find.text('Пожаловаться на запись'), findsOneWidget);
       expect(find.text('Удалить запись'), findsNothing);
-      expect(find.text('Удалить запись (Администратор 🛡️)'), findsNothing);
+      expect(find.text('Удалить запись (Администратор)'), findsNothing);
 
       await tester.pump(const Duration(seconds: 3));
     });

@@ -5,7 +5,7 @@ import 'package:pawconnect/models/walk_session_model.dart';
 
 void main() {
   group('WalkSessionHud Widget Tests', () {
-    testWidgets('WalkSessionHud displays pet name, mode, temperament and calls onStopWalk', (tester) async {
+    testWidgets('WalkSessionHud displays pet name, mode, temperament icon and calls onStopWalk', (tester) async {
       bool stopped = false;
       final session = WalkSessionModel(
         id: 'session-hud-1',
@@ -38,10 +38,12 @@ void main() {
 
       await tester.pump();
 
-      // Check pet name and mode
+      // Check pet name, mode, and vector icon in temperament color
       expect(find.text('Арчи'), findsOneWidget);
       expect(find.text('Открытый'), findsOneWidget);
-      expect(find.text('🎾'), findsOneWidget);
+      expect(find.byIcon(Icons.pets_rounded), findsOneWidget);
+      final iconWidget = tester.widget<Icon>(find.byIcon(Icons.pets_rounded));
+      expect(iconWidget.color, equals(DogTemperament.playful.color));
       expect(find.text('• На радаре'), findsOneWidget);
 
       // Check stop button
@@ -88,7 +90,8 @@ void main() {
 
       expect(find.text('Майло'), findsOneWidget);
       expect(find.text('Приватный'), findsOneWidget);
-      expect(find.text('🙈'), findsOneWidget);
+      final iconWidget = tester.widget<Icon>(find.byIcon(Icons.pets_rounded));
+      expect(iconWidget.color, equals(DogTemperament.shy.color));
     });
   });
 }

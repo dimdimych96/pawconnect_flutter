@@ -8,7 +8,7 @@ void main() {
       final service = SpecialistService(allowMockFallback: true);
       final notifier = SpecialistsNotifier(service);
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await notifier.loadSpecialists();
 
       final state = notifier.state;
       expect(state.specialistsAsync.hasValue, isTrue);

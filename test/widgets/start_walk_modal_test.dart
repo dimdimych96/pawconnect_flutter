@@ -48,10 +48,13 @@ void main() {
       expect(find.text('Радар прогулок'), findsOneWidget);
       expect(find.text('Арчи • Вельш-корги'), findsOneWidget);
 
-      // Check mode cards
+      // Check mode cards and vector icons
       expect(find.text('Открытый выгул'), findsOneWidget);
       expect(find.text('Приватный выгул'), findsOneWidget);
       expect(find.text('Тренировка'), findsOneWidget);
+      expect(find.byIcon(Icons.public_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.explore_rounded), findsOneWidget);
 
       // Tap "Приватный выгул"
       await tester.tap(find.text('Приватный выгул'));

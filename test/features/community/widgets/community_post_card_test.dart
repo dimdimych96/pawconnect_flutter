@@ -118,10 +118,11 @@ void main() {
       setupScreenSize(tester);
       final postWithPet = createTestPost(petName: 'Джеки (Бигль)');
       await tester.pumpWidget(buildCardWidget(post: postWithPet));
-      expect(find.text('🐾 Джеки (Бигль)'), findsOneWidget);
+      expect(find.text('• Джеки (Бигль)'), findsOneWidget);
 
       final postWithoutPet = createTestPost(petName: null);
       await tester.pumpWidget(buildCardWidget(post: postWithoutPet));
+      expect(find.textContaining('Джеки'), findsNothing);
       expect(find.textContaining('🐾'), findsNothing);
     });
 

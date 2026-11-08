@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 
-/// Apple Liquid Glass Container with BackdropFilter blur and subtle specular borders
+/// Floating Glass Container with BackdropFilter blur strictly for navigation chrome & overlays.
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final double? width;
@@ -23,7 +23,7 @@ class GlassContainer extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.margin = EdgeInsets.zero,
     this.blur = 16.0,
-    this.borderRadius = 20.0,
+    this.borderRadius = 16.0,
     this.backgroundColor,
     this.borderColor,
     this.onTap,
@@ -34,61 +34,42 @@ class GlassContainer extends StatelessWidget {
     final effectiveBg = backgroundColor ?? AppColors.obsidianCardTranslucent;
     final effectiveBorder = borderColor ?? AppColors.glassBorder;
 
-    Widget content = Container(
+    final Widget content = Container(
       width: width,
       height: height,
       padding: padding,
       decoration: BoxDecoration(
-        // Translucent dark base — the blurred content behind stays visible
-        // through the glass (roughly 35% opacity, see obsidianCardTranslucent).
         color: effectiveBg,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
           color: effectiveBorder,
           width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
       ),
-      child: Stack(
-        children: [
-          // Liquid Glass specular sheen
-          Positioned.fill(
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  gradient: AppColors.glassSpecular,
-                ),
-              ),
-            ),
-          ),
-          child,
-        ],
-      ),
+      child: child,
     );
 
-    Widget glass = Padding(
+    final Widget glass = Padding(
       padding: margin,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: content,
-        ),
+        child: blur > 0
+            ? BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                child: content,
+              )
+            : content,
       ),
     );
 
     if (onTap != null) {
-      return GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: glass,
+      return Semantics(
+        button: true,
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: glass,
+        ),
       );
     }
 
@@ -96,7 +77,9 @@ class GlassContainer extends StatelessWidget {
   }
 }
 
-/// Glass Card helper with interactive tap animation
+/// Content Card surface without expensive GPU BackdropFilter blur or neon borders.
+/// Follows Apple Liquid Glass & Unslop rules: content sits on calm graphite surfaces
+/// with a 1px hairline border; glass blur is reserved strictly for floating chrome.
 class GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -110,22 +93,40 @@ class GlassCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.onTap,
     this.accentColor,
-    this.borderRadius = 20.0,
+    this.borderRadius = 16.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GlassContainer(
+    final Widget card = Container(
       padding: padding,
-      borderRadius: borderRadius,
-      onTap: onTap,
-      borderColor: accentColor != null ? accentColor!.withValues(alpha: 0.3) : AppColors.glassBorder,
+      decoration: BoxDecoration(
+        color: AppColors.obsidianCard,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: AppColors.glassBorder,
+          width: 1.0,
+        ),
+      ),
       child: child,
     );
+
+    if (onTap != null) {
+      return Semantics(
+        button: true,
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: card,
+        ),
+      );
+    }
+
+    return card;
   }
 }
 
-/// Floating Capsule for filters and tabs
+/// Compact control button / filter chip without neon glow or scroll-jank blur.
 class GlassCapsule extends StatelessWidget {
   final Widget child;
   final bool isActive;
@@ -139,41 +140,36 @@ class GlassCapsule extends StatelessWidget {
     this.isActive = false,
     this.activeColor,
     this.onTap,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
   });
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = activeColor ?? AppColors.accentBlue;
+    final effectiveColor = activeColor ?? AppColors.textPrimary;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: padding,
-            decoration: BoxDecoration(
-              color: isActive ? effectiveColor.withValues(alpha: 0.25) : AppColors.obsidianGlassSurface,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: isActive ? effectiveColor : AppColors.glassBorderSubtle,
-                width: isActive ? 1.5 : 1.0,
-              ),
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: effectiveColor.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : [],
+    return Semantics(
+      button: true,
+      selected: isActive,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: const Cubic(0.22, 1.0, 0.36, 1.0),
+          padding: padding,
+          decoration: BoxDecoration(
+            color: isActive
+                ? effectiveColor.withValues(alpha: 0.14)
+                : AppColors.obsidianGlassSurface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isActive
+                  ? effectiveColor.withValues(alpha: 0.35)
+                  : AppColors.glassBorderSubtle,
+              width: 1.0,
             ),
-            child: child,
           ),
+          child: child,
         ),
       ),
     );

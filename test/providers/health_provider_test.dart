@@ -18,7 +18,7 @@ void main() {
     });
 
     test('Initial state loads default profile and breed', () async {
-      await Future.delayed(const Duration(milliseconds: 50));
+      await notifier.loadProfile('pet-archi-1');
       expect(notifier.state.profile, isNotNull);
       expect(notifier.state.profile?.petName, 'Арчи');
       expect(notifier.state.currentBreed, isNotNull);

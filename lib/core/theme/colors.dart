@@ -1,44 +1,45 @@
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
-  // Primary Obsidian Backgrounds (Matching Option 5 Organic Glass)
-  static const Color obsidianBackground = Color(0xFF0B0F12);
-  static const Color obsidianCard = Color(0xFF141A16);
-  static const Color obsidianCardTranslucent = Color(0xC8121814); // rgba(18, 24, 20, 0.78)
-  static const Color obsidianGlassSurface = Color(0x60121814);
+  // Graphite Neutral Ramp (Unslop Dark System + Apple Obsidian)
+  static const Color obsidianBackground = Color(0xFF0F0F10);
+  static const Color obsidianCard = Color(0xFF19191B);
+  static const Color obsidianCardTranslucent = Color(0xDF19191B);
+  static const Color obsidianGlassSurface = Color(0xFF232325);
+  static const Color obsidianRaised = Color(0xFF232325);
 
-  // Glass Borders
-  static const Color glassBorder = Color(0x1AFFFFFF); // ~10% White
-  static const Color glassBorderSubtle = Color(0x12FFFFFF); // ~7% White
-  static const Color glassHighlight = Color(0x3034D399); // Emerald highlight sheen
+  // Quiet Hairline Borders (6-10% Primary Text)
+  static const Color glassBorder = Color(0x14EDEDED); // 8% hairline
+  static const Color glassBorderSubtle = Color(0x0FEDEDED); // 6% subtle hairline
+  static const Color glassHighlight = Color(0x1F4CC38A);
 
-  // Status & Category Accents (Harmonized with Option 5 Emerald Theme)
-  static const Color accentGreen = Color(0xFF34D399); // Emerald active accent (#34D399)
-  static const Color accentGreenDark = Color(0xFF059669); // Deep emerald (#059669)
-  static const Color accentRed = Color(0xFFF87171);   // Alert / Lost Pets / SOS
-  static const Color accentBlue = Color(0xFF60A5FA);  // Information / Companions
-  static const Color accentYellow = Color(0xFFFBBF24);// Warning / Reminders
+  // Toned Semantic & Functional Accents
+  static const Color accentGreen = Color(0xFF4CC38A); // Toned positive / live telemetry
+  static const Color accentGreenDark = Color(0xFF16A34A);
+  static const Color accentRed = Color(0xFFE5484D);   // Toned alert / SOS
+  static const Color accentBlue = Color(0xFF3B82F6);  // Route / navigation
+  static const Color accentYellow = Color(0xFFF59E0B);// Warning / hazard
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0x9994A3B8); // Slate-400 iOS/Fluid style (#94A3B8)
-  static const Color textTertiary = Color(0x4D94A3B8);  // Slate-400 30% style
+  // Three Strict Text Roles (WCAG AA Verified on #0F0F10 / #19191B)
+  static const Color textPrimary = Color(0xFFEDEDED);
+  static const Color textSecondary = Color(0xFFA1A1A6);
+  static const Color textTertiary = Color(0xFF85858B);
 
-  // Overlay Gradients
+  // Subtle Neutral Gradients (No multi-hue neon washes)
   static const LinearGradient activeEmeraldGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
     colors: [
-      Color(0x4034D399), // rgba(16, 185, 129, 0.25)
-      Color(0x26059669), // rgba(5, 150, 105, 0.15)
+      Color(0xFF262629),
+      Color(0xFF1F1F22),
     ],
   );
 
   static const LinearGradient glassGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
     colors: [
-      Color(0x2034D399),
+      Color(0x14FFFFFF),
       Color(0x05FFFFFF),
     ],
   );
@@ -54,8 +55,8 @@ abstract class AppColors {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFF141A16),
-      Color(0xFF0B0F12),
+      Color(0xFF141415),
+      Color(0xFF0F0F10),
     ],
   );
 }
