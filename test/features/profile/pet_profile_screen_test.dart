@@ -6,12 +6,43 @@ import 'package:pawconnect/features/profile/widgets/body_condition_weight_card.d
 import 'package:pawconnect/features/profile/widgets/breed_intelligence_card.dart';
 import 'package:pawconnect/features/profile/widgets/smart_health_milestones_card.dart';
 import 'package:pawconnect/models/breed_model.dart';
+import 'package:pawconnect/models/gps_device_model.dart';
+import 'package:pawconnect/models/map_marker_model.dart';
 import 'package:pawconnect/models/pet_health_profile_model.dart';
 import 'package:pawconnect/models/pet_reminder_model.dart';
 import 'package:pawconnect/providers/health_provider.dart';
+import 'package:pawconnect/providers/map_provider.dart';
 import 'package:pawconnect/providers/reminders_provider.dart';
 import 'package:pawconnect/services/health_service.dart';
+import 'package:pawconnect/services/map_service.dart';
 import 'package:pawconnect/services/reminder_service.dart';
+
+class FakeEmptyHealthService extends HealthService {
+  @override
+  Future<PetHealthProfileModel> getPetHealthProfile(String petId) async => throw Exception('No pet registered');
+
+  @override
+  Future<BreedModel?> matchBreedByName(String query) async => null;
+}
+
+class FakeEmptyMapService extends MapService {
+  @override
+  Future<List<MapMarkerModel>> getMapMarkers({double? lat, double? lng, double? radius}) async => [];
+
+  @override
+  Future<GpsDeviceModel?> getActiveGpsDevice() async => null;
+}
+
+class FakeGpsMapService extends MapService {
+  final GpsDeviceModel? device;
+  FakeGpsMapService(this.device);
+
+  @override
+  Future<List<MapMarkerModel>> getMapMarkers({double? lat, double? lng, double? radius}) async => [];
+
+  @override
+  Future<GpsDeviceModel?> getActiveGpsDevice() async => device;
+}
 
 class FakeReminderService extends ReminderService {
   @override
@@ -96,6 +127,9 @@ void main() {
           healthServiceProvider.overrideWithValue(
             FakeHealthService(profile: testProfile, breed: testBreed),
           ),
+          mapServiceProvider.overrideWithValue(
+            FakeGpsMapService(MapService.mockGpsDevice),
+          ),
         ],
         child: const MaterialApp(
           home: PetProfileScreen(),
@@ -123,5 +157,46 @@ void main() {
     // Collar & Personal Reminders sections
     expect(find.text('GPS-Ошейник PawConnect'), findsOneWidget);
     expect(find.text('Личные напоминания'), findsOneWidget);
+  });
+
+  testWidgets('PetProfileScreen renders honest empty onboarding card when user has no pet registered', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          reminderServiceProvider.overrideWithValue(FakeReminderService()),
+          healthServiceProvider.overrideWithValue(FakeEmptyHealthService()),
+          mapServiceProvider.overrideWithValue(FakeEmptyMapService()),
+        ],
+        child: const MaterialApp(
+          home: PetProfileScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Питомец еще не добавлен'), findsOneWidget);
+    expect(find.text('Добавить питомца'), findsOneWidget);
+  });
+
+  testWidgets('PetProfileScreen renders unlinked tracker card when pet has no GPS collar', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          reminderServiceProvider.overrideWithValue(FakeReminderService()),
+          healthServiceProvider.overrideWithValue(
+            FakeHealthService(profile: testProfile, breed: testBreed),
+          ),
+          mapServiceProvider.overrideWithValue(FakeEmptyMapService()),
+        ],
+        child: const MaterialApp(
+          home: PetProfileScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Трекер не подключен'), findsOneWidget);
+    expect(find.text('GPS-трекер не привязан'), findsOneWidget);
+    expect(find.text('Подключить GPS-трекер'), findsOneWidget);
   });
 }

@@ -4,6 +4,7 @@ import '../../../core/theme/colors.dart';
 
 class RightControlRail extends StatefulWidget {
   final String petName;
+  final bool hasGpsDevice;
   final int distanceMeters;
   final bool isBreached;
   final bool isPetFocus;
@@ -20,6 +21,7 @@ class RightControlRail extends StatefulWidget {
   const RightControlRail({
     super.key,
     required this.petName,
+    this.hasGpsDevice = true,
     required this.distanceMeters,
     required this.isBreached,
     required this.isPetFocus,
@@ -155,9 +157,9 @@ class _RightControlRailState extends State<RightControlRail> {
           right: isPetFocus ? 56.0 : 38.0,
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
-            opacity: (isPetFocus && !_isLayersExpanded) ? 1.0 : 0.0,
+            opacity: (widget.hasGpsDevice && isPetFocus && !_isLayersExpanded) ? 1.0 : 0.0,
             child: IgnorePointer(
-              ignoring: !(isPetFocus && !_isLayersExpanded),
+              ignoring: !(widget.hasGpsDevice && isPetFocus && !_isLayersExpanded),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: BackdropFilter(
@@ -280,18 +282,20 @@ class _RightControlRailState extends State<RightControlRail> {
                     activeColor: AppColors.accentGreen,
                     onTap: _toggleLayers,
                   ),
-                  const SizedBox(height: 4),
-                  // Pet Focus Button
-                  _RailIconButton(
-                    icon: Icons.pets_rounded,
-                    tooltip: 'Центрировать на питомце (${widget.petName})',
-                    isSelected: isPetFocus,
-                    activeColor: activeGreen,
-                    onTap: () {
-                      setState(() => _isLayersExpanded = false);
-                      widget.onPetFocus();
-                    },
-                  ),
+                  if (widget.hasGpsDevice) ...[
+                    const SizedBox(height: 4),
+                    // Pet Focus Button
+                    _RailIconButton(
+                      icon: Icons.pets_rounded,
+                      tooltip: 'Центрировать на питомце (${widget.petName})',
+                      isSelected: isPetFocus,
+                      activeColor: activeGreen,
+                      onTap: () {
+                        setState(() => _isLayersExpanded = false);
+                        widget.onPetFocus();
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   // User Focus Button
                   _RailIconButton(

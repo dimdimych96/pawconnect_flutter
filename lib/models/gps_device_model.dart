@@ -28,7 +28,7 @@ class GpsDeviceModel {
   factory GpsDeviceModel.fromJson(Map<String, dynamic> json) {
     return GpsDeviceModel(
       imei: json['imei'] ?? '',
-      petName: json['petName'] ?? 'Арчи',
+      petName: json['petName'] ?? 'Питомец',
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       isBreached: json['isBreached'] ?? false,

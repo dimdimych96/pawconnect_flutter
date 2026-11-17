@@ -99,4 +99,32 @@ void main() {
     expect(find.text('Тема обращения'), findsOneWidget);
     expect(find.text('Отправить заявку'), findsOneWidget);
   });
+
+  testWidgets('SearchScreen renders honest error view with retry trigger when loading fails', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          specialistServiceProvider.overrideWithValue(FakeFailingSpecialistService()),
+        ],
+        child: const MaterialApp(
+          home: SearchScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Не удалось загрузить данные'), findsOneWidget);
+    expect(find.text('Повторить'), findsOneWidget);
+  });
+}
+
+class FakeFailingSpecialistService extends SpecialistService {
+  @override
+  Future<List<SpecialistModel>> getSpecialists({
+    String? profession,
+    String? district,
+    String? query,
+  }) async {
+    throw Exception('Connection timed out');
+  }
 }

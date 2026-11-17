@@ -170,362 +170,510 @@ class PetProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
               ],
 
-              // 1. Pet Passport Card
-              GlassCard(
-                borderRadius: 16,
-                padding: const EdgeInsets.all(20),
-                accentColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        // Pet Avatar with Safety Ring
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                                  width: 2.0,
+              // Check if user has any registered pet or collar
+              if (healthState.profile == null && gpsDevice == null) ...[
+                GlassCard(
+                  borderRadius: 16,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.obsidianGlassSurface,
+                          border: Border.all(color: AppColors.glassBorder),
+                        ),
+                        child: const Icon(Icons.pets_rounded, color: AppColors.accentBlue, size: 32),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Питомец еще не добавлен',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Зарегистрируйте профиль питомца, чтобы следить за весом, ветеринарным календарем и подключить GPS-ошейник.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          PawToast.show(
+                            context,
+                            title: 'Форма добавления питомца появится в следующем обновлении',
+                            type: ToastType.info,
+                          );
+                        },
+                        icon: const Icon(Icons.add, size: 18),
+                        label: const Text('Добавить питомца', style: TextStyle(fontWeight: FontWeight.w600)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accentBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ] else ...[
+                // 1. Pet Passport Card
+                GlassCard(
+                  borderRadius: 16,
+                  padding: const EdgeInsets.all(20),
+                  accentColor: gpsDevice != null
+                      ? (isBreached ? AppColors.accentRed : AppColors.accentGreen)
+                      : AppColors.glassBorder,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          // Pet Avatar with Safety Ring
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: gpsDevice != null
+                                        ? (isBreached ? AppColors.accentRed : AppColors.accentGreen)
+                                        : AppColors.glassBorder,
+                                    width: 2.0,
+                                  ),
                                 ),
                               ),
-                            ),
-                            PawAvatar(
-                              url: gpsDevice?.photoUrl,
-                              radius: 36,
-                              fallbackColor: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 16),
+                              PawAvatar(
+                                url: gpsDevice?.photoUrl,
+                                radius: 36,
+                                fallbackColor: gpsDevice != null
+                                    ? (isBreached ? AppColors.accentRed : AppColors.accentGreen)
+                                    : AppColors.obsidianCard,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 16),
 
-                        // Pet Info
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // Pet Info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        gpsDevice?.petName ?? healthState.profile?.petName ?? 'Питомец',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: gpsDevice != null
+                                            ? (isBreached ? AppColors.accentRed : AppColors.accentGreen).withValues(alpha: 0.12)
+                                            : AppColors.obsidianGlassSurface,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: gpsDevice == null ? Border.all(color: AppColors.glassBorder) : null,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: gpsDevice != null
+                                                  ? (isBreached ? AppColors.accentRed : AppColors.accentGreen)
+                                                  : AppColors.textSecondary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            gpsDevice != null
+                                                ? (isBreached ? 'Тревога геозоны' : 'В безопасности')
+                                                : 'Трекер не подключен',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: gpsDevice != null
+                                                  ? (isBreached ? AppColors.accentRed : AppColors.accentGreen)
+                                                  : AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${healthState.profile?.breedName ?? 'Порода не указана'} • 2 года',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                const Row(
+                                  children: [
+                                    Icon(Icons.qr_code_2_rounded, size: 16, color: AppColors.textSecondary),
+                                    SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        'Чип: 643094100284912',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.textSecondary,
+                                          fontWeight: FontWeight.w500,
+                                          fontFeatures: [FontFeature.tabularFigures()],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 2. Health Profile & Breed Intelligence
+                if (healthState.profile != null) ...[
+                  const SizedBox(height: 16),
+                  BodyConditionWeightCard(profile: healthState.profile!),
+                  const SizedBox(height: 16),
+                  SmartHealthMilestonesCard(profile: healthState.profile!),
+                  const SizedBox(height: 16),
+                  BreedIntelligenceCard(
+                    breed: healthState.currentBreed,
+                    profile: healthState.profile,
+                  ),
+                ],
+
+                const SizedBox(height: 16),
+
+                // 3. GPS Collar Controls Block
+                if (gpsDevice != null) ...[
+                  GlassCard(
+                    borderRadius: 16,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(
+                              child: Row(
                                 children: [
+                                  Icon(Icons.watch_rounded, color: AppColors.textSecondary, size: 18),
+                                  SizedBox(width: 8),
                                   Flexible(
                                     child: Text(
-                                      gpsDevice?.petName ?? healthState.profile?.petName ?? 'Арчи',
-                                      style: const TextStyle(
-                                        fontSize: 24,
+                                      'GPS-Ошейник PawConnect',
+                                      style: TextStyle(
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.textPrimary,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: (isBreached ? AppColors.accentRed : AppColors.accentGreen).withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width: 6,
-                                          height: 6,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          isBreached ? 'Тревога геозоны' : 'В безопасности',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: isBreached ? AppColors.accentRed : AppColors.accentGreen,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${healthState.profile?.breedName ?? 'Вельш-корги пемброк'} • 2 года',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              const Row(
-                                children: [
-                                  Icon(Icons.qr_code_2_rounded, size: 16, color: AppColors.textSecondary),
-                                  SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      'Чип: 643094100284912',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.textSecondary,
-                                        fontWeight: FontWeight.w500,
-                                        fontFeatures: [FontFeature.tabularFigures()],
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // 2. Health Profile & Breed Intelligence
-              if (healthState.profile != null) ...[
-                const SizedBox(height: 16),
-                BodyConditionWeightCard(profile: healthState.profile!),
-                const SizedBox(height: 16),
-                SmartHealthMilestonesCard(profile: healthState.profile!),
-                const SizedBox(height: 16),
-                BreedIntelligenceCard(
-                  breed: healthState.currentBreed,
-                  profile: healthState.profile,
-                ),
-              ],
-
-              const SizedBox(height: 16),
-
-              // 3. GPS Collar Controls Block
-              GlassCard(
-                borderRadius: 16,
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Expanded(
-                          child: Row(
-                            children: [
-                              Icon(Icons.watch_rounded, color: AppColors.textSecondary, size: 18),
-                              SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  'GPS-Ошейник PawConnect',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Connection Status Dot
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isConnected ? AppColors.accentGreen : AppColors.accentYellow,
-                              ),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              isConnected ? 'В сети' : 'Оффлайн',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isConnected ? AppColors.accentGreen : AppColors.accentYellow,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Battery Indicator Bar
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.obsidianGlassSurface,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Expanded(
-                            child: Row(
+                            const SizedBox(width: 8),
+                            // Connection Status Dot
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.battery_charging_full_rounded, color: AppColors.accentGreen, size: 18),
-                                SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    'Заряд аккумулятора',
-                                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-                                    overflow: TextOverflow.ellipsis,
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isConnected ? AppColors.accentGreen : AppColors.accentYellow,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  isConnected ? 'В сети' : 'Оффлайн',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isConnected ? AppColors.accentGreen : AppColors.accentYellow,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '$batteryLevel%',
-                            style: const TextStyle(
-                              color: AppColors.accentGreen,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              fontFeatures: [FontFeature.tabularFigures()],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
-
-                    // Geofence Radius Adjustment with - and +
-                    const Text(
-                      'Безопасная геозона (Радиус)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.obsidianGlassSurface,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Button Minus (-10m)
-                          Semantics(
-                            button: true,
-                            label: 'Уменьшить радиус геозоны',
-                            child: InkWell(
-                              onTap: () {
-                                if (currentRadius > 50.0) {
-                                  mapNotifier.updateSafeZoneRadius(currentRadius - 10.0);
-                                }
-                              },
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: AppColors.obsidianCard,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: AppColors.glassBorder),
+                        // Battery Indicator Bar
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.obsidianGlassSurface,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Expanded(
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.battery_charging_full_rounded, color: AppColors.accentGreen, size: 18),
+                                    SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        'Заряд аккумулятора',
+                                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                child: const Icon(Icons.remove, color: AppColors.textPrimary, size: 20),
                               ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '$batteryLevel%',
+                                style: const TextStyle(
+                                  color: AppColors.accentGreen,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Geofence Radius Adjustment with - and +
+                        const Text(
+                          'Безопасная геозона (Радиус)',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.obsidianGlassSurface,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Button Minus (-10m)
+                              Semantics(
+                                button: true,
+                                label: 'Уменьшить радиус геозоны',
+                                child: InkWell(
+                                  onTap: () {
+                                    if (currentRadius > 50.0) {
+                                      mapNotifier.updateSafeZoneRadius(currentRadius - 10.0);
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.obsidianCard,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: AppColors.glassBorder),
+                                    ),
+                                    child: const Icon(Icons.remove, color: AppColors.textPrimary, size: 20),
+                                  ),
+                                ),
+                              ),
+
+                              // Radius Display
+                              Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '$safeRadius м',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                          fontFeatures: [FontFeature.tabularFigures()],
+                                        ),
+                                      ),
+                                      const Text(
+                                        'Шаг: ±10 м',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.textSecondary,
+                                          fontFeatures: [FontFeature.tabularFigures()],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              // Button Plus (+10m)
+                              Semantics(
+                                button: true,
+                                label: 'Увеличить радиус геозоны',
+                                child: InkWell(
+                                  onTap: () {
+                                    if (currentRadius < 2000.0) {
+                                      mapNotifier.updateSafeZoneRadius(currentRadius + 10.0);
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.obsidianCard,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: AppColors.glassBorder),
+                                    ),
+                                    child: const Icon(Icons.add, color: AppColors.textPrimary, size: 20),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Button "Настроить центр на карте"
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              context.go('/map');
+                            },
+                            icon: const Icon(Icons.my_location_rounded, color: AppColors.accentGreen, size: 18),
+                            label: const Text(
+                              'Настроить центр на карте',
+                              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: AppColors.glassBorder),
+                              backgroundColor: AppColors.obsidianGlassSurface,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                           ),
-
-                          // Radius Display
-                          Flexible(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else ...[
+                  GlassCard(
+                    borderRadius: 16,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.obsidianGlassSurface,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.watch_off_outlined, color: AppColors.textSecondary, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '$safeRadius м',
-                                    style: const TextStyle(
-                                      fontSize: 18,
+                                    'GPS-трекер не привязан',
+                                    style: TextStyle(
+                                      fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.textPrimary,
-                                      fontFeatures: [FontFeature.tabularFigures()],
                                     ),
                                   ),
-                                  const Text(
-                                    'Шаг: ±10 м',
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Привяжите умный ошейник для мониторинга геозон и безопасности',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondary,
-                                      fontFeatures: [FontFeature.tabularFigures()],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-
-                          // Button Plus (+10m)
-                          Semantics(
-                            button: true,
-                            label: 'Увеличить радиус геозоны',
-                            child: InkWell(
-                              onTap: () {
-                                if (currentRadius < 2000.0) {
-                                  mapNotifier.updateSafeZoneRadius(currentRadius + 10.0);
-                                }
-                              },
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: AppColors.obsidianCard,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: AppColors.glassBorder),
-                                ),
-                                child: const Icon(Icons.add, color: AppColors.textPrimary, size: 20),
-                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              PawToast.show(
+                                context,
+                                title: 'Поиск Bluetooth-маяков и трекеров...',
+                                type: ToastType.info,
+                              );
+                            },
+                            icon: const Icon(Icons.add_link_rounded, color: AppColors.accentBlue, size: 18),
+                            label: const Text(
+                              'Подключить GPS-трекер',
+                              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: AppColors.glassBorder),
+                              backgroundColor: AppColors.obsidianGlassSurface,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Button "Настроить центр на карте"
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          context.go('/map');
-                        },
-                        icon: const Icon(Icons.my_location_rounded, color: AppColors.accentGreen, size: 18),
-                        label: const Text(
-                          'Настроить центр на карте',
-                          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
                         ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.glassBorder),
-                          backgroundColor: AppColors.obsidianGlassSurface,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                ],
+              ],
 
               const SizedBox(height: 24),
 

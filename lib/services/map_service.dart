@@ -123,7 +123,7 @@ class MapService {
   }
 
   /// Fetch GPS Collar Device with fallback only if enabled
-  Future<GpsDeviceModel> getActiveGpsDevice() async {
+  Future<GpsDeviceModel?> getActiveGpsDevice() async {
     try {
       final response = await _dio.get('/pets/active-tracker').timeout(const Duration(seconds: 4));
       if (response.statusCode == 200 && response.data != null) {
@@ -134,7 +134,7 @@ class MapService {
         rethrow;
       }
     }
-    return mockGpsDevice;
+    return _allowMockFallback ? mockGpsDevice : null;
   }
 
   /// Update Safe Zone Radius & Position

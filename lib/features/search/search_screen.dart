@@ -453,8 +453,64 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
             // 5. Results Stream (Specialists + Places)
             Expanded(
-              child: totalCount == 0
-                  ? Center(
+              child: Builder(
+                builder: (context) {
+                  if (specialistsState.specialistsAsync.isLoading && totalCount == 0) {
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(
+                        valueColor: AlwaysStoppedAnimation(AppColors.accentBlue),
+                      ),
+                    );
+                  }
+
+                  if (specialistsState.specialistsAsync.hasError && totalCount == 0) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.cloud_off_rounded, color: AppColors.accentRed, size: 40),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Не удалось загрузить данные',
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Проверьте подключение к сети или повторите попытку',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            OutlinedButton.icon(
+                              onPressed: () {
+                                ref.read(specialistsNotifierProvider.notifier).loadSpecialists();
+                                ref.read(mapNotifierProvider.notifier).loadMapData();
+                              },
+                              icon: const Icon(Icons.refresh_rounded, size: 16, color: AppColors.textPrimary),
+                              label: const Text('Повторить', style: TextStyle(color: AppColors.textPrimary)),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: AppColors.glassBorder),
+                                backgroundColor: AppColors.obsidianGlassSurface,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (totalCount == 0) {
+                    return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: const [
@@ -474,29 +530,33 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ),
                         ],
                       ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 96),
-                      itemCount: totalCount,
-                      itemBuilder: (context, index) {
-                        if (index < filteredSpecialists.length) {
-                          final specialist = filteredSpecialists[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: SpecialistCard(
-                              key: ValueKey('specialist_${specialist.id}'),
-                              specialist: specialist,
-                              onRoute: () => _navigateToMapAndBuildRouteToSpecialist(specialist),
-                              onInquire: () => _openSpecialistInquiry(specialist),
-                            ),
-                          );
-                        }
+                    );
+                  }
 
-                        final markerIndex = index - filteredSpecialists.length;
-                        final marker = filteredMarkers[markerIndex];
-                        return _buildMarkerCard(marker);
-                      },
-                    ),
+                  return ListView.builder(
+                    padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 96),
+                    itemCount: totalCount,
+                    itemBuilder: (context, index) {
+                      if (index < filteredSpecialists.length) {
+                        final specialist = filteredSpecialists[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: SpecialistCard(
+                            key: ValueKey('specialist_${specialist.id}'),
+                            specialist: specialist,
+                            onRoute: () => _navigateToMapAndBuildRouteToSpecialist(specialist),
+                            onInquire: () => _openSpecialistInquiry(specialist),
+                          ),
+                        );
+                      }
+
+                      final markerIndex = index - filteredSpecialists.length;
+                      final marker = filteredMarkers[markerIndex];
+                      return _buildMarkerCard(marker);
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),

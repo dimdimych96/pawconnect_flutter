@@ -144,7 +144,7 @@ class MainShell extends ConsumerWidget {
               left: 0,
               right: 0,
               child: BreachAlertBanner(
-                petName: isBreached ? (gpsDevice?.petName ?? 'Арчи') : null,
+                petName: isBreached ? (gpsDevice?.petName ?? 'Питомец') : null,
                 hazardTitle: !isBreached ? mapState.activeHazardNearby?.title : null,
                 onNavigateToMap: () {
                   navigationShell.goBranch(1);

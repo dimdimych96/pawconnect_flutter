@@ -7,6 +7,8 @@ import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/paw_image.dart';
 import '../../core/widgets/pill_toast.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/health_provider.dart';
+import '../../providers/map_provider.dart';
 import '../../providers/user_provider.dart';
 import 'widgets/edit_profile_modal.dart';
 
@@ -36,6 +38,8 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    final petName = ref.read(mapNotifierProvider).gpsDevice?.petName ?? ref.read(healthNotifierProvider).profile?.petName;
+    final petClause = petName != null ? ' $petName' : '';
     showDialog(
       context: context,
       useRootNavigator: true,
@@ -43,9 +47,9 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: AppColors.obsidianCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Выход из аккаунта', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-        content: const Text(
-          'Вы действительно хотите выйти? Данные GPS-ошейника Арчи останутся привязаны к вашему профилю.',
-          style: TextStyle(color: AppColors.textSecondary),
+        content: Text(
+          'Вы действительно хотите выйти? Данные GPS-ошейника$petClause останутся привязаны к вашему профилю.',
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(

@@ -5,7 +5,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/theme/colors.dart';
+import '../../core/widgets/glass_widgets.dart';
 import '../../core/widgets/pill_toast.dart';
+import '../../providers/health_provider.dart';
 import '../../providers/map_provider.dart';
 import '../../providers/user_provider.dart';
 import 'widgets/collar_marker_widget.dart';
@@ -91,9 +93,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void _centerOnMax(double lat, double lng, {bool isNavigating = false}) {
     setState(() => _isPetFocus = true);
     _mapController.move(LatLng(lat, lng), 16.0);
+    final petName = ref.read(mapNotifierProvider).gpsDevice?.petName ?? 'питомца';
     PawToast.show(
       context,
-      title: 'Камера сфокусирована на ошейнике Арчи',
+      title: 'Камера сфокусирована на ошейнике $petName',
       subtitle: 'GPS-ошейник в центре карты',
       type: ToastType.success,
       topOffset: isNavigating ? 96.0 : null,
@@ -140,6 +143,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   void _openStartWalkModal(double lat, double lng) {
     final walkState = ref.read(walkNotifierProvider);
+    final healthProfile = ref.read(healthNotifierProvider).profile;
+    final gpsDevice = ref.read(mapNotifierProvider).gpsDevice;
+    final resolvedPetName = healthProfile?.petName ?? gpsDevice?.petName ?? walkState.activePetName;
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -148,7 +154,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       builder: (sheetCtx) => StartWalkModal(
         currentLat: lat,
         currentLng: lng,
-        petName: walkState.activePetName,
+        petName: resolvedPetName,
         defaultTemperament: walkState.userPetTemperament,
         onStart: ({
           required String petId,
@@ -322,20 +328,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ),
                   ),
 
-                  Marker(
-                    point: LatLng(maxLat, maxLng),
-                    width: 64,
-                    height: 64,
-                    child: CollarMarkerWidget(
-                      petName: gpsDevice?.petName ?? 'Арчи',
-                      isBreached: isBreached,
-                      photoUrl: gpsDevice?.photoUrl,
-                      onTap: () {
-                        _onMapInteraction();
-                        _centerOnMax(maxLat, maxLng, isNavigating: mapState.isNavigating);
-                      },
+                  if (gpsDevice != null)
+                    Marker(
+                      point: LatLng(maxLat, maxLng),
+                      width: 64,
+                      height: 64,
+                      child: CollarMarkerWidget(
+                        petName: gpsDevice.petName,
+                        isBreached: isBreached,
+                        photoUrl: gpsDevice.photoUrl,
+                        onTap: () {
+                          _onMapInteraction();
+                          _centerOnMax(maxLat, maxLng, isNavigating: mapState.isNavigating);
+                        },
+                      ),
                     ),
-                  ),
 
                   ...mapState.filteredMarkers.map((marker) {
                     return Marker(
@@ -454,10 +461,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               child: IgnorePointer(
                 ignoring: !_isControlsVisible,
                 child: RightControlRail(
-                  petName: gpsDevice?.petName ?? 'Арчи',
+                  hasGpsDevice: gpsDevice != null,
+                  petName: gpsDevice?.petName ?? '',
                   distanceMeters: mapState.distanceToPetInMeters,
                   isBreached: isBreached,
-                  isPetFocus: _isPetFocus,
+                  isPetFocus: gpsDevice != null && _isPetFocus,
                   activeFilters: mapState.activeFilters,
                   onToggleFilter: (category) {
                     _onMapInteraction();
@@ -479,7 +487,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     _onMapInteraction();
                     await mapNotifier.buildRouteTo(
                       LatLng(maxLat, maxLng),
-                      gpsDevice?.petName ?? 'Арчи',
+                      gpsDevice?.petName ?? 'Питомец',
                       type: 'collar',
                     );
                     final route = ref.read(mapNotifierProvider).activeRoute;
@@ -500,6 +508,53 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ),
           ),
+
+          // Network Error Banner (Honest Production State)
+          if (mapState.errorMessage != null && !mapState.isLoading && !mapState.isNavigating)
+            Positioned(
+              top: hasAlertBanner ? 76.0 : 16.0,
+              left: 16.0,
+              right: 16.0,
+              child: SafeArea(
+                child: GlassContainer(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  borderRadius: 14.0,
+                  borderColor: AppColors.accentYellow.withValues(alpha: 0.35),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.wifi_off_rounded, size: 16, color: AppColors.accentYellow),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text(
+                          'Не удалось обновить метки карты',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => ref.read(mapNotifierProvider.notifier).loadMapData(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          'Повторить',
+                          style: TextStyle(
+                            color: AppColors.accentGreen,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // 3. Sliding Marker Detail Sheet (if marker selected and no active route)
           if (mapState.selectedMarker != null && mapState.activeRoute == null)
