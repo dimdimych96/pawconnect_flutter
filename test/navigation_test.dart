@@ -12,7 +12,7 @@ void main() {
     String selectedMode = 'walk';
 
     final testRoute = ActiveRouteModel(
-      destinationTitle: 'Ошейник Макса',
+      destinationTitle: 'Ошейник Арчи',
       destinationType: 'collar',
       startPoint: const LatLng(55.0285, 82.9165),
       endPoint: const LatLng(55.0302, 82.9204),
@@ -51,7 +51,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Title & Stats
-    expect(find.text('Ошейник Макса'), findsOneWidget);
+    expect(find.text('Ошейник Арчи'), findsOneWidget);
     expect(find.text('4 мин • 320 м • Безопасный путь'), findsOneWidget);
 
     // Verify Vector Mode Cards exist
@@ -73,7 +73,7 @@ void main() {
     bool endedNavigation = false;
 
     final testRoute = ActiveRouteModel(
-      destinationTitle: 'Ошейник Макса',
+      destinationTitle: 'Ошейник Арчи',
       destinationType: 'collar',
       startPoint: const LatLng(55.0285, 82.9165),
       endPoint: const LatLng(55.0302, 82.9204),

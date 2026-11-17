@@ -27,10 +27,10 @@ class LiquidGlassBottomSheet extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1C1E).withValues(alpha: 0.88),
+            color: AppColors.obsidianGlassBackground,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(28.0)),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.12),
+              color: AppColors.glassBorder,
               width: 1.0,
             ),
             boxShadow: [
@@ -67,10 +67,10 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.accentBlue.withValues(alpha: 0.18),
+                      color: AppColors.accentBlue.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: AppColors.accentBlue.withValues(alpha: 0.35),
+                        color: AppColors.accentBlue.withValues(alpha: 0.3),
                       ),
                     ),
                     child: const Icon(
@@ -89,7 +89,7 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 17,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: -0.3,
                           ),
                           maxLines: 1,
@@ -112,7 +112,8 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                               style: const TextStyle(
                                 color: AppColors.accentGreen,
                                 fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
+                                fontFeatures: [FontFeature.tabularFigures()],
                               ),
                             ),
                           ],
@@ -120,20 +121,30 @@ class LiquidGlassBottomSheet extends StatelessWidget {
                       ],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: onClose,
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.glassBorderSubtle),
-                      ),
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: AppColors.textSecondary,
-                        size: 16,
+                  Semantics(
+                    button: true,
+                    label: 'Закрыть панель маршрута',
+                    child: InkWell(
+                      onTap: onClose,
+                      borderRadius: BorderRadius.circular(22),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.glassBorderSubtle),
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: AppColors.textSecondary,
+                            size: 16,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -178,40 +189,44 @@ class LiquidGlassBottomSheet extends StatelessWidget {
               const SizedBox(height: 16),
 
               // 4. Primary CTA: Apple Green Button "В путь"
-              GestureDetector(
-                onTap: onStartNavigation,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.accentGreen,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.accentGreen.withValues(alpha: 0.35),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.navigation_rounded,
-                        color: Colors.black,
-                        size: 18,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'В путь (Начать навигацию)',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.2,
+              Semantics(
+                button: true,
+                label: 'В путь, начать навигацию',
+                child: GestureDetector(
+                  onTap: onStartNavigation,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentGreen,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.accentGreen.withValues(alpha: 0.25),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.navigation_rounded,
+                          color: AppColors.obsidianBackground,
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'В путь (Начать навигацию)',
+                          style: TextStyle(
+                            color: AppColors.obsidianBackground,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -229,47 +244,53 @@ class LiquidGlassBottomSheet extends StatelessWidget {
     required IconData icon,
     required bool isSelected,
   }) {
-    return GestureDetector(
-      onTap: () => onModeSelected(modeKey),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.accentBlue.withValues(alpha: 0.22) : Colors.white.withValues(alpha: 0.04),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? AppColors.accentBlue : AppColors.glassBorderSubtle,
-            width: isSelected ? 1.5 : 1.0,
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: '$title, $duration',
+      child: GestureDetector(
+        onTap: () => onModeSelected(modeKey),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.accentBlue.withValues(alpha: 0.20) : Colors.white.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? AppColors.accentBlue : AppColors.glassBorderSubtle,
+              width: isSelected ? 1.5 : 1.0,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isSelected ? AppColors.accentBlue : AppColors.textSecondary,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textSecondary,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected ? AppColors.accentBlue : AppColors.textSecondary,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              duration,
-              style: TextStyle(
-                color: isSelected ? AppColors.accentBlue : AppColors.textSecondary.withValues(alpha: 0.7),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 6),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                duration,
+                style: TextStyle(
+                  color: isSelected ? AppColors.accentBlue : AppColors.textTertiary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

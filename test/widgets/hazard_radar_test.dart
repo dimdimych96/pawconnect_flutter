@@ -134,16 +134,16 @@ void main() {
         ),
       );
 
-      // Select «⚠️ Опасность»
-      await tester.tap(find.text('⚠️ Опасность'));
+      // Select «Опасность»
+      await tester.tap(find.text('Опасность'));
       await tester.pump();
 
       // Verify sub-selector appears and breed field is gone
       expect(find.text('Тип угрозы (Радар безопасности):'), findsOneWidget);
       expect(find.text('Порода (необязательно)'), findsNothing);
 
-      // Select «🐕‍🦺 Стая собак»
-      await tester.tap(find.text('🐕‍🦺 Стая собак'));
+      // Select «Стая собак»
+      await tester.tap(find.text('Стая собак'));
       await tester.pump();
 
       // Enter title

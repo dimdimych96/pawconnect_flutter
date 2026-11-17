@@ -256,7 +256,7 @@ class WalkService {
       fromUserId: 'usr-current',
       toPetId: toPetId,
       status: 'pending',
-      message: message ?? 'Привет! Давайте погуляем вместе 🐾',
+      message: message ?? 'Привет! Давайте погуляем вместе',
       createdAt: DateTime.now(),
     );
   }

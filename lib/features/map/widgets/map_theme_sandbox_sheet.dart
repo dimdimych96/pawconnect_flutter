@@ -28,7 +28,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
             maxHeight: MediaQuery.of(context).size.height * 0.78,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xE614181D),
+            color: AppColors.obsidianGlassBackground,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.14),
@@ -216,7 +216,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
                     // Slider: Green Boost (Парки)
                     _ColorSlider(
-                      label: '🌿 Зелень парков (Green Boost)',
+                      label: 'Зелень парков',
                       valueText: '${((themeState.greenBoost - 1.0) * 100).toStringAsFixed(0)}%',
                       value: themeState.greenBoost,
                       min: 0.5,
@@ -227,7 +227,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
                     // Slider: Contrast
                     _ColorSlider(
-                      label: '🎚 Контрастность (Contrast)',
+                      label: 'Контрастность',
                       valueText: '${(themeState.contrast * 100).toStringAsFixed(0)}%',
                       value: themeState.contrast,
                       min: 0.5,
@@ -238,7 +238,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
                     // Slider: Brightness
                     _ColorSlider(
-                      label: '☀️ Яркость (Brightness)',
+                      label: 'Яркость',
                       valueText: themeState.brightness.toStringAsFixed(0),
                       value: themeState.brightness,
                       min: -40.0,
@@ -249,7 +249,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
                     // Slider: Blue Tint (Вода)
                     _ColorSlider(
-                      label: '🌊 Синий / Река Обь (Blue Tint)',
+                      label: 'Оттенок воды (синий)',
                       valueText: '${((themeState.blueTint - 1.0) * 100).toStringAsFixed(0)}%',
                       value: themeState.blueTint,
                       min: 0.5,
@@ -260,7 +260,7 @@ class MapThemeSandboxSheet extends ConsumerWidget {
 
                     // Slider: Red Tint
                     _ColorSlider(
-                      label: '🔴 Красный спектр / Теплота (Red Tint)',
+                      label: 'Теплый оттенок (красный)',
                       valueText: '${((themeState.redTint - 1.0) * 100).toStringAsFixed(0)}%',
                       value: themeState.redTint,
                       min: 0.5,

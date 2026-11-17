@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/widgets/paw_image.dart';
 import '../../../models/map_marker_model.dart';
-
 import 'companion_walk_marker.dart';
 
 class CategoryMarkerWidget extends StatelessWidget {
@@ -24,7 +23,7 @@ class CategoryMarkerWidget extends StatelessWidget {
       case 'companion':
         return AppColors.accentGreen;
       case 'danger':
-        return const Color(0xFFF59E0B);
+        return AppColors.accentYellow;
       default:
         return AppColors.accentBlue;
     }
@@ -62,41 +61,45 @@ class CategoryMarkerWidget extends StatelessWidget {
 
     final badgeColor = _getBadgeColor();
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: AppColors.obsidianCardTranslucent,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: badgeColor,
-                width: 2.0,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: badgeColor.withValues(alpha: 0.4),
-                  blurRadius: 10,
-                  spreadRadius: 1,
+    return Semantics(
+      button: true,
+      label: 'Метка: ${marker.title}',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: AppColors.obsidianCardTranslucent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: badgeColor,
+                  width: 2.0,
                 ),
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: PawAvatar(
+                url: marker.image,
+                radius: 21,
+                fallbackColor: badgeColor,
+                fallbackIcon: _getIcon(),
+              ),
             ),
-            child: PawAvatar(
-              url: marker.image,
-              radius: 21,
-              fallbackColor: badgeColor,
-              fallbackIcon: _getIcon(),
+            CustomPaint(
+              size: const Size(12, 6),
+              painter: _TrianglePainter(color: badgeColor),
             ),
-          ),
-          CustomPaint(
-            size: const Size(12, 6),
-            painter: _TrianglePainter(color: badgeColor),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

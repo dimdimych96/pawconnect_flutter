@@ -213,7 +213,7 @@ class PetProfileScreen extends ConsumerWidget {
                                 children: [
                                   Flexible(
                                     child: Text(
-                                      gpsDevice?.petName ?? 'Макс',
+                                      gpsDevice?.petName ?? healthState.profile?.petName ?? 'Арчи',
                                       style: const TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w600,
@@ -255,9 +255,9 @@ class PetProfileScreen extends ConsumerWidget {
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                'Золотистый ретривер • 2 года',
-                                style: TextStyle(
+                              Text(
+                                '${healthState.profile?.breedName ?? 'Вельш-корги пемброк'} • 2 года',
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondary,
                                 ),

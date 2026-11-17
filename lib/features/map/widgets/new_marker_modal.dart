@@ -96,30 +96,34 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
               runSpacing: 8,
               children: [
                 _TypeChip(
-                  label: '🚨 Потеряшка',
+                  label: 'Потеряшка',
+                  icon: Icons.campaign_rounded,
                   type: 'lost_pet',
                   color: AppColors.accentRed,
                   isSelected: _selectedType == 'lost_pet',
                   onTap: () => setState(() => _selectedType = 'lost_pet'),
                 ),
                 _TypeChip(
-                  label: '🦮 Площадка',
+                  label: 'Площадка',
+                  icon: Icons.park_rounded,
                   type: 'playground',
                   color: AppColors.accentGreen,
                   isSelected: _selectedType == 'playground',
                   onTap: () => setState(() => _selectedType = 'playground'),
                 ),
                 _TypeChip(
-                  label: '🐾 Прогулка',
+                  label: 'Прогулка',
+                  icon: Icons.pets_rounded,
                   type: 'companion',
                   color: AppColors.accentBlue,
                   isSelected: _selectedType == 'companion',
                   onTap: () => setState(() => _selectedType = 'companion'),
                 ),
                 _TypeChip(
-                  label: '⚠️ Опасность',
+                  label: 'Опасность',
+                  icon: Icons.warning_amber_rounded,
                   type: 'danger',
-                  color: const Color(0xFFF59E0B),
+                  color: AppColors.accentYellow,
                   isSelected: _selectedType == 'danger',
                   onTap: () => setState(() => _selectedType = 'danger'),
                 ),
@@ -139,42 +143,42 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
                 runSpacing: 6,
                 children: [
                   ChoiceChip(
-                    label: const Text('☠️ Отрава / яд', style: TextStyle(fontSize: 11)),
+                    label: const Text('Отрава / яд', style: TextStyle(fontSize: 12)),
                     selected: _selectedDangerType == 'poison',
                     onSelected: (val) {
                       if (val) setState(() => _selectedDangerType = 'poison');
                     },
-                    selectedColor: const Color(0xFFF59E0B),
+                    selectedColor: AppColors.accentYellow,
                     backgroundColor: AppColors.obsidianGlassSurface,
                     showCheckmark: false,
                   ),
                   ChoiceChip(
-                    label: const Text('🐕‍🦺 Стая собак', style: TextStyle(fontSize: 11)),
+                    label: const Text('Стая собак', style: TextStyle(fontSize: 12)),
                     selected: _selectedDangerType == 'aggressive_pack',
                     onSelected: (val) {
                       if (val) setState(() => _selectedDangerType = 'aggressive_pack');
                     },
-                    selectedColor: const Color(0xFFF59E0B),
+                    selectedColor: AppColors.accentYellow,
                     backgroundColor: AppColors.obsidianGlassSurface,
                     showCheckmark: false,
                   ),
                   ChoiceChip(
-                    label: const Text('⚠️ Битое стекло', style: TextStyle(fontSize: 11)),
+                    label: const Text('Битое стекло', style: TextStyle(fontSize: 12)),
                     selected: _selectedDangerType == 'broken_glass',
                     onSelected: (val) {
                       if (val) setState(() => _selectedDangerType = 'broken_glass');
                     },
-                    selectedColor: const Color(0xFFF59E0B),
+                    selectedColor: AppColors.accentYellow,
                     backgroundColor: AppColors.obsidianGlassSurface,
                     showCheckmark: false,
                   ),
                   ChoiceChip(
-                    label: const Text('❓ Другое', style: TextStyle(fontSize: 11)),
+                    label: const Text('Другое', style: TextStyle(fontSize: 12)),
                     selected: _selectedDangerType == 'other',
                     onSelected: (val) {
                       if (val) setState(() => _selectedDangerType = 'other');
                     },
-                    selectedColor: const Color(0xFFF59E0B),
+                    selectedColor: AppColors.accentYellow,
                     backgroundColor: AppColors.obsidianGlassSurface,
                     showCheckmark: false,
                   ),
@@ -261,14 +265,14 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
               child: ElevatedButton(
                 onPressed: _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedType == 'danger' ? const Color(0xFFF59E0B) : AppColors.accentGreen,
+                  backgroundColor: _selectedType == 'danger' ? AppColors.accentYellow : AppColors.accentGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(
                   _selectedType == 'danger' ? 'Опубликовать предупреждение' : 'Опубликовать метку',
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: AppColors.obsidianBackground,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -284,6 +288,7 @@ class _NewMarkerModalState extends State<NewMarkerModal> {
 
 class _TypeChip extends StatelessWidget {
   final String label;
+  final IconData icon;
   final String type;
   final Color color;
   final bool isSelected;
@@ -291,6 +296,7 @@ class _TypeChip extends StatelessWidget {
 
   const _TypeChip({
     required this.label,
+    required this.icon,
     required this.type,
     required this.color,
     required this.isSelected,
@@ -299,6 +305,7 @@ class _TypeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fg = isSelected ? color : AppColors.textSecondary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -311,14 +318,21 @@ class _TypeChip extends StatelessWidget {
             width: isSelected ? 1.5 : 1.0,
           ),
         ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? color : AppColors.textSecondary,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: fg),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: fg,
+              ),
+            ),
+          ],
         ),
       ),
     );

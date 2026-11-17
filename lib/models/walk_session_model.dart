@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import '../core/theme/colors.dart';
 
 enum DogTemperament {
-  playful('playful', 'Игривый', '🎾', Color(0xFF34D399)),
-  calm('calm', 'Спокойный', '🌿', Color(0xFF60A5FA)),
-  energetic('energetic', 'Энергичный', '⚡', Color(0xFFFBBF24)),
-  shy('shy', 'Осторожный', '🙈', Color(0xFFA78BFA)),
-  reactive('reactive', 'Дистанция', '⛔', Color(0xFFF87171));
+  playful('playful', 'Игривый', '🎾', Icons.sports_baseball_rounded, AppColors.accentGreen),
+  calm('calm', 'Спокойный', '🌿', Icons.spa_rounded, AppColors.accentBlue),
+  energetic('energetic', 'Энергичный', '⚡', Icons.bolt_rounded, AppColors.accentYellow),
+  shy('shy', 'Осторожный', '🙈', Icons.visibility_rounded, Color(0xFF8B7FD1)),
+  reactive('reactive', 'Дистанция', '⛔', Icons.do_not_disturb_on_rounded, AppColors.accentRed);
 
   final String key;
   final String label;
   final String emoji;
+  final IconData? icon;
+
   final Color color;
 
-  const DogTemperament(this.key, this.label, this.emoji, this.color);
+  const DogTemperament(this.key, this.label, this.emoji, this.icon, this.color);
 
   static DogTemperament fromString(String? val) {
     if (val == null) return DogTemperament.playful;
@@ -83,6 +86,8 @@ class CompatibilityResult {
   final String subtitle;
   final Color badgeColor;
   final String emoji;
+  final IconData? icon;
+
 
   const CompatibilityResult({
     required this.level,
@@ -90,6 +95,7 @@ class CompatibilityResult {
     required this.subtitle,
     required this.badgeColor,
     required this.emoji,
+    this.icon,
   });
 }
 

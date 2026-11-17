@@ -93,7 +93,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     _mapController.move(LatLng(lat, lng), 16.0);
     PawToast.show(
       context,
-      title: 'Камера сфокусирована на ошейнике Макса',
+      title: 'Камера сфокусирована на ошейнике Арчи',
       subtitle: 'GPS-ошейник в центре карты',
       type: ToastType.success,
       topOffset: isNavigating ? 96.0 : null,
@@ -327,7 +327,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     width: 64,
                     height: 64,
                     child: CollarMarkerWidget(
-                      petName: gpsDevice?.petName ?? 'Макс',
+                      petName: gpsDevice?.petName ?? 'Арчи',
                       isBreached: isBreached,
                       photoUrl: gpsDevice?.photoUrl,
                       onTap: () {
@@ -454,7 +454,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               child: IgnorePointer(
                 ignoring: !_isControlsVisible,
                 child: RightControlRail(
-                  petName: gpsDevice?.petName ?? 'Макс',
+                  petName: gpsDevice?.petName ?? 'Арчи',
                   distanceMeters: mapState.distanceToPetInMeters,
                   isBreached: isBreached,
                   isPetFocus: _isPetFocus,
@@ -479,7 +479,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     _onMapInteraction();
                     await mapNotifier.buildRouteTo(
                       LatLng(maxLat, maxLng),
-                      gpsDevice?.petName ?? 'Макс',
+                      gpsDevice?.petName ?? 'Арчи',
                       type: 'collar',
                     );
                     final route = ref.read(mapNotifierProvider).activeRoute;
@@ -510,6 +510,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               top: 0,
               child: MarkerDetailSheet(
                 marker: mapState.selectedMarker!,
+                userLocation: LatLng(mapState.userLatitude, mapState.userLongitude),
                 onClose: () => mapNotifier.selectMarker(null),
                 onVerifyHazard: (markerId, action) {
                   mapNotifier.verifyHazard(markerId, action);

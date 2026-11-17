@@ -12,7 +12,7 @@ class PawAvatar extends StatelessWidget {
   const PawAvatar({
     super.key,
     required this.url,
-    this.fallbackInitial = '🐾',
+    this.fallbackInitial = '',
     this.radius = 24.0,
     this.borderColor,
     this.fallbackIcon = Icons.pets_rounded,

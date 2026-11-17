@@ -25,7 +25,7 @@ class RouteBannerWidget extends StatelessWidget {
         child: GlassContainer(
           padding: const EdgeInsets.all(16.0),
           borderRadius: 20.0,
-          borderColor: AppColors.accentBlue.withValues(alpha: 0.4),
+          borderColor: AppColors.glassBorderSubtle,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -33,15 +33,16 @@ class RouteBannerWidget extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.accentBlue.withValues(alpha: 0.2),
+                      color: AppColors.accentBlue.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.navigation_rounded,
                       color: AppColors.accentBlue,
-                      size: 20,
+                      size: 18,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -54,7 +55,7 @@ class RouteBannerWidget extends StatelessWidget {
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -65,21 +66,36 @@ class RouteBannerWidget extends StatelessWidget {
                           style: const TextStyle(
                             color: AppColors.accentGreen,
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: onClose,
-                    child: CircleAvatar(
-                      radius: 14,
-                      backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: AppColors.textSecondary,
-                        size: 16,
+                  Semantics(
+                    button: true,
+                    label: 'Закрыть маршрут',
+                    child: InkWell(
+                      onTap: onClose,
+                      borderRadius: BorderRadius.circular(22),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: AppColors.textSecondary,
+                            size: 16,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -90,11 +106,11 @@ class RouteBannerWidget extends StatelessWidget {
               // Mode Selector (Walk, Drive, Dog Run)
               Row(
                 children: [
-                  _buildModeChip('walk', '🚶 Пешком', route.transportMode == 'walk'),
+                  _buildModeChip('walk', 'Пешком', Icons.directions_walk_rounded, route.transportMode == 'walk'),
                   const SizedBox(width: 8),
-                  _buildModeChip('drive', '🚗 На авто', route.transportMode == 'drive'),
+                  _buildModeChip('drive', 'На авто', Icons.directions_car_rounded, route.transportMode == 'drive'),
                   const SizedBox(width: 8),
-                  _buildModeChip('dog_run', '🐕 Бег', route.transportMode == 'dog_run'),
+                  _buildModeChip('dog_run', 'Бег', Icons.directions_run_rounded, route.transportMode == 'dog_run'),
                 ],
               ),
               const SizedBox(height: 10),
@@ -104,7 +120,7 @@ class RouteBannerWidget extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: Colors.white.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.glassBorderSubtle),
                 ),
@@ -134,28 +150,44 @@ class RouteBannerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildModeChip(String modeKey, String label, bool isSelected) {
+  Widget _buildModeChip(String modeKey, String label, IconData icon, bool isSelected) {
     return Expanded(
-      child: GestureDetector(
-        onTap: () => onModeChanged(modeKey),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.accentBlue.withValues(alpha: 0.25) : Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? AppColors.accentBlue : AppColors.glassBorderSubtle,
-              width: isSelected ? 1.5 : 1.0,
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        child: GestureDetector(
+          onTap: () => onModeChanged(modeKey),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.accentBlue.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? AppColors.accentBlue : AppColors.glassBorderSubtle,
+                width: isSelected ? 1.5 : 1.0,
+              ),
             ),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textSecondary,
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 15,
+                  color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

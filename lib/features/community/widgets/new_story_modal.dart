@@ -418,7 +418,7 @@ class _NewStoryModalState extends ConsumerState<NewStoryModal> {
                 decoration: InputDecoration(
                   labelText: 'Статус выгула / Чем вы заняты',
                   labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                  hintText: 'Гуляем в Нарымском сквере, кто с нами? 🦮',
+                  hintText: 'Гуляем в Нарымском сквере, кто с нами?',
                   hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 14),
                   filled: true,
                   fillColor: AppColors.obsidianGlassSurface,

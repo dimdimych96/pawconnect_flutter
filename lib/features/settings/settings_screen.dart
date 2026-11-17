@@ -44,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Выход из аккаунта', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
         content: const Text(
-          'Вы действительно хотите выйти? Данные GPS-ошейника Макса останутся привязаны к вашему профилю.',
+          'Вы действительно хотите выйти? Данные GPS-ошейника Арчи останутся привязаны к вашему профилю.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [

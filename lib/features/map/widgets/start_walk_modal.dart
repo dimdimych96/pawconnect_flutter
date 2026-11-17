@@ -23,8 +23,8 @@ class StartWalkModal extends StatefulWidget {
     super.key,
     required this.currentLat,
     required this.currentLng,
-    this.petName = 'Макс',
-    this.petBreed = 'Золотистый ретривер',
+    this.petName = 'Арчи',
+    this.petBreed = 'Вельш-корги',
     this.defaultTemperament = DogTemperament.playful,
     required this.onStart,
   });
@@ -124,19 +124,29 @@ class _StartWalkModalState extends State<StartWalkModal> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: AppColors.obsidianRaised,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: AppColors.textSecondary,
-                        size: 18,
+                  Semantics(
+                    button: true,
+                    label: 'Закрыть',
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(22),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: const BoxDecoration(
+                            color: AppColors.obsidianRaised,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: AppColors.textSecondary,
+                            size: 18,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -167,7 +177,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
                 icon: Icons.shield_outlined,
                 title: 'Приватный выгул',
                 subtitle: 'Размытие координат (~120м). Никто не видит точную точку выгула',
-                color: const Color(0xFFA78BFA),
+                color: const Color(0xFF8B7FD1),
               ),
               const SizedBox(height: 8),
               _buildModeCard(
@@ -175,7 +185,7 @@ class _StartWalkModalState extends State<StartWalkModal> {
                 icon: Icons.explore_rounded,
                 title: 'Тренировка',
                 subtitle: 'Отработка команд. Значок просит держать дистанцию и не отвлекать',
-                color: const Color(0xFFFBBF24),
+                color: AppColors.accentYellow,
               ),
               const SizedBox(height: 16),
 

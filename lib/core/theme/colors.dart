@@ -7,6 +7,7 @@ abstract class AppColors {
   static const Color obsidianCardTranslucent = Color(0xDF19191B);
   static const Color obsidianGlassSurface = Color(0xFF232325);
   static const Color obsidianRaised = Color(0xFF232325);
+  static const Color obsidianGlassBackground = Color(0xE619191B);
 
   // Quiet Hairline Borders (6-10% Primary Text)
   static const Color glassBorder = Color(0x14EDEDED); // 8% hairline

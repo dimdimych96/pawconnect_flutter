@@ -48,17 +48,17 @@ class TurnByTurnHud extends StatelessWidget {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C1E).withValues(alpha: 0.92),
+                    color: AppColors.obsidianGlassBackground,
                     borderRadius: BorderRadius.circular(22.0),
                     border: Border.all(
-                      color: AppColors.accentGreen.withValues(alpha: 0.4),
+                      color: AppColors.accentGreen.withValues(alpha: 0.35),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.6),
+                        color: Colors.black.withValues(alpha: 0.5),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -71,10 +71,10 @@ class TurnByTurnHud extends StatelessWidget {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: AppColors.accentGreen.withValues(alpha: 0.18),
+                          color: AppColors.accentGreen.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.accentGreen.withValues(alpha: 0.45),
+                            color: AppColors.accentGreen.withValues(alpha: 0.35),
                             width: 1.0,
                           ),
                         ),
@@ -99,8 +99,9 @@ class TurnByTurnHud extends StatelessWidget {
                               style: const TextStyle(
                                 color: AppColors.textPrimary,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 letterSpacing: -0.3,
+                                fontFeatures: [FontFeature.tabularFigures()],
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -120,41 +121,61 @@ class TurnByTurnHud extends StatelessWidget {
                         ),
                       ),
 
-                      // Step switcher buttons (Prev/Next simulation)
+                      // Step switcher buttons (Prev/Next simulation) with min 44x44 touch targets
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (currentStepIndex > 0)
-                            GestureDetector(
-                              onTap: onPrevStep,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.08),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.chevron_left_rounded,
-                                  color: AppColors.textSecondary,
-                                  size: 16,
+                            Semantics(
+                              button: true,
+                              label: 'Предыдущий шаг маневра',
+                              child: InkWell(
+                                onTap: onPrevStep,
+                                borderRadius: BorderRadius.circular(22),
+                                child: Container(
+                                  width: 44,
+                                  height: 44,
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.08),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.chevron_left_rounded,
+                                      color: AppColors.textSecondary,
+                                      size: 18,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          if (currentStepIndex > 0 && currentStepIndex < route.steps.length - 1)
-                            const SizedBox(width: 6),
                           if (currentStepIndex < route.steps.length - 1)
-                            GestureDetector(
-                              onTap: onNextStep,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: AppColors.accentGreen.withValues(alpha: 0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: AppColors.accentGreen,
-                                  size: 16,
+                            Semantics(
+                              button: true,
+                              label: 'Следующий шаг маневра',
+                              child: InkWell(
+                                onTap: onNextStep,
+                                borderRadius: BorderRadius.circular(22),
+                                child: Container(
+                                  width: 44,
+                                  height: 44,
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.accentGreen.withValues(alpha: 0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: AppColors.accentGreen,
+                                      size: 18,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -170,7 +191,7 @@ class TurnByTurnHud extends StatelessWidget {
 
         // 2. Live Walking Pace Indicator (Left Side Pill)
         Positioned(
-          top: 110,
+          top: 104,
           left: 16,
           child: SafeArea(
             child: ClipRRect(
@@ -180,9 +201,9 @@ class TurnByTurnHud extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C1E).withValues(alpha: 0.85),
+                    color: AppColors.obsidianGlassBackground,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    border: Border.all(color: AppColors.glassBorderSubtle),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
@@ -194,7 +215,8 @@ class TurnByTurnHud extends StatelessWidget {
                         style: TextStyle(
                           color: AppColors.accentGreen,
                           fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: [FontFeature.tabularFigures()],
                         ),
                       ),
                       SizedBox(width: 4),
@@ -226,10 +248,10 @@ class TurnByTurnHud extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C1E).withValues(alpha: 0.92),
+                    color: AppColors.obsidianGlassBackground,
                     borderRadius: BorderRadius.circular(24.0),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.14),
+                      color: AppColors.glassBorder,
                       width: 1.0,
                     ),
                     boxShadow: [
@@ -255,8 +277,9 @@ class TurnByTurnHud extends StatelessWidget {
                                   style: const TextStyle(
                                     color: AppColors.accentGreen,
                                     fontSize: 20,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                     letterSpacing: -0.4,
+                                    fontFeatures: [FontFeature.tabularFigures()],
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -265,7 +288,8 @@ class TurnByTurnHud extends StatelessWidget {
                                   style: const TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
+                                    fontFeatures: [FontFeature.tabularFigures()],
                                   ),
                                 ),
                               ],
@@ -277,6 +301,7 @@ class TurnByTurnHud extends StatelessWidget {
                                 color: AppColors.textSecondary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
+                                fontFeatures: [FontFeature.tabularFigures()],
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -285,37 +310,43 @@ class TurnByTurnHud extends StatelessWidget {
                         ),
                       ),
 
-                      // Red Glass "Завершить" Button
-                      GestureDetector(
-                        onTap: onEndNavigation,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: AppColors.accentRed.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: AppColors.accentRed.withValues(alpha: 0.5),
-                              width: 1.2,
+                      // Red Glass "Завершить" Button with min 44x44 touch target
+                      Semantics(
+                        button: true,
+                        label: 'Завершить навигацию',
+                        child: InkWell(
+                          onTap: onEndNavigation,
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            constraints: const BoxConstraints(minHeight: 44),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.accentRed.withValues(alpha: 0.16),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: AppColors.accentRed.withValues(alpha: 0.4),
+                                width: 1.0,
+                              ),
                             ),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.cancel_rounded,
-                                color: AppColors.accentRed,
-                                size: 16,
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                'Завершить',
-                                style: TextStyle(
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.cancel_rounded,
                                   color: AppColors.accentRed,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
+                                  size: 16,
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 6),
+                                Text(
+                                  'Завершить',
+                                  style: TextStyle(
+                                    color: AppColors.accentRed,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

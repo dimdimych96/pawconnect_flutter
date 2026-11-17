@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/widgets/glass_widgets.dart';
 import '../../../core/widgets/paw_image.dart';
@@ -9,6 +10,7 @@ import '../../../models/walk_session_model.dart';
 
 class MarkerDetailSheet extends StatelessWidget {
   final MapMarkerModel marker;
+  final LatLng? userLocation;
   final VoidCallback onClose;
   final VoidCallback? onBuildRoute;
   final void Function(String markerId, String action)? onVerifyHazard;
@@ -18,6 +20,7 @@ class MarkerDetailSheet extends StatelessWidget {
   const MarkerDetailSheet({
     super.key,
     required this.marker,
+    this.userLocation,
     required this.onClose,
     this.onBuildRoute,
     this.onVerifyHazard,
@@ -34,7 +37,7 @@ class MarkerDetailSheet extends StatelessWidget {
       case 'companion':
         return AppColors.accentGreen;
       case 'danger':
-        return const Color(0xFFF59E0B);
+        return AppColors.accentYellow;
       default:
         return AppColors.accentBlue;
     }
@@ -66,10 +69,25 @@ class MarkerDetailSheet extends StatelessWidget {
     }
   }
 
+  String? _getDistanceText() {
+    if (userLocation == null) return null;
+    final meters = const Distance().as(
+      LengthUnit.Meter,
+      userLocation!,
+      LatLng(marker.latitude, marker.longitude),
+    ).round();
+    if (meters < 1000) {
+      return '$meters м от вас';
+    } else {
+      return '${(meters / 1000).toStringAsFixed(1)} км от вас';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final badgeColor = _getBadgeColor();
     final hasImage = marker.image != null && marker.image!.isNotEmpty;
+    final distText = _getDistanceText();
 
     return DraggableScrollableSheet(
       initialChildSize: 0.32,
@@ -102,50 +120,80 @@ class MarkerDetailSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
 
               // 2. Close Button Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  GestureDetector(
-                    onTap: onClose,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: const BoxDecoration(
-                        color: AppColors.obsidianRaised,
-                        shape: BoxShape.circle,
+                  Semantics(
+                    button: true,
+                    label: 'Закрыть карточку',
+                    child: InkWell(
+                      onTap: onClose,
+                      borderRadius: BorderRadius.circular(22),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: const BoxDecoration(
+                            color: AppColors.obsidianRaised,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 16),
+                        ),
                       ),
-                      child: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 16),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
 
-              // 3. Title, breed, distance
+              // 3. Header Info (Type badge, Title, Distance, Coords)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (hasImage)
-                    PawImage(
-                      url: marker.image,
-                      width: 72,
-                      height: 72,
-                      borderRadius: 14,
-                      fallbackColor: badgeColor,
-                    ),
-                  if (hasImage) const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Type Badge (Clean, sentence case)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: badgeColor.withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: badgeColor.withValues(alpha: 0.3),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Text(
+                            marker.type == 'lost_pet'
+                                ? 'Потерялся питомец'
+                                : marker.type == 'playground'
+                                    ? 'Площадка для выгула'
+                                    : marker.type == 'companion'
+                                        ? 'Ищу компанию'
+                                        : marker.type == 'danger'
+                                            ? 'Зона опасности'
+                                            : 'Метка',
+                            style: TextStyle(
+                              color: badgeColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
                         Text(
                           marker.title,
                           style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -172,41 +220,53 @@ class MarkerDetailSheet extends StatelessWidget {
                         ],
                         Row(
                           children: [
-                            const Icon(Icons.location_on_rounded, size: 14, color: AppColors.accentGreen),
-                            const SizedBox(width: 4),
-                            Text(
-                              '~450 м от вас',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.accentGreen.withValues(alpha: 0.9),
-                                fontWeight: FontWeight.w500,
+                            if (distText != null) ...[
+                              const Icon(Icons.location_on_rounded, size: 14, color: AppColors.accentGreen),
+                              const SizedBox(width: 4),
+                              Text(
+                                distText,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.accentGreen.withValues(alpha: 0.9),
+                                  fontWeight: FontWeight.w500,
+                                  fontFeatures: const [FontFeature.tabularFigures()],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              '•',
-                              style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
-                            ),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () {
-                                Clipboard.setData(ClipboardData(
-                                  text: '${marker.latitude}, ${marker.longitude}',
-                                ));
-                                PawToast.show(
-                                  context,
-                                  title: 'Координаты скопированы',
-                                  subtitle: '${marker.latitude.toStringAsFixed(5)}, ${marker.longitude.toStringAsFixed(5)}',
-                                  type: ToastType.success,
-                                );
-                              },
-                              child: Text(
-                                '${marker.latitude.toStringAsFixed(5)}, ${marker.longitude.toStringAsFixed(5)}',
-                                style: const TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 11,
-                                  color: AppColors.textTertiary,
-                                  fontFeatures: [FontFeature.tabularFigures()],
+                              const SizedBox(width: 8),
+                              const Text(
+                                '•',
+                                style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            Semantics(
+                              button: true,
+                              label: 'Скопировать координаты',
+                              child: GestureDetector(
+                                onTap: () {
+                                  Clipboard.setData(ClipboardData(
+                                    text: '${marker.latitude}, ${marker.longitude}',
+                                  ));
+                                  PawToast.show(
+                                    context,
+                                    title: 'Координаты скопированы',
+                                    subtitle: '${marker.latitude.toStringAsFixed(5)}, ${marker.longitude.toStringAsFixed(5)}',
+                                    type: ToastType.success,
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.copy_rounded, size: 12, color: AppColors.textTertiary),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${marker.latitude.toStringAsFixed(4)}, ${marker.longitude.toStringAsFixed(4)}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textTertiary,
+                                        fontFeatures: [FontFeature.tabularFigures()],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -228,7 +288,7 @@ class MarkerDetailSheet extends StatelessWidget {
                     color: AppColors.obsidianRaised,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+                      color: AppColors.accentYellow.withValues(alpha: 0.35),
                       width: 1,
                     ),
                   ),
@@ -237,14 +297,14 @@ class MarkerDetailSheet extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.shield_outlined, size: 16, color: Color(0xFFF59E0B)),
+                          const Icon(Icons.shield_outlined, size: 16, color: AppColors.accentYellow),
                           const SizedBox(width: 6),
                           const Text(
                             'Радар безопасности',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFFF59E0B),
+                              color: AppColors.accentYellow,
                             ),
                           ),
                           const Spacer(),
@@ -286,14 +346,14 @@ class MarkerDetailSheet extends StatelessWidget {
                                   type: ToastType.info,
                                 );
                               },
-                              icon: const Icon(Icons.thumb_up_alt_rounded, size: 14, color: Color(0xFFF59E0B)),
+                              icon: const Icon(Icons.thumb_up_alt_rounded, size: 14, color: AppColors.accentYellow),
                               label: const Text(
                                 'Актуально',
-                                style: TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.w600),
+                                style: TextStyle(color: AppColors.accentYellow, fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                side: BorderSide(color: AppColors.accentYellow.withValues(alpha: 0.4)),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
                             ),
@@ -316,7 +376,7 @@ class MarkerDetailSheet extends StatelessWidget {
                               ),
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(color: AppColors.accentGreen.withValues(alpha: 0.4)),
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
                             ),
@@ -337,35 +397,39 @@ class MarkerDetailSheet extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        if (onBuildRoute != null) {
-                          onBuildRoute!();
-                        }
-                        onClose();
-                        PawToast.show(
-                          context,
-                          title: 'Маршрут к "${marker.title}" построен',
-                          type: ToastType.info,
-                        );
-                      },
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: badgeColor.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: badgeColor.withValues(alpha: 0.4),
-                            width: 1.0,
+                    child: Semantics(
+                      button: true,
+                      label: 'Построить маршрут',
+                      child: GestureDetector(
+                        onTap: () {
+                          if (onBuildRoute != null) {
+                            onBuildRoute!();
+                          }
+                          onClose();
+                          PawToast.show(
+                            context,
+                            title: 'Маршрут к "${marker.title}" построен',
+                            type: ToastType.info,
+                          );
+                        },
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: badgeColor.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: badgeColor.withValues(alpha: 0.4),
+                              width: 1.0,
+                            ),
                           ),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'Маршрут • 5 мин',
-                          style: TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'Маршрут',
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -373,43 +437,47 @@ class MarkerDetailSheet extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        if (marker.type == 'playground') {
-                          Clipboard.setData(ClipboardData(
-                            text: 'PawConnect: ${marker.title} - ${marker.address ?? ""}',
-                          ));
-                          PawToast.show(
-                            context,
-                            title: 'Ссылка на место скопирована',
-                            type: ToastType.success,
-                          );
-                        } else {
-                          PawToast.show(
-                            context,
-                            title: 'Установка соединения',
-                            subtitle: 'Вызываем владельца метки',
-                            type: ToastType.info,
-                          );
-                        }
-                      },
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.obsidianRaised,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.glassBorder,
-                            width: 1.0,
+                    child: Semantics(
+                      button: true,
+                      label: marker.type == 'playground' ? 'Поделиться ссылкой' : 'Связаться с автором',
+                      child: GestureDetector(
+                        onTap: () {
+                          if (marker.type == 'playground') {
+                            Clipboard.setData(ClipboardData(
+                              text: 'PawConnect: ${marker.title} - ${marker.address ?? ""}',
+                            ));
+                            PawToast.show(
+                              context,
+                              title: 'Ссылка на место скопирована',
+                              type: ToastType.success,
+                            );
+                          } else {
+                            PawToast.show(
+                              context,
+                              title: 'Установка соединения',
+                              subtitle: 'Вызываем владельца метки',
+                              type: ToastType.info,
+                            );
+                          }
+                        },
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.obsidianRaised,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: AppColors.glassBorder,
+                              width: 1.0,
+                            ),
                           ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          marker.type == 'playground' ? 'Поделиться' : 'Связаться',
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                          alignment: Alignment.center,
+                          child: Text(
+                            marker.type == 'playground' ? 'Поделиться' : 'Связаться',
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -473,7 +541,7 @@ class MarkerDetailSheet extends StatelessWidget {
     final myTemperament = userTemperament ?? DogTemperament.playful;
     final compat = myTemperament.checkCompatibility(otherTemperament);
     final isPrivate = marker.walkMode == 'private';
-    final modeColor = isPrivate ? const Color(0xFFA78BFA) : AppColors.accentGreen;
+    final modeColor = isPrivate ? const Color(0xFF8B7FD1) : AppColors.accentGreen;
     final walkTimeMin = marker.walkStartedAt != null
         ? DateTime.now().difference(marker.walkStartedAt!).inMinutes.clamp(1, 180)
         : 20;
@@ -643,7 +711,7 @@ class MarkerDetailSheet extends StatelessWidget {
           // Invite to Walk Button
           SizedBox(
             width: double.infinity,
-            height: 40,
+            height: 44,
             child: ElevatedButton.icon(
               onPressed: () {
                 onInviteWalk?.call(marker.id);
@@ -654,11 +722,11 @@ class MarkerDetailSheet extends StatelessWidget {
                   type: ToastType.success,
                 );
               },
-              icon: const Icon(Icons.pets_rounded, size: 15, color: Colors.black),
+              icon: const Icon(Icons.pets_rounded, size: 16, color: Colors.black),
               label: const Text(
                 'Позвать на совместный выгул',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),

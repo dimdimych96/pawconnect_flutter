@@ -22,8 +22,8 @@ void main() {
 
     await tester.pump(const Duration(milliseconds: 200));
 
-    // Verify badge text "Я 📍"
-    expect(find.text('Я 📍'), findsOneWidget);
+    // Verify badge text "Я"
+    expect(find.text('Я'), findsOneWidget);
 
     // Tap marker
     await tester.tap(find.byType(UserMarkerWidget));

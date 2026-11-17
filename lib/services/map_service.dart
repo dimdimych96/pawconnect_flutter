@@ -22,7 +22,7 @@ class MapService {
   // Initial Mock Collar Gps Device
   static final GpsDeviceModel mockGpsDevice = GpsDeviceModel(
     imei: '864912049182394',
-    petName: 'Макс',
+    petName: 'Арчи',
     latitude: 55.0302,
     longitude: 82.9204,
     isBreached: false,
@@ -31,7 +31,7 @@ class MapService {
     safeZoneRadius: 350.0,
     batteryLevel: 88,
     isConnected: true,
-    photoUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=400&q=80',
+    photoUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=400&q=80',
   );
 
   // Initial Mock Map Markers
